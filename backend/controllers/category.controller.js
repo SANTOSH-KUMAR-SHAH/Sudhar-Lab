@@ -1,33 +1,27 @@
+
 const prisma = require("../utils/db");
 
-async function getCategories(req, res) {
+exports.getCategories = async (req, res) => {
   try {
-    const cats = await prisma.serviceCategory.findMany({
-      select: {
-        id: true,
-        name: true,
-        icon: true,
-        _count: { select: { subcategories: true } },
-        subcategories: {
-          take: 3, 
-          select: {
-            id: true,
-            name: true,
-            _count: { select: { services: true } }
-          }
-        }
-      },
+    const categories = await prisma.serviceCategory.findMany({
       orderBy: { name: "asc" },
+      include: {
+        _count: { select: { subcategories: true, services: true } },
+        subcategories: {
+          take: 3,
+          select: { id: true, name: true }
+        }
+      }
     });
 
-    res.json({ categories: cats });
+    res.json({ categories });
   } catch (err) {
     console.error("getCategories error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
-async function getCategoryById(req, res) {
+exports.getCategoryById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -36,22 +30,47 @@ async function getCategoryById(req, res) {
       include: {
         subcategories: {
           include: {
-            services: true, 
-          },
-        },
-      },
+            services: {
+              include: {
+                provider: {
+                  include: {
+                    user: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
 
-    if (!category) return res.status(404).json({ message: "Category not found" });
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
 
     res.json({ category });
   } catch (err) {
     console.error("getCategoryById error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
-module.exports = {
-  getCategories,
-  getCategoryById
+exports.getProvidersByCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const services = await prisma.providerService.findMany({
+      where: { categoryId: id },
+      include: {
+        provider: {
+          include: { user: true }
+        },
+        category: true,
+      }
+    });
+
+    res.json({ services });
+  } catch (err) {
+    console.error("getProvidersByCategory error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

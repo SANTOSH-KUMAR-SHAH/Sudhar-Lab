@@ -45,17 +45,31 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchUser() {
       try {
+        // Try to read token and fetch /me if present. Do NOT force-redirect
+        // to /login from the landing page — landing is public and should work
+        // for both authenticated and unauthenticated visitors.
         const token = localStorage.getItem("token");
-        if (!token) return router.push("/login");
+        if (!token) {
+          // no token, show public landing
+          setLoading(false);
+          return;
+        }
 
         const res = await fetch(`${URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!res.ok) return router.push("/login");
+        // If token is invalid, just continue as an unauthenticated user.
+        if (!res.ok) {
+          setLoading(false);
+          return;
+        }
+
+        // Optionally we could read user info here later (data.user)
         setLoading(false);
       } catch {
-        router.push("/login");
+        // On any error, fall back to unauthenticated landing page.
+        setLoading(false);
       }
     }
 

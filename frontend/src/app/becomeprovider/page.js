@@ -25,7 +25,7 @@ export default function BecomeProviderPage() {
 
       toast.success("You're now a provider! 🎉", { id: "loading" });
 
-      // Redirect after short delay
+ 
       setTimeout(() => {
         router.push("/provider/dashboard");
       }, 1000);

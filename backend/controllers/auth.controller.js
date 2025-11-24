@@ -84,8 +84,10 @@ async function Login(req, res) {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true,
-            sameSite: "None",
+            // Use secure cookies only in production (HTTPS). In dev (http) this prevents cookie being set.
+            secure: process.env.NODE_ENV === 'production',
+            // When in production and cross-site, SameSite=None is required for cookies to be sent.
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
             maxAge: 3600000,
         });
 
@@ -108,8 +110,8 @@ async function Logout(req, res) {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            secure: true,
-            sameSite: "None",
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
         });
 
         return res.status(200).json({ message: "Logged out successfully" });

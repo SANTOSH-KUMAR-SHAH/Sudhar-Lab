@@ -74,11 +74,15 @@ model ProviderService {
   description     String?
   duration        Int?
 
+
+  availability    Json?      
+
   provider        ProviderProfile @relation(fields: [providerId], references: [id])
   category        ServiceCategory @relation(fields: [categoryId], references: [id])
   subcategory     ServiceSubCategory? @relation(fields: [subcategoryId], references: [id])
   bookings        Booking[]
 }
+
 
 model ServiceCategory {
   id          String   @id @default(uuid())
