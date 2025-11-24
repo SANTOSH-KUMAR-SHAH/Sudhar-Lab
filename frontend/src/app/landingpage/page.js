@@ -43,15 +43,13 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    async function fetchUser() {
+    async function initPage() {
       try {
-        // Try to read token and fetch /me if present. Do NOT force-redirect
-        // to /login from the landing page — landing is public and should work
-        // for both authenticated and unauthenticated visitors.
+        // Require a valid /me on the landing page. If there is no token
+        // or the token is invalid/expired, redirect the user to /login.
         const token = localStorage.getItem("token");
         if (!token) {
-          // no token, show public landing
-          setLoading(false);
+          router.push("/login");
           return;
         }
 
@@ -59,33 +57,30 @@ export default function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // If token is invalid, just continue as an unauthenticated user.
         if (!res.ok) {
-          setLoading(false);
+          // token invalid or expired -> force user to login
+          router.push("/login");
           return;
         }
 
-        // Optionally we could read user info here later (data.user)
-        setLoading(false);
-      } catch {
-        // On any error, fall back to unauthenticated landing page.
-        setLoading(false);
-      }
-    }
+        // At this point user is verified — fetch categories and render page.
+        try {
+          const res2 = await fetch(`${URL}/api/categories`);
+          const data = await res2.json();
+          setCategories((data.categories || []).slice(0, 5));
+        } catch (err) {
+          console.error("Category fetch error", err);
+        }
 
-    async function fetchCategories() {
-      try {
-        const res = await fetch(`${URL}/api/categories`);
-        const data = await res.json();
-
-        setCategories(data.categories.slice(0, 5)); 
+        setLoading(false);
       } catch (err) {
-        console.error("Category fetch error", err);
+        // On any unexpected error, send the user to login to re-authenticate.
+        console.error("Landing page init error", err);
+        router.push("/login");
       }
     }
 
-    fetchUser();
-    fetchCategories();
+    initPage();
   }, []);
 
   if (loading) return <Loading />;

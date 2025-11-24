@@ -32,7 +32,7 @@ export default function BecomeProviderPage() {
 
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Something went wrong!",
+         "Failed to upgrade account. Please try again.",
         { id: "loading" }
       );
     }
