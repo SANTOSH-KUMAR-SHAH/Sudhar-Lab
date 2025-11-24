@@ -4,6 +4,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import Loading from "@/components/loading";
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 
 import {
@@ -53,20 +54,21 @@ export default function Dashboard() {
           return;
         }
 
-        const res = await fetch(`${URL}/api/auth/me`, {
+        // Use validateStatus so axios won't throw on 401 and we can handle it
+        const res = await axios.get(`${URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
+          validateStatus: () => true,
         });
 
-        if (!res.ok) {
-          // token invalid or expired -> force user to login
+        if (res.status !== 200) {
           router.push("/login");
           return;
         }
 
         // At this point user is verified — fetch categories and render page.
         try {
-          const res2 = await fetch(`${URL}/api/categories`);
-          const data = await res2.json();
+          const res2 = await axios.get(`${URL}/api/categories`);
+          const data = res2.data;
           setCategories((data.categories || []).slice(0, 5));
         } catch (err) {
           console.error("Category fetch error", err);

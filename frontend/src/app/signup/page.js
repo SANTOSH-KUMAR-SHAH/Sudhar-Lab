@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import axios from "axios";
 import React from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
@@ -27,16 +28,10 @@ export default function Signup() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${URL}/api/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-      const data = await response.json();
+      const response = await axios.post(`${URL}/api/auth/signup`, form, { headers: { "Content-Type": "application/json" }, validateStatus: () => true });
+      const data = response.data || {};
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status >= 300) {
         throw new Error(data.message || "Something went wrong");
       }
 

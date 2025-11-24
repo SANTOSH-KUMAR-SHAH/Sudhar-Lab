@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 
@@ -40,8 +41,8 @@ const URL = isProd
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch(`${URL}/api/categories`);
-        const data = await res.json();
+        const res = await axios.get(`${URL}/api/categories`);
+        const data = res.data;
 
         setCategories(data.categories || []);
       } catch (err) {

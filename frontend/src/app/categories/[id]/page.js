@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import axios from "axios";
 import Loading from "@/components/loading";
 import { FaUserCircle } from "react-icons/fa";
 
@@ -11,9 +12,7 @@ const API_BASE = process.env.NEXT_PUBLIC_IS_PROD === "true"
 
 export default function CategoryServicesPage() {
   const router = useRouter();
-  // Read id from path: /categories/:id
-  const params = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
-  const id = params[2] || null;
+  const { id } = useParams();  
 
   const [category, setCategory] = useState(null);
   const [services, setServices] = useState([]);
@@ -23,7 +22,6 @@ export default function CategoryServicesPage() {
   useEffect(() => {
     if (!id) return;
     fetchCategoryAndServices(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function fetchCategoryAndServices(catId) {
@@ -31,12 +29,12 @@ export default function CategoryServicesPage() {
     try {
       // fetch category (name) and providers/services
       const [catRes, provRes] = await Promise.all([
-        fetch(`${API_BASE}/api/categories/${catId}`),
-        fetch(`${API_BASE}/api/categories/${catId}/providers`),
+        axios.get(`${API_BASE}/api/categories/${catId}`),
+        axios.get(`${API_BASE}/api/categories/${catId}/providers`),
       ]);
 
-      const catJson = await catRes.json();
-      const provJson = await provRes.json();
+      const catJson = catRes.data;
+      const provJson = provRes.data;
 
       setCategory(catJson.category || null);
       setServices(provJson.services || []);

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import axios from "axios";
 import React from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -23,19 +24,14 @@ const URL = isProd
   const handleSubmit = async (e) => {
     e.preventDefault();
     try{    
-        const response = await fetch(`${URL}/api/auth/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(form),
-        });
-        const data = await response.json();
-        localStorage.setItem("token", data.token);
+    const response = await axios.post(`${URL}/api/auth/login`, form, { headers: { "Content-Type": "application/json" }, validateStatus: () => true });
+    const data = response.data || {};
+    // Mirror previous behavior: store token even if server responded non-2xx
+    if (data.token) localStorage.setItem("token", data.token);
 
-        if (!response.ok) {
-            throw new Error(data.message || "Something went wrong");
-        }
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error(data.message || "Something went wrong");
+    }
 
         toast.success(`Welcome Back, ${data.user.name}`, {
             style: {
