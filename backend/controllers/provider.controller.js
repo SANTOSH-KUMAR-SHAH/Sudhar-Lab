@@ -36,7 +36,7 @@ exports.becomeProvider = async (req, res) => {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-      domain: process.env.NODE_ENV === 'production' ? 'localhelpbackendv2.onrender.com' : 'localhost',
+      // domain: process.env.NODE_ENV === 'production' ? 'localhelpbackendv2.onrender.com' : 'localhost',
       maxAge: 3600000,
     });
 

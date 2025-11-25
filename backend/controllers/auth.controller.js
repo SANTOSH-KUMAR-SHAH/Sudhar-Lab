@@ -88,7 +88,7 @@ async function Login(req, res) {
             secure: process.env.NODE_ENV === 'production',
             // When in production and cross-site, SameSite=None is required for cookies to be sent.
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-            domain : process.env.NODE_ENV === 'production' ? 'localhelpbackendv2.onrender.com' : 'localhost',
+            // domain : process.env.NODE_ENV === 'production' ? 'localhelpbackendv2.onrender.com' : 'localhost',
             maxAge: 3600000,
         });
 

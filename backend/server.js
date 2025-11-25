@@ -7,6 +7,7 @@ const corsoptions = require('./utils/cors')
 const app = express();
 app.use(express.json());
 app.use(cors(corsoptions));
+app.options("*", cors(corsoptions));
 app.use(cookieParser());
 app.use('/api', require('./routes'));
 
