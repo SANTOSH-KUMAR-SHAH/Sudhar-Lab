@@ -2,6 +2,7 @@ const prisma = require('../utils/db');
 const { generateToken } = require('../utils/jwt');
 const bcrypt = require('bcrypt');
 
+
 async function Signup(req, res) {
     try {
         const { name, email, password, phone } = req.body;
@@ -81,7 +82,7 @@ async function Login(req, res) {
             email: user.email,
             role: user.role
         });
-        localStorage.setItem("token", token);
+        
         res.cookie("token", token, {
             httpOnly: process.env.NODE_ENV === 'production',
             // Use secure cookies only in production (HTTPS). In dev (http) this prevents cookie being set.

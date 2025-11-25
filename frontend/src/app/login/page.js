@@ -25,7 +25,7 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(`${URL}/api/auth/login`, form, {
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", authorization: "Bearer " + localStorage.getItem("token") },
         withCredentials: true, // <-- REQUIRED
         validateStatus: () => true,
       });

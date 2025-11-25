@@ -49,27 +49,29 @@ export default function Dashboard() {
       try {
         // Require a valid /me on the landing page. If there is no token
         // or the token is invalid/expired, redirect the user to /login.
-        const token = Cookies.get("token");
+        const token = localStorage.getItem("token");
         console.log("Landing page token:", token);
         if (!token) {
           router.push("/login");
           return;
         }
 
-        // Use validateStatus so axios won't throw on 401 and we can handle it
         const res = await axios.get(`${URL}/api/auth/me`, {
-          withCredentials: true, // <--- IMPORTANT
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           validateStatus: () => true,
         });
 
         if (res.status !== 200) {
+          localStorage.removeItem("token");
           router.push("/login");
           return;
         }
 
         try {
           const res2 = await axios.get(`${URL}/api/categories`, {
-            withCredentials: true, 
+            withCredentials: true,
           });
 
           const data = res2.data;
