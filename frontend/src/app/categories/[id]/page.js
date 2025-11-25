@@ -31,9 +31,12 @@ export default function CategoryServicesPage() {
     setLoading(true);
     try {
       // fetch category (name) and providers/services
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
       const [catRes, provRes] = await Promise.all([
-        axios.get(`${API_BASE}/api/categories/${catId}`),
-        axios.get(`${API_BASE}/api/categories/${catId}/providers`),
+        axios.get(`${API_BASE}/api/categories/${catId}`, { headers }),
+        axios.get(`${API_BASE}/api/categories/${catId}/providers`, { headers }),
       ]);
 
       const catJson = catRes.data;

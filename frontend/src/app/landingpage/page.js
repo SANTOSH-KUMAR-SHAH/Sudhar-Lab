@@ -70,8 +70,11 @@ export default function Dashboard() {
         }
 
         try {
+          const token = localStorage.getItem("token");
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
           const res2 = await axios.get(`${URL}/api/categories`, {
             withCredentials: true,
+            headers,
           });
 
           const data = res2.data;

@@ -56,7 +56,10 @@ const URL = isProd
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await axios.get(`${URL}/api/categories`);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const res = await axios.get(`${URL}/api/categories`, { headers });
         const data = res.data;
 
         setCategories(data.categories || []);

@@ -66,7 +66,9 @@ const [loadingRequests, setLoadingRequests] = useState(true);
 
   async function fetchCategories() {
     try {
-      const res = await axios.get(`${API_BASE}/api/categories`);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.get(`${API_BASE}/api/categories`, { headers });
       const data = res.data;
       setCategories(data.categories || []);
     } catch (err) {
@@ -126,7 +128,9 @@ async function handleAction(bookingId, action) {
     }
 
     try {
-      const res = await axios.get(`${API_BASE}/api/categories/${id}`);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.get(`${API_BASE}/api/categories/${id}`, { headers });
       const data = res.data;
       setSubcats(data.category?.subcategories || []);
     } catch (err) {
@@ -182,7 +186,9 @@ async function handleAction(bookingId, action) {
 
   async function fetchCategorySubcats(catId) {
     try {
-      const res = await axios.get(`${API_BASE}/api/categories/${catId}`);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.get(`${API_BASE}/api/categories/${catId}`, { headers });
       const data = res.data;
       setSubcats(data.category?.subcategories || []);
     } catch (err) {

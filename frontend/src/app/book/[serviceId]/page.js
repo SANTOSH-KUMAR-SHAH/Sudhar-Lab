@@ -57,12 +57,15 @@ export default function BookServicePage() {
       // Try /api/services/:id first, fallback to providerService fetch
       let s;
       try {
-        const resp = await axios.get(`${API_BASE}/api/services/${serviceId}`);
+        const headers = token ? { Authorization: "Bearer " + token } : {};
+        const resp = await axios.get(`${API_BASE}/api/services/${serviceId}`, { headers });
         s = resp.data.service || resp.data;
       } catch (e) {
         // fallback: providerService route
+        const headers = token ? { Authorization: "Bearer " + token } : {};
         const resp2 = await axios.get(
-          `${API_BASE}/api/providers/services/${serviceId}`
+          `${API_BASE}/api/providers/services/${serviceId}`,
+          { headers }
         );
         s = resp2.data.service || resp2.data;
       }
@@ -81,10 +84,12 @@ export default function BookServicePage() {
     if (!dateYmd || !providerId || !svcId) return;
     setSlotsLoading(true);
     try {
+      const headers = token ? { Authorization: "Bearer " + token } : {};
       const res = await axios.get(
         `${API_BASE}/api/bookings/providers/${providerId}/services/${svcId}/slots`,
         {
           params: { date: dateYmd },
+          headers,
         }
       );
       const data = res.data;

@@ -17,10 +17,13 @@ export default function BecomeProviderPage() {
     try {
       toast.loading("Upgrading your account…", { id: "loading" });
 
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
       const response = await axios.post(
         `https://localhelpbackendv2.onrender.com/api/become-provider`,
         { bio, experience },
-        { withCredentials: true }
+        { withCredentials: true, headers }
       );
 
       toast.success("You're now a provider! 🎉", { id: "loading" });
