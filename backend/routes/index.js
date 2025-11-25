@@ -7,4 +7,6 @@ router.use("/categories", require("./category.route"));
 router.use("/providers", require("./provider.route"));
 router.use("/services", require("./providerService.route"));
 router.use("/bookings", require("./booking.route"));
+router.use("/customers", require("./customer.route"));
+router.use("/customers/addresses", require("./customerAddress.route"));
 module.exports = router;

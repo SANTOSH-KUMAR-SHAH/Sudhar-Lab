@@ -1,3 +1,4 @@
+const { verifyToken } = require("../utils/jwt.js");
 const checkRole = (...allowedRoles) => {
     return (req, res, next) => {
         const token = req.headers.authorization?.split(" ")[1];
@@ -14,6 +15,7 @@ const checkRole = (...allowedRoles) => {
 
         req.user = decoded;
         if (!allowedRoles.includes(req.user.role)) {
+            console.log("error", req.user.role);
             return res.status(403).json({ message: "Access denied, error at role.middleware.js" });
         }
         next();

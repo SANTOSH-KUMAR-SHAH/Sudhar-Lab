@@ -1,0 +1,760 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import toast from "react-hot-toast";
+import Cookies from "js-cookie";
+import {
+  FaUserCircle,
+  FaPlus,
+  FaTimes,
+  FaClock,
+  FaTrash,
+  FaEdit,
+  FaMapMarkerAlt,
+  FaRegCalendarAlt,
+  FaPhone,
+  FaEnvelope,
+  FaChevronLeft,
+  FaSignOutAlt,
+  FaBriefcase,
+  FaUser,
+} from "react-icons/fa";
+import Loading from "@/components/loading";
+
+const AVATAR_URL = "sandbox:/mnt/data/Screenshot 2025-11-25 at 18.47.51 (2).png";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_IS_PROD === "true"
+    ? "https://localhelpbackendv2.onrender.com"
+    : "http://localhost:4040";
+
+const COFFEE = {
+  dark: "#6F4E37",
+  mid: "#7a5c49",
+  light: "#f1dfc9",
+  accent: "#A97155",
+  text: "#4a2e21",
+  cardBg: "#fdfcfa",
+};
+
+export default function CustomerDashboard() {
+  const router = useRouter();
+
+  const [activeTab, setActiveTab] = useState("profile");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [profile, setProfile] = useState(null);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: "", email: "", phone: "" });
+
+  const [bookings, setBookings] = useState([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
+
+  const [addresses, setAddresses] = useState([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [addrModalOpen, setAddrModalOpen] = useState(false);
+  const [addrForm, setAddrForm] = useState({
+    id: null,
+    street: "",
+    city: "",
+    state: "",
+    pincode: "",
+    latitude: "",
+    longitude: "",
+    type: "HOME",
+  });
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  useEffect(() => {
+    fetchProfile();
+    fetchBookings();
+    fetchAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function authHeaders() {
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  async function fetchProfile() {
+    try {
+      const res = await axios.get(`${API_BASE}/api/customers/me`, {
+        headers: authHeaders(),
+        validateStatus: () => true,
+      });
+      if (res.status === 200) {
+        setProfile(res.data.user);
+        setProfileForm({
+          name: res.data.user.name || "",
+          email: res.data.user.email || "",
+          phone: res.data.user.phone || "",
+        });
+      } else {
+        console.error("fetchProfile error", res.status, res.data);
+      }
+    } catch (err) {
+      console.error("fetchProfile error", err);
+    }
+  }
+
+  function onProfileChange(e) {
+    const { name, value } = e.target;
+    setProfileForm((p) => ({ ...p, [name]: value }));
+  }
+
+  async function saveProfile() {
+    try {
+      const res = await axios.patch(
+        `${API_BASE}/api/customers/update`,
+        {
+          name: profileForm.name,
+          email: profileForm.email,
+          phone: profileForm.phone,
+        },
+        { headers: { "Content-Type": "application/json", ...authHeaders() }, validateStatus: () => true }
+      );
+
+      if (res.status === 200) {
+        toast.success("Profile updated", { style: { background: "#e6f7ec", color: "#034d22" } });
+        setEditingProfile(false);
+        fetchProfile();
+      } else {
+        throw new Error(res.data?.message || "Failed to update");
+      }
+    } catch (err) {
+      toast.error(err.message || "Error updating profile", { style: { background: "#ffe8e8" } });
+      console.error(err);
+    }
+  }
+
+  async function fetchBookings() {
+    setLoadingBookings(true);
+    try {
+      const res = await axios.get(`${API_BASE}/api/customers/bookings`, {
+        headers: authHeaders(),
+        validateStatus: () => true,
+      });
+      if (res.status === 200) {
+        setBookings(res.data.bookings || []);
+      } else {
+        console.error("fetchBookings", res.status, res.data);
+      }
+    } catch (err) {
+      console.error("fetchBookings err", err);
+    }
+    setLoadingBookings(false);
+  }
+
+  async function cancelBooking(bookingId) {
+    try {
+      const res = await axios.patch(
+        `${API_BASE}/api/bookings/${bookingId}/status`,
+        { action: "cancel" },
+        { headers: { "Content-Type": "application/json", ...authHeaders() }, validateStatus: () => true }
+      );
+      if (res.status === 200) {
+        toast.success("Booking cancelled");
+        fetchBookings();
+      } else {
+        throw new Error(res.data?.message || "Failed");
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to cancel");
+    }
+  }
+
+  async function fetchAddresses() {
+    setLoadingAddresses(true);
+    try {
+      const res = await axios.get(`${API_BASE}/api/customers/addresses`, {
+        headers: authHeaders(),
+        validateStatus: () => true,
+      });
+      if (res.status === 200) {
+        setAddresses(res.data.addresses || []);
+      } else {
+        console.error("fetchAddresses", res.status, res.data);
+      }
+    } catch (err) {
+        console.log(err)
+      console.error("fetchAddresses err", err);
+    }
+    setLoadingAddresses(false);
+  }
+
+  function openAddAddress() {
+    setAddrForm({
+      id: null,
+      street: "",
+      city: "",
+      state: "",
+      pincode: "",
+      latitude: "",
+      longitude: "",
+      type: "HOME",
+    });
+    setAddrModalOpen(true);
+  }
+
+  function openEditAddress(a) {
+    setAddrForm({
+      id: a.id,
+      street: a.street || "",
+      city: a.city || "",
+      state: a.state || "",
+      pincode: a.pincode || "",
+      latitude: a.latitude ?? "",
+      longitude: a.longitude ?? "",
+      type: a.type || "HOME",
+    });
+    setAddrModalOpen(true);
+  }
+
+  function onAddrChange(e) {
+    const { name, value } = e.target;
+    setAddrForm((p) => ({ ...p, [name]: value }));
+  }
+
+  async function saveAddress() {
+    try {
+      if (!addrForm.street || !addrForm.city || !addrForm.state || !addrForm.pincode) {
+        toast.error("Street, city, state and pincode are required");
+        return;
+      }
+
+      if (addrForm.id) {
+        const res = await axios.put(`${API_BASE}/api/customers/addresses/${addrForm.id}`, addrForm, {
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          validateStatus: () => true,
+        });
+        if (res.status === 200) {
+          toast.success("Address updated");
+          setAddrModalOpen(false);
+          fetchAddresses();
+        } else {
+          throw new Error(res.data?.message || "Failed");
+        }
+      } else {
+        const res = await axios.post(`${API_BASE}/api/customers/addresses`, addrForm, {
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          validateStatus: () => true,
+        });
+        if (res.status === 201) {
+          toast.success("Address added");
+          setAddrModalOpen(false);
+          fetchAddresses();
+        } else {
+          throw new Error(res.data?.message || "Failed");
+        }
+      }
+    } catch (err) {
+      toast.error(err.message || "Address save failed");
+      console.error(err);
+    }
+  }
+
+  async function deleteAddress(id) {
+    try {
+      if (!confirm("Delete this address?")) return;
+      const res = await axios.delete(`${API_BASE}/api/customers/addresses/${id}`, {
+        headers: authHeaders(),
+        validateStatus: () => true,
+      });
+      if (res.status === 200) {
+        toast.success("Address deleted");
+        fetchAddresses();
+      } else {
+        throw new Error(res.data?.message || "Failed");
+      }
+    } catch (err) {
+      toast.error(err.message || "Delete failed");
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    Cookies.remove("token");
+    router.replace("/login");
+  }
+  
+  function goBecomeProvider() {
+    router.push("/becomeprovider");
+  }
+
+  function statusLabel(status) {
+    if (status === "PENDING") {
+      return { text: "Pending", className: "text-[#A97155]" };
+    }
+    if (status === "ACCEPTED" || status === "CONFIRMED") {
+      return { text: "Confirmed", className: "text-[#2b7a0b]" };
+    }
+    if (status === "CANCELLED") {
+      return { text: "Cancelled", className: "text-[#7a0a0a]" };
+    }
+    return { text: status, className: "text-gray-700" };
+  }
+
+  return (
+    <div className="min-h-screen bg-[#ece9d8]">
+      {/* MOBILE HEADER */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.push("/landingpage")} className="text-[#6F4E37] hover:text-[#4a2e21]">
+            <FaChevronLeft size={20} />
+          </button>
+          <h1 className="text-xl font-bold text-[#6F4E37]">My Profile</h1>
+        </div>
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#6F4E37] hover:text-[#4a2e21]">
+          <FaTimes size={24} />
+        </button>
+      </div>
+
+      <div className="lg:flex gap-6 max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-6 pb-12">
+        {/* SIDEBAR */}
+        <aside
+          className={`fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-3rem)] lg:top-6 w-72 bg-white p-6 rounded-none lg:rounded-2xl shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
+        >
+          <div className="mb-8 text-center mt-8 lg:mt-0">
+            <div className="mx-auto w-28 h-28 rounded-full overflow-hidden border-4" style={{ borderColor: COFFEE.mid }}>
+              <img src={AVATAR_URL} alt="avatar" className="w-full h-full object-cover" />
+            </div>
+            <p className="mt-4 font-semibold text-lg" style={{ color: COFFEE.text }}>
+              {profile?.name || "Customer"}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">{profile?.email}</p>
+          </div>
+
+          <nav className="flex flex-col gap-2">
+            <button
+              onClick={() => { setActiveTab("profile"); setSidebarOpen(false); }}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "profile" 
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold" 
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <FaUser size={18} />
+              <span>Profile</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab("addresses"); setSidebarOpen(false); }}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "addresses" 
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold" 
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <FaMapMarkerAlt size={18} />
+              <span>Addresses</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab("bookings"); setSidebarOpen(false); }}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "bookings" 
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold" 
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <FaClock size={18} />
+              <span>My Bookings</span>
+            </button>
+
+            <div className="my-2 border-t border-gray-200"></div>
+
+            <button
+              onClick={goBecomeProvider}
+              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-[#f1dfc9] hover:text-[#4a2e21] transition-colors"
+            >
+              <FaBriefcase size={18} />
+              <span>Become a Provider</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors"
+            >
+              <FaSignOutAlt size={18} />
+              <span>Logout</span>
+            </button>
+          </nav>
+        </aside>
+
+        {sidebarOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/40 z-40" 
+            onClick={() => setSidebarOpen(false)} 
+          />
+        )}
+
+        {/* MAIN CONTENT */}
+        <main className="flex-1 w-full">
+          {/* PROFILE TAB */}
+          {activeTab === "profile" && (
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-semibold" style={{ color: COFFEE.text }}>
+                    My Profile
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">Manage your account details</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {!editingProfile ? (
+                    <button 
+                      onClick={() => setEditingProfile(true)} 
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                    >
+                      <FaEdit size={16} />
+                      <span>Edit</span>
+                    </button>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={() => setEditingProfile(false)} 
+                        className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={saveProfile} 
+                        className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
+                      >
+                        Save
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {!editingProfile ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Name</p>
+                    <p className="font-semibold text-lg" style={{ color: COFFEE.text }}>
+                      {profile?.name || "—"}
+                    </p>
+                  </div>
+                  <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Email</p>
+                    <div className="flex items-center gap-2">
+                      <FaEnvelope className="text-gray-400" size={16} />
+                      <p className="font-semibold text-lg" style={{ color: COFFEE.text }}>
+                        {profile?.email || "—"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Phone</p>
+                    <div className="flex items-center gap-2">
+                      <FaPhone className="text-gray-400" size={16} />
+                      <p className="font-semibold text-lg" style={{ color: COFFEE.text }}>
+                        {profile?.phone || "—"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                    <input 
+                      name="name" 
+                      value={profileForm.name} 
+                      onChange={onProfileChange} 
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input 
+                      name="email" 
+                      value={profileForm.email} 
+                      onChange={onProfileChange} 
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input 
+                      name="phone" 
+                      value={profileForm.phone} 
+                      onChange={onProfileChange} 
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ADDRESSES TAB */}
+          {activeTab === "addresses" && (
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h2 className="text-2xl font-semibold flex items-center gap-3" style={{ color: COFFEE.text }}>
+                  <FaMapMarkerAlt size={24} />
+                  <span>Saved Addresses</span>
+                </h2>
+                <button 
+                  onClick={openAddAddress} 
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
+                >
+                  <FaPlus size={16} />
+                  <span>Add Address</span>
+                </button>
+              </div>
+
+              {loadingAddresses ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-600">Loading addresses...</p>
+                </div>
+              ) : addresses.length === 0 ? (
+                <div className="text-center py-12">
+                  <FaMapMarkerAlt size={48} className="mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No saved addresses. Add one to make booking faster.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {addresses.map((a) => (
+                    <div key={a.id} className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-[#f1dfc9]" style={{ color: COFFEE.text }}>
+                          {a.type || "HOME"}
+                        </span>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => openEditAddress(a)} 
+                            className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
+                          >
+                            <FaEdit size={14} className="text-gray-600" />
+                          </button>
+                          <button 
+                            onClick={() => deleteAddress(a.id)} 
+                            className="p-2 rounded-md border border-gray-300 hover:bg-red-50 transition-colors"
+                          >
+                            <FaTrash size={14} className="text-red-600" />
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#4a2e21] mb-1">{a.street}</p>
+                        <p className="text-sm text-gray-600">{a.city}, {a.state}</p>
+                        <p className="text-sm text-gray-600">PIN: {a.pincode}</p>
+                        {a.latitude && a.longitude && (
+                          <p className="text-xs text-gray-400 mt-2">
+                            Coords: {a.latitude}, {a.longitude}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* BOOKINGS TAB */}
+          {activeTab === "bookings" && (
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold flex items-center gap-3" style={{ color: COFFEE.text }}>
+                  <FaClock size={24} />
+                  <span>My Bookings</span>
+                </h2>
+              </div>
+
+              {loadingBookings ? (
+                <div className="text-center py-12">
+                  <Loading />
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="text-center py-12">
+                  <FaClock size={48} className="mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No bookings yet. Book a service to get started.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {bookings.map((b) => {
+                    const st = statusLabel(b.status);
+                    return (
+                      <div key={b.id} className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between gap-3 mb-4">
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-500 mb-1">
+                              {b.service.category?.name} • {b.service.subcategory?.name}
+                            </p>
+                            <h3 className="font-semibold text-lg text-[#4a2e21] mb-2">
+                              {b.service.subcategory?.name}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Provider: <span className="font-semibold">{b.provider?.name || "Provider"}</span>
+                            </p>
+                          </div>
+                          <div className={`font-semibold text-sm ${st.className}`}>
+                            {st.text}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 py-3 border-t border-gray-100">
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <FaRegCalendarAlt size={14} />
+                            <span>{new Date(b.bookingStart).toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-[#4a2e21]">
+                              ₹{b.service.price?.toLocaleString() ?? b.amount}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              • {b.service.duration} min
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 mt-3">
+                          {b.status === "PENDING" && (
+                            <button 
+                              onClick={() => cancelBooking(b.id)} 
+                              className="px-4 py-2 rounded-lg bg-[#A97155] text-white hover:bg-[#8a5944] transition-colors text-sm font-medium"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                          {b.status === "ACCEPTED" && (
+                            <div className="px-4 py-2 rounded-lg border-2 border-[#6F4E37] text-[#4a2e21] font-semibold text-sm">
+                              Upcoming
+                            </div>
+                          )}
+                          {b.status === "CANCELLED" && (
+                            <div className="px-4 py-2 rounded-lg border-2 border-red-600 text-red-700 font-semibold text-sm">
+                              Cancelled
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* ADDRESS MODAL */}
+      {addrModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/50" 
+            onClick={() => setAddrModalOpen(false)} 
+          />
+
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl z-10">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-[#4a2e21]">
+                {addrForm.id ? "Edit Address" : "Add Address"}
+              </h3>
+              <button 
+                onClick={() => setAddrModalOpen(false)} 
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FaTimes size={20} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
+                <input 
+                  name="street" 
+                  value={addrForm.street} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <input 
+                  name="city" 
+                  value={addrForm.city} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                <input 
+                  name="state" 
+                  value={addrForm.state} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                <input 
+                  name="pincode" 
+                  value={addrForm.pincode} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
+                <input 
+                  name="latitude" 
+                  value={addrForm.latitude} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
+                <input 
+                  name="longitude" 
+                  value={addrForm.longitude} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select 
+                  name="type" 
+                  value={addrForm.type} 
+                  onChange={onAddrChange} 
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                >
+                  <option value="HOME">HOME</option>
+                  <option value="WORK">WORK</option>
+                  <option value="OTHER">OTHER</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setAddrModalOpen(false)} 
+                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={saveAddress} 
+                className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
+              >
+                Save Address
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}   

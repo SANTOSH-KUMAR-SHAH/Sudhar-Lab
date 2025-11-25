@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
+import { VscVerifiedFilled } from "react-icons/vsc";
+import { MdCancel } from "react-icons/md";
 import {
   FaPlus,
   FaTimes,
@@ -36,8 +38,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("services");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [requests, setRequests] = useState([]);
-const [loadingRequests, setLoadingRequests] = useState(true);
-
+  const [loadingRequests, setLoadingRequests] = useState(true);
 
   const [form, setForm] = useState({
     id: "",
@@ -66,7 +67,8 @@ const [loadingRequests, setLoadingRequests] = useState(true);
 
   async function fetchCategories() {
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await axios.get(`${API_BASE}/api/categories`, { headers });
       const data = res.data;
@@ -89,34 +91,38 @@ const [loadingRequests, setLoadingRequests] = useState(true);
     setLoading(false);
   }
   async function fetchRequests() {
-  setLoadingRequests(true);
-  try {
-    const headers = token ? { Authorization: "Bearer " + token } : {};
-    const res = await axios.get(`${API_BASE}/api/providers/bookings`, { headers });
-    setRequests(res.data.bookings || []);
-  } catch (err) {
-    console.error(err);
-  }
-  setLoadingRequests(false);
-}
-async function handleAction(bookingId, action) {
-  try {
-    const headers = token ? { Authorization: "Bearer " + token } : {};
-    await axios.patch(
-      `${API_BASE}/api/bookings/${bookingId}/status`,
-      { action },
-      { headers }
-    );
+    setLoadingRequests(true);
+    try {
+      const headers = token ? { Authorization: "Bearer " + token } : {};
+      const res = await axios.get(
+        `${API_BASE}/api/bookings/providers/bookings`,
+        { headers }
+      );
 
-    toast.success(`Booking ${action}ed`, {
-      style: { background: "#e6ffed", color: "#03543f" },
-    });
-
-    fetchRequests();
-  } catch (err) {
-    toast.error("Action failed");
+      setRequests(res.data.bookings || []);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoadingRequests(false);
   }
-}
+  async function handleAction(bookingId, action) {
+    try {
+      const headers = token ? { Authorization: "Bearer " + token } : {};
+      await axios.patch(
+        `${API_BASE}/api/bookings/${bookingId}/status`,
+        { action },
+        { headers }
+      );
+
+      toast.success(`Booking ${action}ed`, {
+        style: { background: "#e6ffed", color: "#03543f" },
+      });
+
+      fetchRequests();
+    } catch (err) {
+      toast.error("Action failed");
+    }
+  }
 
   async function onCategoryChange(e) {
     const id = e.target.value;
@@ -128,9 +134,12 @@ async function handleAction(bookingId, action) {
     }
 
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${API_BASE}/api/categories/${id}`, { headers });
+      const res = await axios.get(`${API_BASE}/api/categories/${id}`, {
+        headers,
+      });
       const data = res.data;
       setSubcats(data.category?.subcategories || []);
     } catch (err) {
@@ -186,9 +195,12 @@ async function handleAction(bookingId, action) {
 
   async function fetchCategorySubcats(catId) {
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${API_BASE}/api/categories/${catId}`, { headers });
+      const res = await axios.get(`${API_BASE}/api/categories/${catId}`, {
+        headers,
+      });
       const data = res.data;
       setSubcats(data.category?.subcategories || []);
     } catch (err) {
@@ -491,19 +503,40 @@ async function handleAction(bookingId, action) {
                           {new Date(r.bookingStart).toLocaleString()}
                         </p>
 
-                        <div className="flex gap-3 mt-3">
-                          <button
-                            onClick={() => handleAction(r.id, "accept")}
-                            className="px-4 py-2 bg-[#10b981] text-white rounded-lg hover:bg-[#059669]"
-                          >
-                            Accept
-                          </button>
-                          <button
-                            onClick={() => handleAction(r.id, "cancel")}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                          >
-                            Reject
-                          </button>
+                        <div className="mt-3">
+                          {r.status === "PENDING" && (
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => handleAction(r.id, "accept")}
+                                className="px-4 py-2 rounded-lg 
+                   bg-[#6F4E37] text-white 
+                   hover:bg-[#5a3f2c] transition"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleAction(r.id, "cancel")}
+                                className="px-4 py-2 rounded-lg 
+                   bg-[#A97155] text-white 
+                   hover:bg-[#8a5944] transition"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          )}
+
+                          {r.status === "ACCEPTED" && (
+                            <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
+                              <span className="text-[#2b7a0b]"><VscVerifiedFilled className="text-[#2b7a0b]"/></span>{" "}
+                              Confirmed
+                            </div>
+                          )}
+
+                          {r.status === "CANCELLED" && (
+                            <div className="flex items-center gap-2 text-[#7a0a0a] font-semibold">
+                              <span className="text-red-600"><MdCancel className="text-[#4a2e21]"/></span> Rejected
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

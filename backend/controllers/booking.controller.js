@@ -230,3 +230,25 @@ exports.updateBookingStatus = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+// GET all bookings for logged-in provider
+exports.getProviderBookings = async (req, res) => {
+  try {
+    const providerUserId = req.user.id; // provider's userId from JWT
+
+    const bookings = await prisma.booking.findMany({
+      where: { providerId: providerUserId },
+      include: {
+        customer: { select: { id: true, name: true, phone: true } },
+        service: true,
+      },
+      orderBy: { bookingStart: "asc" }
+    });
+
+    return res.json({ bookings });
+  } catch (err) {
+    console.error("getProviderBookings error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+// GET all bookings for logged-in customer
+

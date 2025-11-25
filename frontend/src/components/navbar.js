@@ -55,10 +55,10 @@ function Navbar() {
             </a>
           ) : (
             <a
-              href="/becomeprovider"
+              href="/profile"
               className="px-4 py-2 bg-[#672410] text-white rounded-lg shadow hover:bg-rose-800 transition"
             >
-              Become Provider
+              Profile
             </a>
           )}
         </div>
