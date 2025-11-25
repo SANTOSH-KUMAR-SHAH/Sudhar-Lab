@@ -81,7 +81,7 @@ async function Login(req, res) {
             email: user.email,
             role: user.role
         });
-
+        localStorage.setItem("token", token);
         res.cookie("token", token, {
             httpOnly: process.env.NODE_ENV === 'production',
             // Use secure cookies only in production (HTTPS). In dev (http) this prevents cookie being set.
@@ -114,7 +114,7 @@ async function Logout(req, res) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
         });
-
+        localStorage.removeItem("token");
         return res.status(200).json({ message: "Logged out successfully" });
 
     } catch (err) {
