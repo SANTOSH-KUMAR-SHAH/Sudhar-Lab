@@ -72,10 +72,9 @@ model ProviderService {
   subcategoryId   String?
   price           Float
   description     String?
-  duration        Int?
+  duration        Int        
 
-
-  availability    Json?      
+  availability    Json?    
 
   provider        ProviderProfile @relation(fields: [providerId], references: [id])
   category        ServiceCategory @relation(fields: [categoryId], references: [id])
@@ -125,7 +124,10 @@ model Booking {
   customerId    String
   providerId    String
   serviceId     String
-  date          DateTime
+
+  bookingStart  DateTime    
+  bookingEnd    DateTime    
+
   status        BookingStatus @default(PENDING)
   amount        Float
   address       String?
@@ -135,7 +137,10 @@ model Booking {
   provider     User    @relation("ProviderBookings", fields: [providerId], references: [id])
   service      ProviderService @relation(fields: [serviceId], references: [id])
   review       Review?
+
+  @@index([providerId, bookingStart, bookingEnd]) // for conflict checks
 }
+
 
 enum BookingStatus {
   PENDING

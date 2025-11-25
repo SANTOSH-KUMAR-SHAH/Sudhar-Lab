@@ -23,7 +23,7 @@ function Navbar() {
         setRole(decoded?.role || null);
       }
     } catch (err) {
-      // ignore
+      console.error("Error decoding token:", err);
     }
   }, []);
 

@@ -3,6 +3,7 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import Loading from "@/components/loading";
+import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -48,7 +49,8 @@ export default function Dashboard() {
       try {
         // Require a valid /me on the landing page. If there is no token
         // or the token is invalid/expired, redirect the user to /login.
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
+        console.log("Landing page token:", token);
         if (!token) {
           router.push("/login");
           return;
@@ -56,7 +58,7 @@ export default function Dashboard() {
 
         // Use validateStatus so axios won't throw on 401 and we can handle it
         const res = await axios.get(`${URL}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true, // <--- IMPORTANT
           validateStatus: () => true,
         });
 
@@ -65,9 +67,11 @@ export default function Dashboard() {
           return;
         }
 
-        // At this point user is verified — fetch categories and render page.
         try {
-          const res2 = await axios.get(`${URL}/api/categories`);
+          const res2 = await axios.get(`${URL}/api/categories`, {
+            withCredentials: true, 
+          });
+
           const data = res2.data;
           setCategories((data.categories || []).slice(0, 5));
         } catch (err) {
@@ -94,7 +98,6 @@ export default function Dashboard() {
       <div className="min-h-screen pt-20 bg-[#ece9d8]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
- 
             <div className="flex-1 space-y-8">
               <div>
                 <h1 className="text-5xl font-bold text-[#4a2e21] leading-tight mb-4">
@@ -106,7 +109,6 @@ export default function Dashboard() {
                 </p>
               </div>
 
- 
               <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8">
                 <h2 className="text-xl font-semibold text-[#4a2e21] mb-6">
                   What are you looking for?
@@ -128,7 +130,6 @@ export default function Dashboard() {
                     );
                   })}
                 </div>
-
 
                 <div className="mt-6 flex justify-center">
                   <button
@@ -172,7 +173,6 @@ export default function Dashboard() {
           </div>
         </div>
 
- 
         <div className="bg-white py-16">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <h2 className="text-3xl font-bold text-[#4a2e21] text-center mb-12">

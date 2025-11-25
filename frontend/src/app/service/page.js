@@ -6,14 +6,21 @@ import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 
 import {
-  FaChalkboardTeacher,
   FaBroom,
-  FaDog,
-  FaLaptopCode,
+  FaBolt,
+  FaWrench,
   FaTools,
+  FaCogs,
+  FaLaptopCode,
+  FaSpa,
+  FaPaintRoller,
   FaTruckMoving,
-  FaUtensils,
-  FaRegLightbulb,
+  FaShieldAlt,
+  FaChalkboardTeacher,
+  FaDog,
+  FaCalendarCheck,
+  FaCarAlt,
+  FaQuestionCircle,
 } from "react-icons/fa";
 
 export default function ServicesPage() {
@@ -28,15 +35,23 @@ const URL = isProd
 
  
   const iconMap = {
-    FaTools,
-    FaBroom,
-    FaDog,
-    FaChalkboardTeacher,
-    FaUtensils,
-    FaTruckMoving,
-    FaRegLightbulb,
-    FaLaptopCode,
-  };
+  cleaning: FaBroom,
+  electric: FaBolt,
+  plumbing: FaWrench,
+  handyman: FaTools,
+  appliances: FaCogs,
+  computer: FaLaptopCode,
+  beauty: FaSpa,
+  painting: FaPaintRoller,
+  moving: FaTruckMoving,
+  security: FaShieldAlt,
+  tutor: FaChalkboardTeacher,
+  pet: FaDog,
+  event: FaCalendarCheck,
+  automobile: FaCarAlt,
+  misc: FaQuestionCircle,
+};
+
 
   useEffect(() => {
     async function fetchCategories() {

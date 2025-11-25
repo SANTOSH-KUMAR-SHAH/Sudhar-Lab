@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
- const isProd = process.env.NEXT_PUBLIC_IS_PROD === "true";
+  const isProd = process.env.NEXT_PUBLIC_IS_PROD === "true";
 
-const URL = isProd
-  ? "https://localhelpbackendv2.onrender.com"
-  : "http://localhost:4040";
+  const URL = isProd
+    ? "https://localhelpbackendv2.onrender.com"
+    : "http://localhost:4040";
   const [form, setForm] = useState({
     email: "",
     phone: "",
@@ -23,38 +23,39 @@ const URL = isProd
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try{    
-    const response = await axios.post(`${URL}/api/auth/login`, form, { headers: { "Content-Type": "application/json" }, validateStatus: () => true });
-    const data = response.data || {};
-    // Mirror previous behavior: store token even if server responded non-2xx
-    if (data.token) localStorage.setItem("token", data.token);
+    try {
+      const response = await axios.post(`${URL}/api/auth/login`, form, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true, // <-- REQUIRED
+        validateStatus: () => true,
+      });
 
-    if (response.status < 200 || response.status >= 300) {
-      throw new Error(data.message || "Something went wrong");
+      const data = response.data || {};
+      // Mirror previous behavior: store token even if server responded non-2xx
+      if (data.token) localStorage.setItem("token", data.token);
+
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error(data.message || "Something went wrong");
+      }
+
+      toast.success(`Welcome Back, ${data.user.name}`, {
+        style: {
+          background: "#e6ffed",
+          color: "#03543f",
+        },
+      });
+
+      setTimeout(() => {
+        router.push("/landingpage");
+      }, 1500);
+    } catch (err) {
+      toast.error(err.message || "Something went wrong", {
+        style: {
+          background: "#ffe5e5",
+          color: "#b30000",
+        },
+      });
     }
-
-        toast.success(`Welcome Back, ${data.user.name}`, {
-            style: {
-                background: "#e6ffed",
-                color: "#03543f",
-            },
-        });
-
-        setTimeout(() => {
-            router.push("/landingpage");
-        }, 1500);
-    }catch(err){
-        toast.error(err.message || "Something went wrong", {
-            style: {
-                background: "#ffe5e5",
-                color: "#b30000",
-            },
-        }); 
-
-    }
-
-
-    
   };
   return (
     <div className="min-h-screen w-full flex bg-neutral-50">
@@ -72,11 +73,8 @@ const URL = isProd
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
             Create your account
           </h2>
-         
-
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             <div>
               <input
                 type="email"
@@ -89,7 +87,7 @@ const URL = isProd
                            focus:ring-2 focus:ring-[#f9c588] transition text-black"
               />
             </div>
-        
+
             <div>
               <input
                 type="password"

@@ -1,0 +1,30 @@
+import {
+  FaBroom,
+  FaBolt,
+  FaTools,
+  FaLaptop,
+  FaPaintBrush,
+  FaDog,
+  FaCarSide,
+  FaBook,
+  FaShieldAlt,
+  FaTruck,
+  FaSpa,
+  FaWrench,
+} from "react-icons/fa";
+
+export const ICON_MAP = {
+  cleaning: FaBroom,
+  electric: FaBolt,
+  handyman: FaTools,
+  computer: FaLaptop,
+  painting: FaPaintBrush,
+  pet: FaDog,
+  automobile: FaCarSide,
+  tutor: FaBook,
+  security: FaShieldAlt,
+  moving: FaTruck,
+  beauty: FaSpa,
+  plumbing: FaWrench,
+  misc: FaTools,
+};

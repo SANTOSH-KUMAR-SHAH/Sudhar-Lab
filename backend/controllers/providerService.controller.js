@@ -1,4 +1,5 @@
 const prisma = require("../utils/db");
+const { generateDailySlots } = require("../utils/slots");
 
 // GET all services owned by provider
 exports.getMyServices = async (req, res) => {
@@ -26,7 +27,6 @@ exports.getMyServices = async (req, res) => {
   }
 };
 
-// ADD a new service
 exports.addService = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -41,11 +41,37 @@ exports.addService = async (req, res) => {
 
     const providerId = profile.id;
 
-    const { categoryId, subcategoryId, price, description } = req.body;
+    const {
+      categoryId,
+      subcategoryId,
+      price,
+      description,
+      duration,        
+      selectedDays = [] 
+    } = req.body;
 
-    // validate required fields (basic)
-    if (!categoryId || typeof price === 'undefined') {
-      return res.status(400).json({ message: 'categoryId and price are required' });
+    if (!categoryId || typeof price === "undefined" || !duration) {
+      return res.status(400).json({
+        message: "categoryId, price, duration are required"
+      });
+    }
+
+    const allDays = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday"
+    ];
+
+    const availability = {};
+    for (const d of allDays) availability[d] = [];
+
+    for (const d of selectedDays) {
+      const dayKey = String(d).toLowerCase();
+      availability[dayKey] = generateDailySlots(9, 19, Number(duration));
     }
 
     const newService = await prisma.providerService.create({
@@ -55,10 +81,16 @@ exports.addService = async (req, res) => {
         subcategoryId,
         price,
         description,
+        duration: Number(duration),
+        availability,
       },
     });
 
-    res.status(201).json({ message: "Service added", service: newService });
+    res.status(201).json({
+      message: "Service added with availability",
+      service: newService
+    });
+
   } catch (err) {
     console.error("addService error:", err);
     res.status(500).json({ message: "Server error" });
@@ -75,26 +107,29 @@ exports.updateService = async (req, res) => {
 
     if (!service) return res.status(404).json({ message: "Service not found" });
 
-    // Ensure the logged-in user's provider profile owns this service
     const profile = await prisma.providerProfile.findUnique({ where: { userId } });
     if (!profile) return res.status(400).json({ message: "Provider profile not found" });
 
     if (service.providerId !== profile.id)
       return res.status(403).json({ message: "Forbidden" });
 
-  const { categoryId, subcategoryId, price, description, duration } = req.body;
+    const { categoryId, subcategoryId, price, description, duration } = req.body;
 
-  // Build update payload: connect relations via nested writes when needed
-  const updateData = {};
-  if (typeof price !== 'undefined') updateData.price = price;
-  if (typeof description !== 'undefined') updateData.description = description;
-  if (typeof duration !== 'undefined') updateData.duration = duration;
-  if (categoryId) updateData.category = { connect: { id: categoryId } };
-  if (subcategoryId) updateData.subcategory = { connect: { id: subcategoryId } };
+    const updateData = {};
+    if (price !== undefined) updateData.price = price;
+    if (description !== undefined) updateData.description = description;
+    if (duration !== undefined) updateData.duration = Number(duration);
 
-  const updated = await prisma.providerService.update({ where: { id: serviceId }, data: updateData });
+    if (categoryId) updateData.category = { connect: { id: categoryId } };
+    if (subcategoryId) updateData.subcategory = { connect: { id: subcategoryId } };
+
+    const updated = await prisma.providerService.update({
+      where: { id: serviceId },
+      data: updateData,
+    });
 
     res.json({ message: "Service updated", updated });
+
   } catch (err) {
     console.error("updateService error:", err);
     res.status(500).json({ message: "Server error" });
@@ -122,6 +157,63 @@ exports.deleteService = async (req, res) => {
     res.json({ message: "Service deleted" });
   } catch (err) {
     console.error("deleteService error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+exports.getServiceById = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+
+    const service = await prisma.providerService.findUnique({
+      where: { id: serviceId },
+      include: {
+        provider: {
+          include: { user: true },
+        },
+        category: true,
+        subcategory: true,
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    res.json({ service });
+  } catch (err) {
+    console.error("getServiceById error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.updateAvailability = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { serviceId } = req.params;
+    const { availability } = req.body;
+
+    if (!availability || typeof availability !== "object") {
+      return res.status(400).json({ message: "Valid availability JSON required" });
+    }
+
+    const service = await prisma.providerService.findUnique({ where: { id: serviceId } });
+    if (!service) return res.status(404).json({ message: "Service not found" });
+
+    const profile = await prisma.providerProfile.findUnique({ where: { userId } });
+    if (!profile) return res.status(400).json({ message: "Provider profile not found" });
+
+    if (service.providerId !== profile.id)
+      return res.status(403).json({ message: "Forbidden" });
+
+    const updated = await prisma.providerService.update({
+      where: { id: serviceId },
+      data: { availability },
+    });
+
+    res.json({ message: "Availability updated", service: updated });
+
+  } catch (err) {
+    console.error("updateAvailability error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

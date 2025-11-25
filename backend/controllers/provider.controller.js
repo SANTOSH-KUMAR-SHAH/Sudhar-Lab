@@ -33,9 +33,10 @@ exports.becomeProvider = async (req, res) => {
 
     // Set httpOnly cookie similar to login controller
     res.cookie("token", token, {
-      httpOnly: true,
+      httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost',
       maxAge: 3600000,
     });
 

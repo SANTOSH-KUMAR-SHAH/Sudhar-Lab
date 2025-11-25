@@ -83,11 +83,12 @@ async function Login(req, res) {
         });
 
         res.cookie("token", token, {
-            httpOnly: true,
+            httpOnly: process.env.NODE_ENV === 'production',
             // Use secure cookies only in production (HTTPS). In dev (http) this prevents cookie being set.
             secure: process.env.NODE_ENV === 'production',
             // When in production and cross-site, SameSite=None is required for cookies to be sent.
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            domain : process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost',
             maxAge: 3600000,
         });
 
