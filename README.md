@@ -1,178 +1,131 @@
-# LocalHelp
+# 🏡 LocalHelp – Home Services Marketplace
 
-LocalHelp is a full-stack service marketplace inspired by modern platforms like Urban Company.  
-Users can sign up, log in, browse service categories, and connect with verified local service providers.  
-Service providers can also register themselves through a dedicated onboarding flow.
+LocalHelp is a **full-stack home-services platform** inspired by **Urban Company**. It serves as a comprehensive two-sided marketplace allowing **customers** to book local service providers and **providers** to manage their availability, bookings, and earnings.
 
----
-
-## Live Links
-
-**Frontend:**  
-https://localhelpfrontendv2.vercel.app/
-
-**Backend API:**  
-https://localhelpbackendv2.onrender.com
+The system includes a complete booking flow, robust authentication, dedicated dashboards for both roles, dynamic slot management, and a mock payment system.
 
 ---
 
-## Project Overview
+## 🔗 Live Links
 
-LocalHelp enables a seamless connection between customers and trusted service providers from the local community.  
-The platform supports:
-
-- User authentication (signup, login, logout)
-- JWT-based security (stored via cookies or localStorage)
-- Browsing service categories and mock listings
-- Role-based navigation (Customer / Service Provider)
-- Clean, responsive UI built with Next.js and TailwindCSS
-- Backend powered by Express.js, Prisma ORM, and PostgreSQL
+| Platform | Link |
+| :--- | :--- |
+| **Frontend** (Next.js) | https://localhelpfrontendv2.vercel.app/ |
+| **Backend API** (Express.js) | https://localhelpbackendv2.onrender.com |
+| *Please note: These links are for the deployed versions.* |
 
 ---
 
-## Features
+## 💻 Tech Stack
 
-### User Features
-- Sign up with name, email, phone, password
-- Log in with JWT authentication
-- Access protected routes (landing page, services page)
-- View service categories
-- View all available services (fetched from backend)
+### Frontend
+* **Next.js 14** (App Router)
+* **React**
+* **Tailwind CSS**
+* Axios
+* React Hot Toast
+* React Icons
+
+### Backend
+* **Node.js**
+* **Express.js**
+* **Prisma ORM**
+* **PostgreSQL** (NeonDB)
+* **JWT Authentication** and Cookie-based sessions
+* Role-based authorization
+
+### Additional Tools
+* Bcrypt (Password hashing)
+* CORS
+* Structured controllers, routes, and middlewares
+* Seed scripts for demo providers and customers
+
+---
+
+## ✨ Features
+
+### Customer Features
+* Secure **login and signup** using JWT.
+* Explore categories and subcategories.
+* View provider services, pricing, and duration.
+* **Real-time slot availability** with conflict detection.
+* Book services with a **mock payment workflow**.
+
+**Customer Dashboard:**
+* View bookings with statuses (**Pending / Accepted / Rejected / Completed**).
+* Manage saved addresses (Create, Edit, Delete).
+* Update profile information.
 
 ### Provider Features
-- Become a provider through onboarding flow
-- Provider profile stored in PostgreSQL via Prisma
-- Role assigned dynamically (`CUSTOMER` → `PROVIDER`)
+* Simple **onboarding** to become a provider.
+* Add services, defining duration and price.
+* Manage availability through **dynamic time-slot JSON**.
+* View **real-time booking requests**.
+* **Accept or reject** requests (rejection automatically frees up the slot).
+* View customer details **after accepting** the request.
+* **Mark completed services** (logic based on service end-time).
 
-### Technical Features
-- JWT Authentication (Bearer token)
-- Prisma ORM with relational schema
-- Secure password hashing using bcrypt
-- CORS configured for cross-domain communication
-- Fully responsive frontend layout
-
----
-
-## Tech Stack
-
-### Frontend
-- Next.js 14+ (App Router)
-- Tailwind CSS
-- React Icons
-- React Hot Toast
-- Responsive layout with custom components
-
-### Backend
-- Node.js + Express.js
-- PostgreSQL database
-- Prisma ORM
-- JWT Authentication
-- Bcrypt password hashing
-
-Deployment:
-- Frontend: Vercel  
-- Backend: Render  
-- Database: PostgreSQL on Render
+**Provider Dashboard:**
+* Live and Completed requests.
+* Earnings summary.
+* Profile management.
 
 ---
 
-## API Endpoints
+## 🧠 Intelligent Slot and Availability System
 
-### Auth
-| Method | Endpoint            | Description                    |
-|--------|----------------------|--------------------------------|
-| POST   | `/api/auth/signup`   | Create new user               |
-| POST   | `/api/auth/login`    | Login and get JWT token       |
-| POST   | `/api/auth/logout`   | Logout user                   |
-| GET    | `/api/auth/me`       | Get logged-in user details    |
+LocalHelp uses a structured and flexible availability format:
 
-### Services (for future expansion)
-| Method | Endpoint                    | Description                     |
-|--------|------------------------------|---------------------------------|
-| GET    | `/api/services/categories`   | Fetch all categories            |
-| GET    | `/api/services/subcategories/:id` | Fetch subcategories        |
-| GET    | `/api/services`             | Fetch all services              |
-
----
-
-## Environment Variables
-
-### Frontend (Next.js)
-Create `.env.local`:
-
+```json
+{
+  "monday": {
+    "09:00": [],
+    "09:30": ["bookingId"],
+    "10:00": []
+  },
+  "tuesday": { ... }
+}
 ```
-NEXT_PUBLIC_API_URL=https://localhelpbackendv2.onrender.com
-```
+### Key Behaviors
 
-### Backend
-Create `.env`:
+- Full conflict detection using time-range overlap:
+  - `existingStart < newEnd AND existingEnd > newStart`
+- Automatic slot marking when bookings are created.
+- Automatic slot opening when a provider rejects a booking.
+- Dynamic booking duration based on service settings.
+- Completion button appears only when the booking end-time has passed.
 
-```
-DATABASE_URL="your_postgres_url"
-JWT_SECRET="your_jwt_secret"
-```
+This system is designed to be more flexible compared to platforms with rigid, pre-defined time blocks.
 
----
+### Why LocalHelp Improves Upon Urban Company
 
-## Folder Structure
+- **Flexible Time Slot Scheduling**
+  - LocalHelp supports custom durations (30 min, 45 min, 2 hrs, etc.) and adjusts slots dynamically.
+  - Urban Company typically uses fixed blocks (e.g., 9–11, 11–1).
 
-### Frontend
-```
-/app
-  /login
-  /signup
-  /landingpage
-  /services
-/components
-/styles
-```
+- **Transparent Provider Details**
+  - LocalHelp shows provider name, contact details (after acceptance), experience, bio, and real-time availability.
+  - Urban Company restricts most provider information before payment.
 
-### Backend
-```
-/controllers
-/middlewares
-/routes
-/utils
-prisma/schema.prisma
-server.js
-```
+- **Faster, Developer-Friendly Onboarding**
+  - Providers can start offering services immediately on LocalHelp.
+  - Urban Company often requires slower verification processes.
 
----
+- **Real-Time System Updates**
+  - Slot availability, booking conflicts, and earnings update instantly and automatically.
 
-## Authentication Flow
+- **Fully Extensible**
+  - Categories, services, and availability can be expanded without UI changes.
 
-1. User signs in → Backend returns JWT token  
-2. Token is stored in **localStorage**  
-3. Protected pages call `/api/auth/me` with `Authorization: Bearer <token>`  
-4. If valid → allow access  
-5. If invalid → redirect to `/login`
+### Future Enhancements
 
----
-
-## Deployment
-
-### Frontend
-- Hosted on Vercel  
-- Uses `NEXT_PUBLIC_API_URL` to connect to backend
-
-### Backend
-- Hosted on Render  
-- CORS properly configured for Vercel domain
-
----
-
-## Future Enhancements
-
-- Provider dashboard
-- Booking system  
-- Real-time notifications  
-- Payment gateway  
-- Reviews and ratings  
-- Search and filtering  
-- Location-based service sorting
-
----
-
-## Credits
-
-Developed as a modern service marketplace to empower local communities and service providers.
+- Admin dashboard for full platform control
+- Real payment gateway integration
+- Advanced provider verification workflows
+- Customer–service chat system
+- Real-time notifications (WebSockets)
+- Map-based provider discovery
+- Service rating and review system
+- Subscription plans for providers
+- AI-driven provider recommendations
+- GST invoice generation for customers
