@@ -91,7 +91,7 @@ export default function CategoryServicesPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-[#4a2e21]">
-                      {s.description || "Service"}
+                      {category?.subcategories?.find((sub) => sub.id === s.subcategoryId)?.name || "Service"}
                     </h3>
                     <div className="text-sm font-semibold text-[#4a2e21]">
                       ₹{s.price}
