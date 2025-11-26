@@ -129,3 +129,8 @@ This system is designed to be more flexible compared to platforms with rigid, pr
 - Subscription plans for providers
 - AI-driven provider recommendations
 - GST invoice generation for customers
+
+---
+# Made with ❤️ by Param Khodiyar
+- GitHub: [ParamKhodiyar](https://github.com/paramkhodiyar)
+- LinkedIn: [paramkhodiyar](https://www.linkedin.com/in/paramkhodiyar/)
