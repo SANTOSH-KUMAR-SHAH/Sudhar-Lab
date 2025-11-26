@@ -96,7 +96,7 @@ export default function BookServicePage() {
       // normalize times (make string + available flag)
       const normalized = (data.slots || []).map((s) => ({
         time: s.time,
-        available: !!s.available,
+        available: !s.booked,
         start: s.start,
         end: s.end,
       }));
@@ -156,8 +156,8 @@ export default function BookServicePage() {
 
       if (res.status >= 200 && res.status < 300) {
         toast.success("Booking created");
-        // redirect to bookings or provider/thank-you
-        router.push("/profile"); 
+
+        router.push("/thankyou/" + res.data.booking.id); 
       } else if (res.status === 401) {
         toast.error("Please login to book");
         router.push("/login");

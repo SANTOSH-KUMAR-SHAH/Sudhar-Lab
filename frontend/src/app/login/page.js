@@ -25,7 +25,10 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(`${URL}/api/auth/login`, form, {
-        headers: { "Content-Type": "application/json", authorization: "Bearer " + localStorage.getItem("token") },
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer " + localStorage.getItem("token"),
+        },
         withCredentials: true, // <-- REQUIRED
         validateStatus: () => true,
       });
@@ -75,6 +78,36 @@ export default function Login() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({
+                    email: "customer1@example.com",
+                    password: "password123",
+                  })
+                }
+                className="flex-1 py-2 text-sm rounded-lg border border-[#d6c7b4] 
+                 bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] transition"
+              >
+                User Demo
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({
+                    email: "provider1@example.com",
+                    password: "password123",
+                  })
+                }
+                className="flex-1 py-2 text-sm rounded-lg border border-[#d6c7b4] 
+                 bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] transition"
+              >
+                Provider Demo
+              </button>
+            </div>
+
             <div>
               <input
                 type="email"
@@ -83,8 +116,8 @@ export default function Login() {
                 value={form.email}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg 
-                           bg-white placeholder-gray-400 focus:outline-none 
-                           focus:ring-2 focus:ring-[#f9c588] transition text-black"
+                 bg-white placeholder-gray-400 focus:outline-none 
+                 focus:ring-2 focus:ring-[#f9c588] transition text-black"
               />
             </div>
 
@@ -96,14 +129,15 @@ export default function Login() {
                 value={form.password}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg 
-                           bg-white placeholder-gray-400 focus:outline-none 
-                           focus:ring-2 focus:ring-[#f9c588] transition text-black"
+                 bg-white placeholder-gray-400 focus:outline-none 
+                 focus:ring-2 focus:ring-[#f9c588] transition text-black"
               />
             </div>
+
             <button
               type="submit"
               className="w-full py-3 bg-[#672410] text-white rounded-lg 
-                         font-semibold hover:bg-[#4d1a0a] transition shadow-sm"
+               font-semibold hover:bg-[#4d1a0a] transition shadow-sm"
             >
               Log In
             </button>

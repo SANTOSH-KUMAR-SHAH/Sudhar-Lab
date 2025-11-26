@@ -97,4 +97,19 @@ exports.getProviderServices = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+exports.getProviderEarnings = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const provider = await prisma.user.findUnique({
+      where: { id: providerId },
+      select: { earnings: true },
+    });
+
+    return res.json({ earnings: provider.earnings });
+  } catch (err) {
+    console.error("getProviderEarnings error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 

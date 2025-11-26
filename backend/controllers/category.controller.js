@@ -74,3 +74,26 @@ exports.getProvidersByCategory = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+exports.getSubcategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const subcategory = await prisma.serviceSubCategory.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        categoryId: true,
+      },
+    });
+
+    if (!subcategory) {
+      return res.status(404).json({ message: "Subcategory not found" });
+    }
+
+    return res.json({ subcategory });
+  } catch (err) {
+    console.log("getSubcategoryById error:", err);
+    return res.status(500).json({ message: "Server error",err : err.message});
+  }
+};

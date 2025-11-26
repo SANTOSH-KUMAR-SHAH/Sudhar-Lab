@@ -1,11 +1,7 @@
-// backend/controllers/customerAddress.controller.js
+
 
 const prisma = require("../utils/db");
 
-/**
- * GET all addresses for the logged-in customer
- * GET /api/customers/addresses
- */
 exports.getAddresses = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -21,13 +17,6 @@ exports.getAddresses = async (req, res) => {
   }
 };
 
-/**
- * CREATE address
- * POST /api/customers/addresses
- *
- * Body:
- *  { street, city, state, pincode, latitude?, longitude?, type? }
- */
 exports.createAddress = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -57,10 +46,6 @@ exports.createAddress = async (req, res) => {
   }
 };
 
-/**
- * UPDATE address
- * PUT /api/customers/addresses/:id
- */
 exports.updateAddress = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -91,10 +76,6 @@ exports.updateAddress = async (req, res) => {
   }
 };
 
-/**
- * DELETE address
- * DELETE /api/customers/addresses/:id
- */
 exports.deleteAddress = async (req, res) => {
   try {
     const userId = req.user.id;

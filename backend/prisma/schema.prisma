@@ -14,6 +14,7 @@ model User {
   email       String      @unique
   phone       String?
   password    String
+  earnings    Float      @default(0)
   role        UserRole    @default(CUSTOMER) 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

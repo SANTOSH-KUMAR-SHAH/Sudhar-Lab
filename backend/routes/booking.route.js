@@ -9,7 +9,7 @@ const {
   createBooking,
   updateBookingStatus,
   getProviderBookings,
-  getCustomerBookings
+  getCurrentBookingById
 } = require("../controllers/booking.controller");
 router.get(
   "/providers/:providerUserId/services/:serviceId/slots",
@@ -18,6 +18,7 @@ router.get(
 router.post("/", auth, checkRole("CUSTOMER"), createBooking);
 router.patch("/:id/status", auth, updateBookingStatus);
 router.get("/providers/bookings", auth, checkRole("PROVIDER"), getProviderBookings);
+router.get("/current/:id", auth, checkRole("CUSTOMER"), getCurrentBookingById);
 
 
 module.exports = router;

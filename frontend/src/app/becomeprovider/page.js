@@ -28,15 +28,14 @@ export default function BecomeProviderPage() {
 
       toast.success("You're now a provider! 🎉", { id: "loading" });
 
-      // If backend returned a token (cookie is still set), also persist it
-      // in localStorage as a fallback so client-side code can use it.
       try {
         const token = response?.data?.token;
         if (typeof window !== "undefined" && token) {
           localStorage.setItem("token", token);
         }
       } catch (e) {
-        // ignore localStorage errors
+        console.error("Error storing token:", e);
+
       }
 
  

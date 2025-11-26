@@ -1,12 +1,8 @@
 const prisma = require("../utils/db");
 const { generateDailySlots } = require("../utils/slots");
-
-// GET all services owned by provider
 exports.getMyServices = async (req, res) => {
   try {
     const userId = req.user.id;
-
-    // Find the ProviderProfile for the logged-in user
     const profile = await prisma.providerProfile.findUnique({ where: { userId } });
     if (!profile) {
       return res.status(400).json({ message: 'Provider profile not found for this user' });
@@ -97,7 +93,6 @@ exports.addService = async (req, res) => {
   }
 };
 
-// UPDATE service
 exports.updateService = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -136,7 +131,6 @@ exports.updateService = async (req, res) => {
   }
 };
 
-// DELETE service
 exports.deleteService = async (req, res) => {
   try {
     const userId = req.user.id;

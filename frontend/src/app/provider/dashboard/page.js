@@ -17,7 +17,10 @@ import {
   FaClock,
   FaChartLine,
   FaBars,
+  FaPhone,
+  FaMapMarkerAlt
 } from "react-icons/fa";
+import { MdDoneAll } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
 
@@ -39,6 +42,7 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+const [earnings, setEarnings] = useState(0);
 
   const [form, setForm] = useState({
     id: "",
@@ -53,7 +57,6 @@ export default function Dashboard() {
   const [stats] = useState({
     completedServices: 47,
     pendingBookings: 5,
-    totalRevenue: 23450,
   });
 
   const token =
@@ -63,7 +66,11 @@ export default function Dashboard() {
     fetchCategories();
     fetchServices();
     fetchRequests();
+    fetchEarnings();
   }, []);
+  function isPastBooking(b) {
+    return new Date(b.bookingEnd) < new Date();
+  }
 
   async function fetchCategories() {
     try {
@@ -77,6 +84,11 @@ export default function Dashboard() {
       console.error(err);
     }
   }
+  async function fetchEarnings() {
+  const headers = token ? { Authorization: "Bearer " + token } : {};
+  const res = await axios.get(`${API_BASE}/api/providers/earnings`, { headers });
+  setEarnings(res.data.earnings || 0);
+}
 
   async function fetchServices() {
     setLoading(true);
@@ -91,20 +103,29 @@ export default function Dashboard() {
     setLoading(false);
   }
   async function fetchRequests() {
-    setLoadingRequests(true);
-    try {
-      const headers = token ? { Authorization: "Bearer " + token } : {};
-      const res = await axios.get(
-        `${API_BASE}/api/bookings/providers/bookings`,
-        { headers }
-      );
+  setLoadingRequests(true);
+  try {
+    const headers = token ? { Authorization: "Bearer " + token } : {};
+    const res = await axios.get(`${API_BASE}/api/bookings/providers/bookings`, { headers });
+    const data = res.data.bookings || [];
 
-      setRequests(res.data.bookings || []);
-    } catch (err) {
-      console.error(err);
-    }
-    setLoadingRequests(false);
+    // inject subcategory name
+    const enriched = await Promise.all(
+      data.map(async (req) => {
+        const subcatId = req.service?.subcategoryId;
+        const subcatName = subcatId ? await getSubcatName(subcatId) : "Service";
+        return { ...req, subcatName };
+      })
+    );
+
+    setRequests(enriched);
+    console.log("Enriched requests:", enriched);
+  } catch (err) {
+    console.error(err);
   }
+  setLoadingRequests(false);
+}
+
   async function handleAction(bookingId, action) {
     try {
       const headers = token ? { Authorization: "Bearer " + token } : {};
@@ -146,6 +167,14 @@ export default function Dashboard() {
       console.error(err);
     }
   }
+  async function getSubcatName(id) {
+  try {
+    const res = await axios.get(`${API_BASE}/api/categories/subcategory/${id}`);
+    return res.data.subcategory?.name || "Unknown";
+  } catch (err) {
+    return "Unknown";
+  }
+}
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -412,9 +441,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600 mb-1">Revenue</p>
-                        <p className="text-2xl font-bold text-[#4a2e21]">
-                          ₹{stats.totalRevenue.toLocaleString()}
-                        </p>
+                        <p className="text-2xl font-bold text-[#4a2e21]">₹{earnings}</p>
                       </div>
                       <div className="bg-[#F3E9D7] p-3 rounded-full">
                         <FaClock className="text-[#6F4E37] text-xl" />
@@ -491,55 +518,109 @@ export default function Dashboard() {
                   <p className="text-gray-600">No current booking requests.</p>
                 ) : (
                   <div className="space-y-4">
-                    {requests.map((r) => (
-                      <div
-                        key={r.id}
-                        className="p-4 border border-gray-200 rounded-lg bg-[#fdfcfa]"
-                      >
-                        <p className="font-medium text-[#4a2e21]">
-                          {r.service.subcategory?.name || "Service"}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {new Date(r.bookingStart).toLocaleString()}
-                        </p>
+                    {requests.map((r) => {
+                      const start = new Date(r.bookingStart);
+                      const end = new Date(r.bookingEnd);
+                      const now = new Date();
+                      const isPast = end < now;
 
-                        <div className="mt-3">
-                          {r.status === "PENDING" && (
-                            <div className="flex gap-3">
-                              <button
-                                onClick={() => handleAction(r.id, "accept")}
-                                className="px-4 py-2 rounded-lg 
-                   bg-[#6F4E37] text-white 
-                   hover:bg-[#5a3f2c] transition"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => handleAction(r.id, "cancel")}
-                                className="px-4 py-2 rounded-lg 
-                   bg-[#A97155] text-white 
-                   hover:bg-[#8a5944] transition"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          )}
+                      return (
+                        <div
+                          key={r.id}
+                          className="p-4 border border-[#e4d7c5] rounded-xl bg-[#fdfcf8] shadow-sm"
+                        >
+                          {/* SERVICE NAME */}
+                          <p className="font-semibold text-lg text-[#4a2e21]">
+                            {r.subcatName|| "Service"}
+                          </p>
 
+                          {/* DATE + TIME */}
+                          <p className="text-sm text-[#7a5d49] mt-1 flex items-center gap-1">
+                            <FaClock className="text-[#7a5d49]" />
+                            {start.toLocaleString()}
+                          </p>
+
+                          {/* IF ACCEPTED → Show CUSTOMER DETAILS */}
                           {r.status === "ACCEPTED" && (
-                            <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
-                              <span className="text-[#2b7a0b]"><VscVerifiedFilled className="text-[#2b7a0b]"/></span>{" "}
-                              Confirmed
+                            <div className="mt-3 bg-[#f7f2ea] p-3 rounded-lg border border-[#e4d7c5]">
+                              <p className="font-medium text-[#4a2e21] flex items-center gap-2">
+                                <FaUserCircle className="text-[#6F4E37]" />{" "}
+                                {r.customer.name}
+                              </p>
+                              <p className="text-sm text-[#7a5d49] flex items-center gap-2 mt-1">
+                                <FaPhone className="text-[#6F4E37]" />{" "}
+                                {r.customer.phone}
+                              </p>
+                              {/* <p className="text-sm text-[#7a5d49] flex items-center gap-2 mt-1">
+                                <FaMapMarkerAlt className="text-[#6F4E37]" />{" "}
+                                {r.customerAddress.street},{" "}
+                                {r.customerAddress.city}
+                              </p> */}
                             </div>
                           )}
 
-                          {r.status === "CANCELLED" && (
-                            <div className="flex items-center gap-2 text-[#7a0a0a] font-semibold">
-                              <span className="text-red-600"><MdCancel className="text-[#4a2e21]"/></span> Rejected
-                            </div>
-                          )}
+                          {/* STATUS / BUTTONS */}
+                          <div className="mt-4">
+                            {/* PENDING → SHOW ACCEPT + REJECT */}
+                            {r.status === "PENDING" && (
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={() => handleAction(r.id, "accept")}
+                                  className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white 
+                  hover:bg-[#5a3f2c] transition"
+                                >
+                                  Accept
+                                </button>
+
+                                <button
+                                  onClick={() => handleAction(r.id, "cancel")}
+                                  className="px-4 py-2 rounded-lg bg-[#A97155] text-white 
+                  hover:bg-[#8a5944] transition"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+
+                            {/* ACCEPTED BEFORE TIME ENDS → SHOW CONFIRMED */}
+                            {r.status === "ACCEPTED" && !isPast && (
+                              <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
+                                <VscVerifiedFilled className="text-[#6F4E37] text-xl" />
+                                Confirmed
+                              </div>
+                            )}
+
+                            {/* ACCEPTED + TIME PASSED → SHOW MARK COMPLETED */}
+                            {r.status === "ACCEPTED" && isPast && (
+                              <button
+                                onClick={() => handleAction(r.id, "complete")}
+                                className="px-4 py-2 rounded-lg bg-[#7a5d49] text-white 
+                hover:bg-[#674b3a] transition flex items-center gap-2"
+                              >
+                                <MdDoneAll className="text-white" />
+                                Mark Completed
+                              </button>
+                            )}
+
+                            {/* COMPLETED */}
+                            {r.status === "COMPLETED" && (
+                              <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
+                                <MdDoneAll className="text-[#6F4E37]" />
+                                Completed
+                              </div>
+                            )}
+
+                            {/* REJECTED */}
+                            {r.status === "CANCELLED" && (
+                              <div className="flex items-center gap-2 text-[#A97155] font-semibold">
+                                <MdCancel />
+                                Rejected
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

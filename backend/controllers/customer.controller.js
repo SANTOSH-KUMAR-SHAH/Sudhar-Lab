@@ -1,11 +1,5 @@
-// backend/controllers/customer.controller.js
-
 const prisma = require("../utils/db");
 
-/**
- * GET CUSTOMER PROFILE
- * GET /api/customers/me
- */
 exports.getCustomerProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -33,15 +27,7 @@ exports.getCustomerProfile = async (req, res) => {
   }
 };
 
-/**
- * UPDATE CUSTOMER PROFILE
- * PATCH /api/customers/update
- *
- * Body:
- *  { name?, email?, phone? }
- *
- * NOTE: email change is validated for uniqueness.
- */
+
 exports.updateCustomerProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -50,14 +36,11 @@ exports.updateCustomerProfile = async (req, res) => {
     if (!name && !email && !phone) {
       return res.status(400).json({ message: "Nothing to update" });
     }
-
-    // If email is provided, check uniqueness
     if (email) {
       const existing = await prisma.user.findUnique({ where: { email } });
       if (existing && existing.id !== userId) {
         return res.status(400).json({ message: "Email already in use" });
       }
-      // basic format check
       if (!email.includes("@") || (!email.includes(".") && !email.includes(".com"))) {
         return res.status(400).json({ message: "Invalid email format" });
       }
@@ -86,14 +69,6 @@ exports.updateCustomerProfile = async (req, res) => {
   }
 };
 
-/**
- * GET FULL CUSTOMER BOOKINGS
- * GET /api/customers/bookings
- *
- * Includes:
- *   - service (price, duration, description, category + subcategory)
- *   - provider (id, name, phone, email)
- */
 exports.getCustomerBookings = async (req, res) => {
   try {
     const userId = req.user.id;
