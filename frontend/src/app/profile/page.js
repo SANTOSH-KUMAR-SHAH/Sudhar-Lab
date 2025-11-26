@@ -20,10 +20,12 @@ import {
   FaSignOutAlt,
   FaBriefcase,
   FaUser,
+  FaHome,
 } from "react-icons/fa";
 import Loading from "@/components/loading";
 
-const AVATAR_URL = "sandbox:/mnt/data/Screenshot 2025-11-25 at 18.47.51 (2).png";
+const AVATAR_URL =
+  "sandbox:/mnt/data/Screenshot 2025-11-25 at 18.47.51 (2).png";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_IS_PROD === "true"
@@ -47,7 +49,11 @@ export default function CustomerDashboard() {
 
   const [profile, setProfile] = useState(null);
   const [editingProfile, setEditingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({ name: "", email: "", phone: "" });
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
 
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
@@ -66,7 +72,8 @@ export default function CustomerDashboard() {
     type: "HOME",
   });
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
     fetchProfile();
@@ -114,18 +121,25 @@ export default function CustomerDashboard() {
           email: profileForm.email,
           phone: profileForm.phone,
         },
-        { headers: { "Content-Type": "application/json", ...authHeaders() }, validateStatus: () => true }
+        {
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          validateStatus: () => true,
+        }
       );
 
       if (res.status === 200) {
-        toast.success("Profile updated", { style: { background: "#e6f7ec", color: "#034d22" } });
+        toast.success("Profile updated", {
+          style: { background: "#e6f7ec", color: "#034d22" },
+        });
         setEditingProfile(false);
         fetchProfile();
       } else {
         throw new Error(res.data?.message || "Failed to update");
       }
     } catch (err) {
-      toast.error(err.message || "Error updating profile", { style: { background: "#ffe8e8" } });
+      toast.error(err.message || "Error updating profile", {
+        style: { background: "#ffe8e8" },
+      });
       console.error(err);
     }
   }
@@ -153,7 +167,10 @@ export default function CustomerDashboard() {
       const res = await axios.patch(
         `${API_BASE}/api/bookings/${bookingId}/status`,
         { action: "cancel" },
-        { headers: { "Content-Type": "application/json", ...authHeaders() }, validateStatus: () => true }
+        {
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          validateStatus: () => true,
+        }
       );
       if (res.status === 200) {
         toast.success("Booking cancelled");
@@ -179,7 +196,7 @@ export default function CustomerDashboard() {
         console.error("fetchAddresses", res.status, res.data);
       }
     } catch (err) {
-        console.log(err)
+      console.log(err);
       console.error("fetchAddresses err", err);
     }
     setLoadingAddresses(false);
@@ -220,16 +237,25 @@ export default function CustomerDashboard() {
 
   async function saveAddress() {
     try {
-      if (!addrForm.street || !addrForm.city || !addrForm.state || !addrForm.pincode) {
+      if (
+        !addrForm.street ||
+        !addrForm.city ||
+        !addrForm.state ||
+        !addrForm.pincode
+      ) {
         toast.error("Street, city, state and pincode are required");
         return;
       }
 
       if (addrForm.id) {
-        const res = await axios.put(`${API_BASE}/api/customers/addresses/${addrForm.id}`, addrForm, {
-          headers: { "Content-Type": "application/json", ...authHeaders() },
-          validateStatus: () => true,
-        });
+        const res = await axios.put(
+          `${API_BASE}/api/customers/addresses/${addrForm.id}`,
+          addrForm,
+          {
+            headers: { "Content-Type": "application/json", ...authHeaders() },
+            validateStatus: () => true,
+          }
+        );
         if (res.status === 200) {
           toast.success("Address updated");
           setAddrModalOpen(false);
@@ -238,10 +264,14 @@ export default function CustomerDashboard() {
           throw new Error(res.data?.message || "Failed");
         }
       } else {
-        const res = await axios.post(`${API_BASE}/api/customers/addresses`, addrForm, {
-          headers: { "Content-Type": "application/json", ...authHeaders() },
-          validateStatus: () => true,
-        });
+        const res = await axios.post(
+          `${API_BASE}/api/customers/addresses`,
+          addrForm,
+          {
+            headers: { "Content-Type": "application/json", ...authHeaders() },
+            validateStatus: () => true,
+          }
+        );
         if (res.status === 201) {
           toast.success("Address added");
           setAddrModalOpen(false);
@@ -259,10 +289,13 @@ export default function CustomerDashboard() {
   async function deleteAddress(id) {
     try {
       if (!confirm("Delete this address?")) return;
-      const res = await axios.delete(`${API_BASE}/api/customers/addresses/${id}`, {
-        headers: authHeaders(),
-        validateStatus: () => true,
-      });
+      const res = await axios.delete(
+        `${API_BASE}/api/customers/addresses/${id}`,
+        {
+          headers: authHeaders(),
+          validateStatus: () => true,
+        }
+      );
       if (res.status === 200) {
         toast.success("Address deleted");
         fetchAddresses();
@@ -279,7 +312,7 @@ export default function CustomerDashboard() {
     Cookies.remove("token");
     router.replace("/login");
   }
-  
+
   function goBecomeProvider() {
     router.push("/becomeprovider");
   }
@@ -302,12 +335,18 @@ export default function CustomerDashboard() {
       {/* MOBILE HEADER */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push("/landingpage")} className="text-[#6F4E37] hover:text-[#4a2e21]">
+          <button
+            onClick={() => router.push("/landingpage")}
+            className="text-[#6F4E37] hover:text-[#4a2e21]"
+          >
             <FaChevronLeft size={20} />
           </button>
           <h1 className="text-xl font-bold text-[#6F4E37]">My Profile</h1>
         </div>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#6F4E37] hover:text-[#4a2e21]">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="text-[#6F4E37] hover:text-[#4a2e21]"
+        >
           <FaTimes size={24} />
         </button>
       </div>
@@ -320,10 +359,16 @@ export default function CustomerDashboard() {
           }`}
         >
           <div className="mb-8 text-center mt-8 lg:mt-0">
-            <div className="mx-auto w-28 h-28 rounded-full overflow-hidden border-4" style={{ borderColor: COFFEE.mid }}>
-              <img src={AVATAR_URL} alt="avatar" className="w-full h-full object-cover" />
+            <div
+              className="mx-auto w-28 h-28 rounded-full justify-center items-center flex overflow-hidden border-4"
+              style={{ borderColor: COFFEE.mid }}
+            >
+              <FaUserCircle size={100} className="text-[#4a2e21]" />
             </div>
-            <p className="mt-4 font-semibold text-lg" style={{ color: COFFEE.text }}>
+            <p
+              className="mt-4 font-semibold text-lg"
+              style={{ color: COFFEE.text }}
+            >
               {profile?.name || "Customer"}
             </p>
             <p className="text-sm text-gray-500 mt-1">{profile?.email}</p>
@@ -331,10 +376,13 @@ export default function CustomerDashboard() {
 
           <nav className="flex flex-col gap-2">
             <button
-              onClick={() => { setActiveTab("profile"); setSidebarOpen(false); }}
+              onClick={() => {
+                setActiveTab("profile");
+                setSidebarOpen(false);
+              }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === "profile" 
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold" 
+                activeTab === "profile"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -343,10 +391,13 @@ export default function CustomerDashboard() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("addresses"); setSidebarOpen(false); }}
+              onClick={() => {
+                setActiveTab("addresses");
+                setSidebarOpen(false);
+              }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === "addresses" 
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold" 
+                activeTab === "addresses"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -355,10 +406,13 @@ export default function CustomerDashboard() {
             </button>
 
             <button
-              onClick={() => { setActiveTab("bookings"); setSidebarOpen(false); }}
+              onClick={() => {
+                setActiveTab("bookings");
+                setSidebarOpen(false);
+              }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === "bookings" 
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold" 
+                activeTab === "bookings"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -375,7 +429,13 @@ export default function CustomerDashboard() {
               <FaBriefcase size={18} />
               <span>Become a Provider</span>
             </button>
-
+            <button
+              onClick={() => router.push("/landingpage")}
+              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-[#f1dfc9] hover:text-[#4a2e21] transition-colors"
+            >
+              <FaHome size={18} />
+              Home Page
+            </button>
             <button
               onClick={handleLogout}
               className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors"
@@ -387,9 +447,9 @@ export default function CustomerDashboard() {
         </aside>
 
         {sidebarOpen && (
-          <div 
-            className="lg:hidden fixed inset-0 bg-black/40 z-40" 
-            onClick={() => setSidebarOpen(false)} 
+          <div
+            className="lg:hidden fixed inset-0 bg-black/40 z-40"
+            onClick={() => setSidebarOpen(false)}
           />
         )}
 
@@ -400,30 +460,35 @@ export default function CustomerDashboard() {
             <div className="bg-white rounded-xl p-6 shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-semibold" style={{ color: COFFEE.text }}>
+                  <h2
+                    className="text-2xl font-semibold"
+                    style={{ color: COFFEE.text }}
+                  >
                     My Profile
                   </h2>
-                  <p className="text-sm text-gray-600 mt-1">Manage your account details</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Manage your account details
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   {!editingProfile ? (
-                    <button 
-                      onClick={() => setEditingProfile(true)} 
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                    <button
+                      onClick={() => setEditingProfile(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f1dfc9] border border-[#f1dfc9] text-[#4a2e21] hover:bg-gray-50 transition-colors"
                     >
                       <FaEdit size={16} />
                       <span>Edit</span>
                     </button>
                   ) : (
                     <>
-                      <button 
-                        onClick={() => setEditingProfile(false)} 
-                        className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                      <button
+                        onClick={() => setEditingProfile(false)}
+                        className="px-4 py-2 rounded-lg  bg-[#f1dfc9] border border-[#f1dfc9] hover:bg-[#e2b8a0] text-[#4a2e21] transition-colors"
                       >
                         Cancel
                       </button>
-                      <button 
-                        onClick={saveProfile} 
+                      <button
+                        onClick={saveProfile}
                         className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
                       >
                         Save
@@ -436,25 +501,37 @@ export default function CustomerDashboard() {
               {!editingProfile ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Name</p>
-                    <p className="font-semibold text-lg" style={{ color: COFFEE.text }}>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+                      Name
+                    </p>
+                    <p className="font-semibold text-lg text-[#6F4E37]">
                       {profile?.name || "—"}
                     </p>
                   </div>
                   <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Email</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+                      Email
+                    </p>
                     <div className="flex items-center gap-2">
                       <FaEnvelope className="text-gray-400" size={16} />
-                      <p className="font-semibold text-lg" style={{ color: COFFEE.text }}>
+                      <p
+                        className="font-semibold text-lg"
+                        style={{ color: COFFEE.text }}
+                      >
                         {profile?.email || "—"}
                       </p>
                     </div>
                   </div>
                   <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Phone</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+                      Phone
+                    </p>
                     <div className="flex items-center gap-2">
                       <FaPhone className="text-gray-400" size={16} />
-                      <p className="font-semibold text-lg" style={{ color: COFFEE.text }}>
+                      <p
+                        className="font-semibold text-lg"
+                        style={{ color: COFFEE.text }}
+                      >
                         {profile?.phone || "—"}
                       </p>
                     </div>
@@ -463,30 +540,36 @@ export default function CustomerDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                    <input 
-                      name="name" 
-                      value={profileForm.name} 
-                      onChange={onProfileChange} 
-                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Name
+                    </label>
+                    <input
+                      name="name"
+                      value={profileForm.name}
+                      onChange={onProfileChange}
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input 
-                      name="email" 
-                      value={profileForm.email} 
-                      onChange={onProfileChange} 
-                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <input
+                      name="email"
+                      value={profileForm.email}
+                      onChange={onProfileChange}
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input 
-                      name="phone" 
-                      value={profileForm.phone} 
-                      onChange={onProfileChange} 
-                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone
+                    </label>
+                    <input
+                      name="phone"
+                      value={profileForm.phone}
+                      onChange={onProfileChange}
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                     />
                   </div>
                 </div>
@@ -498,12 +581,15 @@ export default function CustomerDashboard() {
           {activeTab === "addresses" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <h2 className="text-2xl font-semibold flex items-center gap-3" style={{ color: COFFEE.text }}>
+                <h2
+                  className="text-2xl font-semibold flex items-center gap-3"
+                  style={{ color: COFFEE.text }}
+                >
                   <FaMapMarkerAlt size={24} />
                   <span>Saved Addresses</span>
                 </h2>
-                <button 
-                  onClick={openAddAddress} 
+                <button
+                  onClick={openAddAddress}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
                 >
                   <FaPlus size={16} />
@@ -517,36 +603,53 @@ export default function CustomerDashboard() {
                 </div>
               ) : addresses.length === 0 ? (
                 <div className="text-center py-12">
-                  <FaMapMarkerAlt size={48} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-600">No saved addresses. Add one to make booking faster.</p>
+                  <FaMapMarkerAlt
+                    size={48}
+                    className="mx-auto text-gray-300 mb-4"
+                  />
+                  <p className="text-gray-600">
+                    No saved addresses. Add one to make booking faster.
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {addresses.map((a) => (
-                    <div key={a.id} className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow">
+                    <div
+                      key={a.id}
+                      className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow"
+                    >
                       <div className="flex items-start justify-between mb-3">
-                        <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-[#f1dfc9]" style={{ color: COFFEE.text }}>
+                        <span
+                          className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-[#f1dfc9]"
+                          style={{ color: COFFEE.text }}
+                        >
                           {a.type || "HOME"}
                         </span>
                         <div className="flex gap-2">
-                          <button 
-                            onClick={() => openEditAddress(a)} 
+                          <button
+                            onClick={() => openEditAddress(a)}
                             className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
                           >
                             <FaEdit size={14} className="text-gray-600" />
                           </button>
-                          <button 
-                            onClick={() => deleteAddress(a.id)} 
+                          <button
+                            onClick={() => deleteAddress(a.id)}
                             className="p-2 rounded-md border border-gray-300 hover:bg-red-50 transition-colors"
                           >
-                            <FaTrash size={14} className="text-red-600" />
+                            <FaTrash size={14} className="text-[#4a2e21]" />
                           </button>
                         </div>
                       </div>
                       <div>
-                        <p className="font-semibold text-[#4a2e21] mb-1">{a.street}</p>
-                        <p className="text-sm text-gray-600">{a.city}, {a.state}</p>
-                        <p className="text-sm text-gray-600">PIN: {a.pincode}</p>
+                        <p className="font-semibold text-[#4a2e21] mb-1">
+                          {a.street}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {a.city}, {a.state}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          PIN: {a.pincode}
+                        </p>
                         {a.latitude && a.longitude && (
                           <p className="text-xs text-gray-400 mt-2">
                             Coords: {a.latitude}, {a.longitude}
@@ -564,7 +667,10 @@ export default function CustomerDashboard() {
           {activeTab === "bookings" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold flex items-center gap-3" style={{ color: COFFEE.text }}>
+                <h2
+                  className="text-2xl font-semibold flex items-center gap-3"
+                  style={{ color: COFFEE.text }}
+                >
                   <FaClock size={24} />
                   <span>My Bookings</span>
                 </h2>
@@ -577,27 +683,38 @@ export default function CustomerDashboard() {
               ) : bookings.length === 0 ? (
                 <div className="text-center py-12">
                   <FaClock size={48} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-600">No bookings yet. Book a service to get started.</p>
+                  <p className="text-gray-600">
+                    No bookings yet. Book a service to get started.
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {bookings.map((b) => {
                     const st = statusLabel(b.status);
                     return (
-                      <div key={b.id} className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow">
+                      <div
+                        key={b.id}
+                        className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow"
+                      >
                         <div className="flex items-start justify-between gap-3 mb-4">
                           <div className="flex-1">
                             <p className="text-sm text-gray-500 mb-1">
-                              {b.service.category?.name} • {b.service.subcategory?.name}
+                              {b.service.category?.name} •{" "}
+                              {b.service.subcategory?.name}
                             </p>
                             <h3 className="font-semibold text-lg text-[#4a2e21] mb-2">
                               {b.service.subcategory?.name}
                             </h3>
                             <p className="text-sm text-gray-600">
-                              Provider: <span className="font-semibold">{b.provider?.name || "Provider"}</span>
+                              Provider:{" "}
+                              <span className="font-semibold">
+                                {b.provider?.name || "Provider"}
+                              </span>
                             </p>
                           </div>
-                          <div className={`font-semibold text-sm ${st.className}`}>
+                          <div
+                            className={`font-semibold text-sm ${st.className}`}
+                          >
                             {st.text}
                           </div>
                         </div>
@@ -605,7 +722,9 @@ export default function CustomerDashboard() {
                         <div className="flex items-center justify-between gap-4 py-3 border-t border-gray-100">
                           <div className="flex items-center gap-2 text-sm text-gray-600">
                             <FaRegCalendarAlt size={14} />
-                            <span>{new Date(b.bookingStart).toLocaleString()}</span>
+                            <span>
+                              {new Date(b.bookingStart).toLocaleString()}
+                            </span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-semibold text-[#4a2e21]">
@@ -619,8 +738,8 @@ export default function CustomerDashboard() {
 
                         <div className="flex justify-end gap-2 mt-3">
                           {b.status === "PENDING" && (
-                            <button 
-                              onClick={() => cancelBooking(b.id)} 
+                            <button
+                              onClick={() => cancelBooking(b.id)}
                               className="px-4 py-2 rounded-lg bg-[#A97155] text-white hover:bg-[#8a5944] transition-colors text-sm font-medium"
                             >
                               Cancel
@@ -650,9 +769,9 @@ export default function CustomerDashboard() {
       {/* ADDRESS MODAL */}
       {addrModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/50" 
-            onClick={() => setAddrModalOpen(false)} 
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setAddrModalOpen(false)}
           />
 
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl z-10">
@@ -660,8 +779,8 @@ export default function CustomerDashboard() {
               <h3 className="text-xl font-semibold text-[#4a2e21]">
                 {addrForm.id ? "Edit Address" : "Add Address"}
               </h3>
-              <button 
-                onClick={() => setAddrModalOpen(false)} 
+              <button
+                onClick={() => setAddrModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <FaTimes size={20} />
@@ -670,66 +789,80 @@ export default function CustomerDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
-                <input 
-                  name="street" 
-                  value={addrForm.street} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Street
+                </label>
+                <input
+                  name="street"
+                  value={addrForm.street}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                <input 
-                  name="city" 
-                  value={addrForm.city} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City
+                </label>
+                <input
+                  name="city"
+                  value={addrForm.city}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                <input 
-                  name="state" 
-                  value={addrForm.state} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  State
+                </label>
+                <input
+                  name="state"
+                  value={addrForm.state}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
-                <input 
-                  name="pincode" 
-                  value={addrForm.pincode} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pincode
+                </label>
+                <input
+                  name="pincode"
+                  value={addrForm.pincode}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none   text-[#4a2e21]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
-                <input 
-                  name="latitude" 
-                  value={addrForm.latitude} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Latitude
+                </label>
+                <input
+                  name="latitude"
+                  value={addrForm.latitude}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
-                <input 
-                  name="longitude" 
-                  value={addrForm.longitude} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Longitude
+                </label>
+                <input
+                  name="longitude"
+                  value={addrForm.longitude}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                <select 
-                  name="type" 
-                  value={addrForm.type} 
-                  onChange={onAddrChange} 
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type
+                </label>
+                <select
+                  name="type"
+                  value={addrForm.type}
+                  onChange={onAddrChange}
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
                 >
                   <option value="HOME">HOME</option>
                   <option value="WORK">WORK</option>
@@ -739,14 +872,14 @@ export default function CustomerDashboard() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setAddrModalOpen(false)} 
+              <button
+                onClick={() => setAddrModalOpen(false)}
                 className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
-              <button 
-                onClick={saveAddress} 
+              <button
+                onClick={saveAddress}
                 className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
               >
                 Save Address
@@ -757,4 +890,4 @@ export default function CustomerDashboard() {
       )}
     </div>
   );
-}   
+}

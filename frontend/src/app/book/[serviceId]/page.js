@@ -157,7 +157,7 @@ export default function BookServicePage() {
       if (res.status >= 200 && res.status < 300) {
         toast.success("Booking created");
         // redirect to bookings or provider/thank-you
-        router.push("/bookings"); // adjust to your bookings page
+        router.push("/profile"); 
       } else if (res.status === 401) {
         toast.error("Please login to book");
         router.push("/login");
