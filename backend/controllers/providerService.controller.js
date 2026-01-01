@@ -42,8 +42,8 @@ exports.addService = async (req, res) => {
       subcategoryId,
       price,
       description,
-      duration,        
-      selectedDays = [] 
+      duration,
+      selectedDays = []
     } = req.body;
 
     if (!categoryId || typeof price === "undefined" || !duration) {
@@ -67,7 +67,10 @@ exports.addService = async (req, res) => {
 
     for (const d of selectedDays) {
       const dayKey = String(d).toLowerCase();
-      availability[dayKey] = generateDailySlots(9, 19, Number(duration));
+      const times = generateDailySlots(9, 19, Number(duration));
+      const slotsObj = {};
+      times.forEach(t => slotsObj[t] = []);
+      availability[dayKey] = slotsObj;
     }
 
     const newService = await prisma.providerService.create({

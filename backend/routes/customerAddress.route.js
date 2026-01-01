@@ -9,7 +9,6 @@ const {
   deleteAddress,
 } = require("../controllers/customerAddress.controller");
 
-// All routes are customer-only
 router.get("/", auth, checkRole("CUSTOMER"), getAddresses);
 router.post("/", auth, checkRole("CUSTOMER"), createAddress);
 router.put("/:id", auth, checkRole("CUSTOMER"), updateAddress);

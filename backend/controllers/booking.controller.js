@@ -33,7 +33,20 @@ exports.getSlotsForDate = async (req, res) => {
         typeof val[0] === "string" &&
         val[0].match(/^[0-9a-fA-F-]{36}$/); // uuid
 
-      return { time, booked: isBooked };
+      // Calculate end time
+      const [h, m] = time.split(":").map(Number);
+      const startMins = h * 60 + m;
+      const endMins = startMins + (service.duration || 60);
+      const endH = Math.floor(endMins / 60);
+      const endM = endMins % 60;
+      const endTime = `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
+
+      return {
+        time,
+        booked: isBooked,
+        start: time,
+        end: endTime
+      };
     });
 
     return res.json({ slots });
@@ -119,10 +132,10 @@ exports.updateBookingStatus = async (req, res) => {
       action === "accept"
         ? "ACCEPTED"
         : action === "cancel"
-        ? "CANCELLED"
-        : action === "complete"
-        ? "COMPLETED"
-        : null;
+          ? "CANCELLED"
+          : action === "complete"
+            ? "COMPLETED"
+            : null;
 
     if (!status)
       return res.status(400).json({ message: "Invalid action" });

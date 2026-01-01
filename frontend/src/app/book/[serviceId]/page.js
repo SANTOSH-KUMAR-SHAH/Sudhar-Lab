@@ -95,7 +95,8 @@ export default function BookServicePage() {
       const data = res.data;
       // normalize times (make string + available flag)
       const normalized = (data.slots || []).map((s) => ({
-        time: s.time,
+        time: s.time, // keep raw time for logic
+        label: formatSlotLabel(s.time, s.start, s.end), // new display label
         available: !s.booked,
         start: s.start,
         end: s.end,
@@ -108,6 +109,22 @@ export default function BookServicePage() {
     } finally {
       setSlotsLoading(false);
     }
+  }
+
+  function formatSlotLabel(rawTime, start, end) {
+    // If start/end exist, format them (e.g. 09:00 -> 9:00 AM)
+    // If not, revert to rawTime
+    if (!start || !end) return rawTime;
+
+    const to12h = (t) => {
+      const [h, m] = t.split(":");
+      const hours = parseInt(h, 10);
+      const suffix = hours >= 12 ? "PM" : "AM";
+      const h12 = hours % 12 || 12;
+      return `${h12}:${m} ${suffix}`;
+    };
+
+    return `${to12h(start)} - ${to12h(end)}`;
   }
 
   function onSelectSlot(slot) {
@@ -131,7 +148,7 @@ export default function BookServicePage() {
     // Simulate network/payment delay
     setTimeout(async () => {
       toast.dismiss();
-      toast.success("Payment successful", { style: { background: "#e6ffed", color: "#03543f" }});
+      toast.success("Payment successful", { style: { background: "#e6ffed", color: "#03543f" } });
       setIsPaying(false);
       // Create booking on server
       await createBooking();
@@ -157,7 +174,7 @@ export default function BookServicePage() {
       if (res.status >= 200 && res.status < 300) {
         toast.success("Booking created");
 
-        router.push("/thankyou/" + res.data.booking.id); 
+        router.push("/thankyou/" + res.data.booking.id);
       } else if (res.status === 401) {
         toast.error("Please login to book");
         router.push("/login");
@@ -180,13 +197,13 @@ export default function BookServicePage() {
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f6efe1] border border-transparent hover:bg-[#efe6d6]"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f6efe1] border border-transparent hover:bg-[#efe6d6] transition-colors"
           >
             <FaArrowLeft className="text-[#6F4E37]" />
             <span className="text-sm text-[#4a2e21]">Back</span>
           </button>
 
-          <h1 className="text-2xl font-bold text-[#4a2e21]">
+          <h1 className="text-2xl font-bold text-[#4a2e21] truncate">
             {service?.subcategory?.name || service?.description || "Service"}
           </h1>
         </div>
@@ -197,9 +214,11 @@ export default function BookServicePage() {
               <div className="bg-[#f9f6f0] p-4 rounded-lg border border-[#e5dcc7]">
                 <p className="text-sm text-gray-600">Provider</p>
                 <div className="flex items-center gap-3 mt-2">
-                  <FaUserAlt className="text-2xl text-[#7a5c49]" />
+                  <div className="p-2 bg-white rounded-full border border-[#e5dcc7]">
+                    <FaUserAlt className="text-xl text-[#7a5c49]" />
+                  </div>
                   <div>
-                    <p className="font-medium text-[#4a2e21]">
+                    <p className="font-medium text-[#4a2e21] text-lg">
                       {service?.provider?.user?.name || "Provider"}
                     </p>
                     <p className="text-sm text-gray-600">
@@ -208,30 +227,28 @@ export default function BookServicePage() {
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600">Price</p>
-                  <p className="text-xl font-bold text-[#4a2e21]">₹{service?.price}</p>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-sm text-gray-600">Duration</p>
-                  <p className="text-sm text-[#4a2e21]">{service?.duration} mins</p>
+                <div className="mt-4 flex justify-between items-end border-t border-[#e5dcc7] pt-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Price</p>
+                    <p className="text-xl font-bold text-[#4a2e21]">₹{service?.price}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Duration</p>
+                    <p className="text-sm text-[#4a2e21] font-medium">{service?.duration} mins</p>
+                  </div>
                 </div>
               </div>
 
               <div className="mt-4 p-4 rounded-lg border border-[#e5dcc7] bg-white">
-                <label className="block text-sm text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm text-gray-700 mb-2 flex items-center gap-2 font-medium">
                   <FaCalendarAlt className="text-[#6F4E37]" /> Choose date
                 </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#6F4E37]"
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Select a date to view available time slots.
-                </p>
               </div>
             </div>
 
@@ -241,13 +258,15 @@ export default function BookServicePage() {
               </h3>
 
               {slotsLoading ? (
-                <Loading />
+                <div className="py-12 flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6F4E37]"></div>
+                </div>
               ) : slots.length === 0 ? (
-                <div className="py-8 text-center text-gray-600">
-                  No slots available for this date.
+                <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                  <p>No slots available for this date.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto p-1">
                   {slots.map((s) => {
                     const isSelected = selectedSlot?.time === s.time;
                     return (
@@ -255,16 +274,15 @@ export default function BookServicePage() {
                         key={s.time}
                         onClick={() => onSelectSlot(s)}
                         disabled={!s.available}
-                        className={`px-3 py-2 rounded-lg text-sm border transition ${
-                          s.available
+                        className={`px-3 py-3 rounded-lg text-xs sm:text-sm border transition-all flex flex-col items-center justify-center gap-1 ${s.available
                             ? isSelected
-                              ? "bg-[#6F4E37] text-white border-[#5A3F2E] shadow"
-                              : "bg-white text-[#4a2e21] border-[#e5dcc7] hover:bg-[#f6efe1]"
-                            : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                        }`}
+                              ? "bg-[#6F4E37] text-white border-[#5A3F2E] shadow-md transform scale-105"
+                              : "bg-white text-[#4a2e21] border-[#e5dcc7] hover:bg-[#f6efe1] hover:border-[#d4c5a0]"
+                            : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
+                          }`}
                       >
-                        <div className="font-medium">{s.time}</div>
-                        {!s.available && <div className="text-xs">Booked</div>}
+                        <div className="font-semibold">{s.label}</div>
+                        {!s.available && <div className="text-[10px] uppercase tracking-wide font-bold">Booked</div>}
                       </button>
                     );
                   })}

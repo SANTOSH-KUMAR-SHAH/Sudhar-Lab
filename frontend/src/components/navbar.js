@@ -83,9 +83,8 @@ export default function Navbar() {
 
       {/* SIDEBAR */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ${
-          openSidebar ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ${openSidebar ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="flex justify-between items-center px-4 py-4 border-b text-[#4a2e21]">
           <h2 className="text-lg font-semibold">Menu</h2>
@@ -96,6 +95,11 @@ export default function Navbar() {
         </div>
 
         <div className="flex flex-col p-4 gap-6">
+
+          {/* Home Link (Mobile) */}
+          <a href="/" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 text-[#4a2e21] font-medium">
+            <span>Home</span>
+          </a>
 
           {/* Location */}
           <div className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">

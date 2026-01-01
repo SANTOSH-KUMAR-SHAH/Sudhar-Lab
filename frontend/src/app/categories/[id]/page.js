@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import Loading from "@/components/loading";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaSearch, FaFilter, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 
@@ -13,6 +13,8 @@ const API_BASE =
     ? "https://localhelpbackendv2.onrender.com"
     : "http://localhost:4040";
 
+const ITEMS_PER_PAGE = 6;
+
 export default function CategoryServicesPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -20,7 +22,12 @@ export default function CategoryServicesPage() {
   const [category, setCategory] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
+
+  // Filters & Pagination state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!id) return;
@@ -47,12 +54,40 @@ export default function CategoryServicesPage() {
     } catch (err) {
       console.error("Error loading category/services:", err);
       toast.error("Could not load services", {
-  style: { background: "#ffe6e6", color: "#7A0A0A" }
-});
+        style: { background: "#ffe6e6", color: "#7A0A0A" }
+      });
     } finally {
       setLoading(false);
     }
   }
+
+  // --- Filtering Logic ---
+  const filteredServices = services.filter((s) => {
+    // 1. Search (Name or Description)
+    const name = s.name || "";
+    const desc = s.description || s.longDescription || "";
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = name.toLowerCase().includes(term) || desc.toLowerCase().includes(term);
+
+    // 2. Price
+    const price = s.price || 0;
+    const min = minPrice ? parseFloat(minPrice) : 0;
+    const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+    const matchesPrice = price >= min && price <= max;
+
+    return matchesSearch && matchesPrice;
+  });
+
+  // --- Pagination Logic ---
+  const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedServices = filteredServices.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, minPrice, maxPrice]);
+
 
   if (loading) return <Loading />;
 
@@ -69,18 +104,63 @@ export default function CategoryServicesPage() {
           <h1 className="text-2xl font-bold text-[#4a2e21]">
             {category?.name || "Category"}
           </h1>
-          <div />
+          <div className="w-16" /> {/* spacer */}
         </div>
 
-        {services.length === 0 ? (
+        {/* --- Filters Section --- */}
+        <div className="bg-white p-4 rounded-xl shadow mb-6 border border-[#e5dcc7]">
+          <div className="flex flex-col md:flex-row gap-4">
+
+            {/* Search */}
+            <div className="flex-1 relative">
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-[#6F4E37]"
+              />
+            </div>
+
+            {/* Price Range */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
+                <span className="text-gray-500 text-sm">₹ Min</span>
+                <input
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="w-20 outline-none text-sm"
+                  placeholder="0"
+                />
+              </div>
+              <span className="text-gray-400">-</span>
+              <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
+                <span className="text-gray-500 text-sm">₹ Max</span>
+                <input
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-20 outline-none text-sm"
+                  placeholder="Any"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* --- List --- */}
+        {paginatedServices.length === 0 ? (
           <div className="bg-white p-8 rounded-xl shadow text-center">
             <p className="text-gray-600">
-              No services available in this category yet.
+              {services.length === 0 ? "No services available in this category yet." : "No services match your filters."}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {services.map((s) => (
+            {paginatedServices.map((s) => (
               <div
                 key={s.id}
                 className="bg-white p-4 rounded-lg shadow flex items-start gap-4"
@@ -108,7 +188,7 @@ export default function CategoryServicesPage() {
                       Duration: {s.duration} mins
                     </p>
                   ) : null}
-                  <p className="text-sm text-gray-700 mt-2">
+                  <p className="text-sm text-gray-700 mt-2 line-clamp-2">
                     {s.longDescription || s.description}
                   </p>
                   <div className="mt-4 flex items-center gap-3">
@@ -135,7 +215,30 @@ export default function CategoryServicesPage() {
             ))}
           </div>
         )}
-        
+
+        {/* --- Pagination Controls --- */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8 gap-4">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-full bg-white shadow disabled:opacity-50 hover:bg-gray-50 text-[#6F4E37]"
+            >
+              <FaChevronLeft />
+            </button>
+            <span className="flex items-center text-[#4a2e21] font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-full bg-white shadow disabled:opacity-50 hover:bg-gray-50 text-[#6F4E37]"
+            >
+              <FaChevronRight />
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   );
