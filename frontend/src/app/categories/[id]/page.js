@@ -119,7 +119,7 @@ export default function CategoryServicesPage() {
                 placeholder="Search services..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-[#6F4E37]"
+                className="w-full pl-10 pr-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:border-[#6F4E37]"
               />
             </div>
 
@@ -131,7 +131,7 @@ export default function CategoryServicesPage() {
                   type="number"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-20 outline-none text-sm"
+                  className="w-20 outline-none text-sm text-black"
                   placeholder="0"
                 />
               </div>
@@ -142,7 +142,7 @@ export default function CategoryServicesPage() {
                   type="number"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-20 outline-none text-sm"
+                  className="w-20 outline-none text-sm text-black"
                   placeholder="Any"
                 />
               </div>
