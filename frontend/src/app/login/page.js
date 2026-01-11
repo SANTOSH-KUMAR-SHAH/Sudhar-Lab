@@ -83,7 +83,7 @@ export default function Login() {
                 type="button"
                 onClick={() =>
                   setForm({
-                    email: "customer1@example.com",
+                    email: "rohan.das@example.com",
                     password: "password123",
                   })
                 }
