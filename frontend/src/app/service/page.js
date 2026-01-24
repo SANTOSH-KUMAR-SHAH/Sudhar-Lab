@@ -32,11 +32,11 @@ export default function ServicesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter & Sort States
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("name"); // 'name' | 'count'
 
-  // Pagination States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("name");
+
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -83,11 +83,11 @@ export default function ServicesPage() {
     fetchCategories();
   }, [URL]);
 
-  // --- Filtering & Sorting Logic ---
+
   const processedCategories = useMemo(() => {
     let result = [...categories];
 
-    // 1. Search
+
     if (searchQuery.trim()) {
       const term = searchQuery.toLowerCase();
       result = result.filter(cat =>
@@ -95,14 +95,14 @@ export default function ServicesPage() {
       );
     }
 
-    // 2. Sort
+
     result.sort((a, b) => {
       if (sortBy === "name") {
         return a.name.localeCompare(b.name);
       } else if (sortBy === "count") {
-        const countA = a._count?.subcategories || 0;
-        const countB = b._count?.subcategories || 0;
-        return countB - countA; // Descending
+        const countA = a.availableProviders || 0;
+        const countB = b.availableProviders || 0;
+        return countB - countA;
       }
       return 0;
     });
@@ -110,7 +110,7 @@ export default function ServicesPage() {
     return result;
   }, [categories, searchQuery, sortBy]);
 
-  // --- Pagination Logic ---
+
   const totalPages = Math.ceil(processedCategories.length / itemsPerPage);
   const paginatedCategories = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -130,9 +130,9 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-[#ece9d8] text-[#4a2e21] font-sans">
 
-      {/* Hero Section */}
+
       <div className="relative bg-[#4a2e21] text-[#ece9d8] pt-32 pb-20 px-6 rounded-b-[3rem] shadow-xl overflow-hidden">
-        {/* Background Decoration */}
+
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <div className="absolute top-[-50%] left-[-20%] w-[800px] h-[800px] bg-[#6F4E37] rounded-full blur-[100px]"></div>
           <div className="absolute bottom-[-50%] right-[-20%] w-[600px] h-[600px] bg-[#8B5E3C] rounded-full blur-[100px]"></div>
@@ -168,7 +168,7 @@ export default function ServicesPage() {
             </motion.button>
           </div>
 
-          {/* Search & Filter Box */}
+
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -187,7 +187,7 @@ export default function ServicesPage() {
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
-                    setCurrentPage(1); // Reset page on search
+                    setCurrentPage(1);
                   }}
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#d4c5a9] focus:outline-none focus:ring-2 focus:ring-[#6F4E37] text-[#4a2e21] placeholder-[#4a2e21]/50 shadow-inner"
                 />
@@ -213,10 +213,10 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      {/* Main Content */}
+
       <div className="max-w-7xl mx-auto px-6 py-16">
 
-        {/* Results Info */}
+
         <div className="flex justify-between items-center mb-8 border-b border-[#d4c5a9]/50 pb-4">
           <h2 className="text-2xl font-bold text-[#4a2e21]">
             Help near you....
@@ -226,7 +226,7 @@ export default function ServicesPage() {
           </span>
         </div>
 
-        {/* Categories Grid */}
+
         {processedCategories.length === 0 ? (
           <div className="text-center py-20 opacity-60">
             <FaSearch className="text-6xl mx-auto mb-4 text-[#6F4E37]/30" />
@@ -258,7 +258,7 @@ export default function ServicesPage() {
                     onClick={() => router.push(`/categories/${cat.id}`)}
                     className="group cursor-pointer bg-white rounded-2xl p-6 shadow-md border border-[#eee8d5] hover:shadow-xl hover:border-[#6F4E37]/30 transition-all relative overflow-hidden"
                   >
-                    {/* Hover Decoration */}
+
                     <div className="absolute top-0 right-0 w-24 h-24 bg-[#6F4E37]/5 rounded-bl-[100px] group-hover:scale-150 transition-transform duration-500 origin-top-right"></div>
 
                     <div className="relative z-10 flex flex-col items-center text-center">
@@ -271,7 +271,7 @@ export default function ServicesPage() {
                       </h3>
 
                       <div className="flex items-center gap-2 mt-2 text-xs font-semibold text-[#8B5E3C] bg-[#ece9d8]/50 px-3 py-1 rounded-full">
-                        <span>{cat._count?.services || 0} Options</span>
+                        <span>{cat.availableProviders || 0} Available</span>
                       </div>
                     </div>
                   </motion.div>
@@ -281,7 +281,7 @@ export default function ServicesPage() {
           </motion.div>
         )}
 
-        {/* Pagination Controls */}
+
         {totalPages > 1 && (
           <div className="mt-16 flex justify-center items-center gap-4">
             <button

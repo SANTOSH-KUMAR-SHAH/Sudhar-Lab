@@ -92,7 +92,6 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      // We need an endpoint for "me". I added /me in backend earlier.
       const res = await axios.get(`${API_BASE}/api/providers/me`, { headers });
       setProfile(res.data.profile);
     } catch (err) {
@@ -140,7 +139,7 @@ export default function Dashboard() {
       const res = await axios.get(`${API_BASE}/api/bookings/providers/bookings`, { headers });
       const data = res.data.bookings || [];
 
-      // inject subcategory name
+
       const enriched = await Promise.all(
         data.map(async (req) => {
           const subcatId = req.service?.subcategoryId;
@@ -150,7 +149,7 @@ export default function Dashboard() {
       );
 
       setRequests(enriched);
-      // console.log("Enriched requests:", enriched);
+
     } catch (err) {
       console.error(err);
     }
@@ -275,7 +274,7 @@ export default function Dashboard() {
       price: "",
       description: "",
       duration: "",
-      selectedDays: [], // NEW
+      selectedDays: [],
     });
     setShowModal(true);
   }
@@ -401,7 +400,7 @@ export default function Dashboard() {
               <FaUserCircle className="text-6xl mx-auto text-[#7a5c49]" />
               <p className="mt-2 font-semibold text-[#4a2e21]">{profile?.user?.name || "Provider"}</p>
 
-              {/* Availability Switch */}
+
               <div className="mt-3 flex items-center justify-center gap-2">
                 <span className={`text-xs font-bold ${profile?.isAvailable ? "text-green-600" : "text-gray-500"}`}>
                   {profile?.isAvailable ? "ONLINE" : "OFFLINE"}
@@ -626,7 +625,7 @@ export default function Dashboard() {
                   <FaClock /> Live Requests
                 </h2>
 
-                {/* Request Loader */}
+
                 {loadingRequests ? (
                   <Loading />
                 ) : requests.length === 0 ? (
@@ -644,18 +643,18 @@ export default function Dashboard() {
                           key={r.id}
                           className="p-4 border border-[#e4d7c5] rounded-xl bg-[#fdfcf8] shadow-sm"
                         >
-                          {/* SERVICE NAME */}
+
                           <p className="font-semibold text-lg text-[#4a2e21]">
                             {r.subcatName || "Service"}
                           </p>
 
-                          {/* DATE + TIME */}
+
                           <p className="text-sm text-[#7a5d49] mt-1 flex items-center gap-1">
                             <FaClock className="text-[#7a5d49]" />
                             {start.toLocaleString()}
                           </p>
 
-                          {/* IF ACCEPTED → Show CUSTOMER DETAILS */}
+
                           {r.status === "ACCEPTED" && (
                             <div className="mt-3 bg-[#f7f2ea] p-3 rounded-lg border border-[#e4d7c5]">
                               <p className="font-medium text-[#4a2e21] flex items-center gap-2">
@@ -666,17 +665,17 @@ export default function Dashboard() {
                                 <FaPhone className="text-[#6F4E37]" />{" "}
                                 {r.customer.phone}
                               </p>
-                              {/* <p className="text-sm text-[#7a5d49] flex items-center gap-2 mt-1">
-                                <FaMapMarkerAlt className="text-[#6F4E37]" />{" "}
-                                {r.customerAddress.street},{" "}
-                                {r.customerAddress.city}
-                              </p> */}
+
+
+
+
+
                             </div>
                           )}
 
-                          {/* STATUS / BUTTONS */}
+
                           <div className="mt-4">
-                            {/* PENDING → SHOW ACCEPT + REJECT */}
+
                             {r.status === "PENDING" && (
                               <div className="flex gap-3">
                                 <button
@@ -697,7 +696,7 @@ export default function Dashboard() {
                               </div>
                             )}
 
-                            {/* ACCEPTED → SHOW MARK COMPLETED */}
+
                             {r.status === "ACCEPTED" && (
                               <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-2 text-[#4a2e21] font-semibold text-sm">
@@ -715,7 +714,7 @@ export default function Dashboard() {
                               </div>
                             )}
 
-                            {/* COMPLETED */}
+
                             {r.status === "COMPLETED" && (
                               <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
                                 <MdDoneAll className="text-[#6F4E37]" />
@@ -723,7 +722,7 @@ export default function Dashboard() {
                               </div>
                             )}
 
-                            {/* REJECTED */}
+
                             {r.status === "CANCELLED" && (
                               <div className="flex items-center gap-2 text-[#A97155] font-semibold">
                                 <MdCancel />
@@ -745,7 +744,7 @@ export default function Dashboard() {
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Personal Info */}
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
@@ -767,7 +766,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Provider Specifics */}
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Aadhaar Number</label>
@@ -809,7 +808,7 @@ export default function Dashboard() {
                       <div key={day} className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-gray-100 pb-4 last:border-0">
                         <div className="w-32 font-medium text-[#4a2e21]">{day}</div>
 
-                        {/* Using uncontrolled inputs for simplicity in this large component */}
+
                         <div className="flex items-center gap-2">
                           <span className="text-gray-500 text-sm">Start:</span>
                           <input

@@ -1,6 +1,5 @@
 const prisma = require("../utils/db");
 
-// --- REVIEWS ---
 
 exports.createReview = async (req, res) => {
     try {
@@ -13,19 +12,16 @@ exports.createReview = async (req, res) => {
         });
 
         if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-        // Determine reviewed user (opposite of reviewer)
         let reviewedUserId;
         if (reviewerId === booking.customerId) {
             reviewedUserId = booking.providerId;
         } else if (reviewerId === booking.providerId) {
-            reviewedUserId = booking.customerId; // Providers reviewing customers? Usually disallowed or one-way. Assuming one-way for now or both.
-            // User request focuses on "post service ... option to give feedback" (Customer -> Provider)
+            reviewedUserId = booking.customerId;
         } else {
             return res.status(403).json({ message: "Not authorized" });
         }
 
-        // Check if review exists
+
         const existing = await prisma.review.findUnique({ where: { bookingId } });
         if (existing) return res.status(400).json({ message: "Review already exists" });
 
@@ -39,7 +35,6 @@ exports.createReview = async (req, res) => {
             }
         });
 
-        // Update provider profile rating (simple average)
         if (reviewerId === booking.customerId) {
             const aggs = await prisma.review.aggregate({
                 where: { reviewedUserId: reviewedUserId },
@@ -62,14 +57,11 @@ exports.createReview = async (req, res) => {
 exports.getProviderReviews = async (req, res) => {
     try {
         const providerId = req.user.id;
-        // User reports received
         const reviews = await prisma.review.findMany({
             where: { reviewedUserId: providerId },
             include: { reviewer: { select: { name: true } } },
             orderBy: { createdAt: 'desc' }
         });
-
-        // Calculate rating distribution
         const total = reviews.length;
         const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / total || 0;
 
@@ -79,20 +71,18 @@ exports.getProviderReviews = async (req, res) => {
     }
 };
 
-// --- REPORTS ---
+
 
 exports.createReport = async (req, res) => {
     try {
         const { bookingId, issueType, description } = req.body;
-        const reporterId = req.user.id; // Customer
+        const reporterId = req.user.id;
 
         const booking = await prisma.booking.findUnique({
             where: { id: bookingId }
         });
 
         if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-        // Ensure reporter is customer (orphaned report check)
         if (booking.customerId !== reporterId) {
             return res.status(403).json({ message: "Not authorized to report this booking" });
         }
@@ -129,7 +119,6 @@ exports.getAdminReports = async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
 
-        // Also fetch recent reviews for Admin view
         const reviews = await prisma.review.findMany({
             take: 20,
             orderBy: { createdAt: 'desc' },
@@ -147,7 +136,7 @@ exports.getAdminReports = async (req, res) => {
 
 exports.getAdminFeedbackStats = async (req, res) => {
     try {
-        // Just general stats
+
         const totalReviews = await prisma.review.count();
         const totalReports = await prisma.report.count();
         const pendingReports = await prisma.report.count({ where: { status: "OPEN" } });

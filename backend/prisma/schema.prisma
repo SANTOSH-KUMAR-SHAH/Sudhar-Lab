@@ -155,7 +155,7 @@ model Booking {
   review   Review?
   report   Report?
 
-  @@index([providerId, bookingStart, bookingEnd]) // for conflict checks
+  @@index([providerId, bookingStart, bookingEnd])
 }
 
 enum BookingStatus {

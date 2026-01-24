@@ -65,14 +65,14 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Pagination
+
     const [pendingPage, setPendingPage] = useState(1);
     const [providersPage, setProvidersPage] = useState(1);
     const [reportsPage, setReportsPage] = useState(1);
     const [reviewsPage, setReviewsPage] = useState(1);
     const PAGE_SIZE = 8;
 
-    // Modal
+
     const [modal, setModal] = useState({
         isOpen: false,
         title: "",
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
         return <Loading />;
     }
 
-    // Pagination slices
+
     const pendingTotalPages = Math.ceil(pendingApps.length / PAGE_SIZE);
     const providersTotalPages = Math.ceil(allProviders.length / PAGE_SIZE);
     const usersTotalPages = Math.ceil(allUsers.length / PAGE_SIZE);
@@ -317,7 +317,7 @@ export default function AdminDashboard() {
     );
     const maxActive = Math.max(...chartData.bookingsTrend.map(i => i.active), 1);
     const maxCompleted = Math.max(...chartData.bookingsTrend.map(i => i.completed), 1);
-    // const maxRevenue = Math.max(...chartData.revenueByMonth.map(d => d.revenue));
+
 
     return (
         <div className="min-h-screen bg-[#ece9d8]">
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
                 isDanger={modal.isDanger}
             />
 
-            {/* MOBILE HEADER */}
+
             <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
                 <h1 className="text-xl font-bold text-[#6F4E37]">Admin Panel</h1>
                 <button
@@ -342,7 +342,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="lg:flex gap-6 max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-6 pb-12">
-                {/* SIDEBAR */}
+
                 <aside
                     className={`fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-3rem)] lg:top-6 w-72 bg-white p-6 rounded-none lg:rounded-2xl shadow-lg transform transition-transform z-50 ${sidebarOpen
                         ? "translate-x-0"
@@ -439,9 +439,9 @@ export default function AdminDashboard() {
                     </nav>
                 </aside>
 
-                {/* MAIN */}
+
                 <main className="flex-1 w-full">
-                    {/* STATS */}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                         <StatCard title="Providers" value={stats.totalProviders} icon={<FaUsers />} />
 
@@ -531,7 +531,7 @@ export default function AdminDashboard() {
                                             </table>
                                         </div>
 
-                                        {/* Pagination */}
+
                                         <div className="flex justify-between items-center px-6 py-4 border-t">
                                             <button
                                                 disabled={pendingPage === 1}
@@ -638,7 +638,7 @@ export default function AdminDashboard() {
                                             </table>
                                         </div>
 
-                                        {/* Pagination */}
+
                                         <div className="flex justify-between items-center px-6 py-4 border-t">
                                             <button
                                                 disabled={providersPage === 1}
@@ -702,7 +702,7 @@ export default function AdminDashboard() {
                                             </tbody>
                                         </table>
 
-                                        {/* Reports Pagination */}
+
                                         <div className="flex justify-between items-center px-6 py-4 border-t">
                                             <button
                                                 disabled={reportsPage === 1}
@@ -770,7 +770,7 @@ export default function AdminDashboard() {
                                             </tbody>
                                         </table>
 
-                                        {/* Reviews Pagination */}
+
                                         <div className="flex justify-between items-center px-6 py-4 border-t">
                                             <button
                                                 disabled={reviewsPage === 1}
@@ -797,16 +797,7 @@ export default function AdminDashboard() {
 
                         {activeTab === "stats" && (
                             <div className="p-4 sm:p-6 space-y-6 max-w-full overflow-hidden">
-                                {/* Overview Cards */}
-
-
-                                {/* Charts Section */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-
-
-
-
-                                    {/* Provider Status Distribution */}
                                     <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
                                             <FaUsers className="text-[#A97155]" />
@@ -861,7 +852,7 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Quick Stats Grid */}
+
                                     <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
                                             <FaClipboardList className="text-[#A97155]" />
@@ -928,12 +919,12 @@ export default function AdminDashboard() {
                                         <div className="space-y-5">
                                             {chartData.bookingsTrend.map((item, idx) => (
                                                 <div key={idx} className="space-y-2">
-                                                    {/* Month */}
+
                                                     <div className="text-sm font-semibold text-[#7a5c49]">
                                                         {item.month}
                                                     </div>
 
-                                                    {/* Active */}
+
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-xs w-20 text-[#7a5c49]">Active</span>
                                                         <div className="flex-1 h-3 bg-[#f1dfc9]/40 rounded-full overflow-hidden">
@@ -947,7 +938,7 @@ export default function AdminDashboard() {
                                                         </span>
                                                     </div>
 
-                                                    {/* Completed */}
+
                                                     <div className="flex items-center gap-3">
                                                         <span className="text-xs w-20 text-[#7a5c49]">Completed</span>
                                                         <div className="flex-1 h-3 bg-[#f1dfc9]/40 rounded-full overflow-hidden">
@@ -976,7 +967,7 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Revenue Trend Chart */}
+
                                     <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm flex flex-col">
                                         <div className="flex items-center gap-2 mb-3">
                                             <FaChartBar className="text-[#A97155]" />
@@ -1008,12 +999,12 @@ export default function AdminDashboard() {
                                                 const heightPercent = (item.revenue / maxRevenue) * 100;
                                                 return (
                                                     <div key={idx} className="flex-1 flex flex-col items-center gap-1 min-w-[40px] max-w-[70px] h-full justify-end">
-                                                        {/* Value label on top */}
+
                                                         <span className="text-[9px] sm:text-[10px] font-semibold text-[#4a2e21] whitespace-nowrap mb-1">
                                                             ₹{(item.revenue / 1000).toFixed(0)}k
                                                         </span>
 
-                                                        {/* Bar container */}
+
                                                         <div className="w-full relative flex-1 flex items-end group">
                                                             <div className="w-full bg-[#f1dfc9]/20 rounded-t-lg absolute inset-0 md:group-hover:bg-[#f1dfc9]/30 transition-colors"></div>
                                                             <div
@@ -1022,7 +1013,7 @@ export default function AdminDashboard() {
                                                             />
                                                         </div>
 
-                                                        {/* Month label */}
+
                                                         <span className="text-[10px] sm:text-xs font-medium text-[#7a5c49] mt-2">{item.month}</span>
                                                     </div>
                                                 );
@@ -1034,7 +1025,7 @@ export default function AdminDashboard() {
                         )}
                         {activeTab === "users" && (
                             <>
-                                {/* Header */}
+
                                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa]">
                                     <h3 className="text-lg font-semibold text-[#4a2e21]">
                                         Customers
@@ -1064,7 +1055,7 @@ export default function AdminDashboard() {
                                                 <tbody className="divide-y divide-gray-100 text-sm">
                                                     {usersSlice.map((user) => (
                                                         <tr key={user.id} className="hover:bg-gray-50/50 transition">
-                                                            {/* User */}
+
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="w-8 h-8 rounded-full bg-[#f1dfc9] flex items-center justify-center text-[#4a2e21]">
@@ -1076,12 +1067,12 @@ export default function AdminDashboard() {
                                                                 </div>
                                                             </td>
 
-                                                            {/* Email */}
+
                                                             <td className="px-6 py-4 text-gray-600 text-xs font-mono">
                                                                 {user.email}
                                                             </td>
 
-                                                            {/* Role */}
+
                                                             <td className="px-6 py-4">
                                                                 <span
                                                                     className={`text-xs font-semibold px-2 py-1 rounded ${user.role === "ADMIN"
@@ -1098,7 +1089,7 @@ export default function AdminDashboard() {
 
 
 
-                                                            {/* Date */}
+
                                                             <td className="px-6 py-4 text-gray-500 text-xs">
                                                                 {new Date(user.createdAt).toLocaleDateString()}
                                                             </td>
@@ -1108,7 +1099,7 @@ export default function AdminDashboard() {
                                             </table>
                                         </div>
 
-                                        {/* Pagination */}
+
                                         <div className="flex justify-between items-center px-6 py-4 border-t">
                                             <button
                                                 disabled={usersPage === 1}

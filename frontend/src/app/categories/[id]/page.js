@@ -23,7 +23,7 @@ export default function CategoryServicesPage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters & Pagination state
+
   const [searchTerm, setSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -37,7 +37,6 @@ export default function CategoryServicesPage() {
   async function fetchCategoryAndServices(catId) {
     setLoading(true);
     try {
-      // fetch category (name) and providers/services
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -61,15 +60,13 @@ export default function CategoryServicesPage() {
     }
   }
 
-  // --- Filtering Logic ---
+
   const filteredServices = services.filter((s) => {
-    // 1. Search (Name or Description)
     const name = s.name || "";
     const desc = s.description || s.longDescription || "";
     const term = searchTerm.toLowerCase();
     const matchesSearch = name.toLowerCase().includes(term) || desc.toLowerCase().includes(term);
 
-    // 2. Price
     const price = s.price || 0;
     const min = minPrice ? parseFloat(minPrice) : 0;
     const max = maxPrice ? parseFloat(maxPrice) : Infinity;
@@ -78,12 +75,9 @@ export default function CategoryServicesPage() {
     return matchesSearch && matchesPrice;
   });
 
-  // --- Pagination Logic ---
   const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedServices = filteredServices.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, minPrice, maxPrice]);
@@ -104,14 +98,12 @@ export default function CategoryServicesPage() {
           <h1 className="text-2xl font-bold text-[#4a2e21]">
             {category?.name || "Category"}
           </h1>
-          <div className="w-16" /> {/* spacer */}
+          <div className="w-16" />
         </div>
 
-        {/* --- Filters Section --- */}
         <div className="bg-white p-4 rounded-xl shadow mb-6 border border-[#e5dcc7]">
           <div className="flex flex-col md:flex-row gap-4">
 
-            {/* Search */}
             <div className="flex-1 relative">
               <FaSearch className="absolute left-3 top-3 text-gray-400" />
               <input
@@ -123,7 +115,6 @@ export default function CategoryServicesPage() {
               />
             </div>
 
-            {/* Price Range */}
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
                 <span className="text-gray-500 text-sm">₹ Min</span>
@@ -150,8 +141,6 @@ export default function CategoryServicesPage() {
 
           </div>
         </div>
-
-        {/* --- List --- */}
         {paginatedServices.length === 0 ? (
           <div className="bg-white p-8 rounded-xl shadow text-center">
             <p className="text-gray-600">
@@ -216,7 +205,7 @@ export default function CategoryServicesPage() {
           </div>
         )}
 
-        {/* --- Pagination Controls --- */}
+
         {totalPages > 1 && (
           <div className="flex justify-center mt-8 gap-4">
             <button

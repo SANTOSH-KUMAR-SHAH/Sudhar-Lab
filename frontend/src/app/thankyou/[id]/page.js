@@ -53,7 +53,7 @@ export default function ThankYouPage({ params }) {
     <div className="min-h-screen bg-[#ece9d8] flex items-center justify-center p-4">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-md p-6 border border-[#e5dcc7] text-center relative">
 
-        {/* Top Icon */}
+
         <div className="flex justify-center mb-4">
           <FaCheckCircle className="text-[#6F4E37] text-5xl" />
         </div>
@@ -66,7 +66,7 @@ export default function ThankYouPage({ params }) {
           Your service request has been successfully placed.
         </p>
 
-        {/* Loading shimmer */}
+
         {loading && (
           <div className="animate-pulse space-y-3">
             <div className="h-4 bg-[#e9dfd2] rounded"></div>
@@ -75,7 +75,7 @@ export default function ThankYouPage({ params }) {
           </div>
         )}
 
-        {/* Booking Details Card */}
+
         {!loading && booking && (
           <div className="bg-[#fdfbf7] border border-[#e5dcc7] rounded-xl p-4 text-left space-y-3 mb-6">
             <div>

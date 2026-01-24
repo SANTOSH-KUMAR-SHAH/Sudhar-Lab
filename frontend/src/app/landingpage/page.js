@@ -138,7 +138,7 @@ export default function Dashboard() {
     <Loading message="Please wait, the server takes time to load sometimes.Thanks for your patience..." />
   );
 
-  // Framer Motion Variants
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -157,7 +157,7 @@ export default function Dashboard() {
       <Navbar />
 
       <div className="min-h-screen pt-20 bg-[#ece9d8]">
-        {/* HERO SECTION */}
+
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
             <motion.div
@@ -214,7 +214,7 @@ export default function Dashboard() {
                 </div>
               </motion.div>
 
-              {/* STATS */}
+
               <div className="flex items-center justify-around bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-md border border-gray-200">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-[#4a2e21]">{allCustomer}</p>
@@ -233,7 +233,7 @@ export default function Dashboard() {
               </div>
             </motion.div>
 
-            {/* HERO IMAGE */}
+
             <div
               className="flex-1 flex justify-center lg:justify-end"
             >
@@ -249,9 +249,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* FEATURES SECTION */}
+
         <div className="bg-white py-24 relative overflow-hidden">
-          {/* Decorative Blob */}
+
           <div className="absolute top-0 left-0 w-64 h-64 bg-[#f3efe6] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
 
           <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">

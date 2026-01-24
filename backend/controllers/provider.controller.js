@@ -212,7 +212,7 @@ exports.getProviderEarnings = async (req, res) => {
 exports.markAsComplete = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    const providerId = req.user.id; // Authenticated provider's User ID
+    const providerId = req.user.id;
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -221,7 +221,7 @@ exports.markAsComplete = async (req, res) => {
 
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    // Security: Ensure this booking belongs to the requesting provider
+
     if (booking.providerId !== providerId) {
       return res.status(403).json({ message: "Not authorized to complete this booking" });
     }
@@ -234,16 +234,16 @@ exports.markAsComplete = async (req, res) => {
       return res.status(400).json({ message: "Cannot complete a cancelled booking" });
     }
 
-    // Update status
+
     await prisma.booking.update({
       where: { id: bookingId },
       data: { status: "COMPLETED" }
     });
 
-    // Add earnings to provider
+
     await prisma.user.update({
       where: { id: providerId },
-      data: { earnings: { increment: booking.service.price } } // Assuming service price is the earning
+      data: { earnings: { increment: booking.service.price } }
     });
 
     res.json({ message: "Booking marked as completed" });

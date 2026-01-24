@@ -30,7 +30,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* NAVBAR */}
+
       <nav className="bg-white fixed w-full z-20 top-0 border-b border-gray-200 text-black">
         <div className="max-w-screen flex items-center justify-between px-4 py-3">
           <a href="/" className="flex items-center gap-2">
@@ -38,7 +38,7 @@ export default function Navbar() {
             <span className="text-xl font-semibold text-black">LocalHelp</span>
           </a>
 
-          {/* Desktop Menu */}
+
           <div className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl bg-white shadow-sm cursor-pointer hover:border-gray-400 transition">
               <FiMapPin className="text-gray-500 text-lg" />
@@ -63,7 +63,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Hamburger */}
+
           <div className="md:hidden">
             <FiMenu
               className="text-3xl cursor-pointer text-black"
@@ -73,7 +73,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* SIDEBAR OVERLAY */}
+
       {openSidebar && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-30"
@@ -81,7 +81,7 @@ export default function Navbar() {
         ></div>
       )}
 
-      {/* SIDEBAR */}
+
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ${openSidebar ? "translate-x-0" : "translate-x-full"
           }`}
@@ -96,19 +96,19 @@ export default function Navbar() {
 
         <div className="flex flex-col p-4 gap-6">
 
-          {/* Home Link (Mobile) */}
+
           <a href="/" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 text-[#4a2e21] font-medium">
             <span>Home</span>
           </a>
 
-          {/* Location */}
+
           <div className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-gray-50">
             <FiMapPin className="text-gray-500 text-xl" />
             <span className="text-gray-700">Sonipat</span>
             <FiChevronDown className="text-gray-600 text-xl ml-auto" />
           </div>
 
-          {/* Buttons */}
+
           {role === "PROVIDER" ? (
             <a
               href="/provider/dashboard"

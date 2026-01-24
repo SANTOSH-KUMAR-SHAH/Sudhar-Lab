@@ -43,9 +43,9 @@ function BecomeProviderForm({ onSuccess }) {
         const res = await axios.get(`${API_BASE}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        // console.log(res.data.user);
+
         setUserName(res.data.user.name);
-        // console.log(res.data.user.name);
+
         setUserEmail(res.data.user.email);
       } catch (err) {
         console.error(err);
@@ -184,11 +184,11 @@ export default function CustomerDashboard() {
     type: "HOME",
   });
 
-  // FEEDBACK STATE
+
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [feedbackForm, setFeedbackForm] = useState({ bookingId: null, rating: 0, comment: "" });
 
-  // REPORT STATE
+
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportForm, setReportForm] = useState({ bookingId: null, issueType: "Provider did not arrive", description: "" });
 
@@ -199,7 +199,7 @@ export default function CustomerDashboard() {
     fetchProfile();
     fetchBookings();
     fetchAddresses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   function authHeaders() {
@@ -427,7 +427,7 @@ export default function CustomerDashboard() {
     }
   }
 
-  // --- FEEDBACK & REPORT HANDLERS ---
+
 
   function openFeedback(bookingId) {
     setFeedbackForm({ bookingId, rating: 0, comment: "" });
@@ -498,7 +498,7 @@ export default function CustomerDashboard() {
 
   return (
     <div className="min-h-screen bg-[#ece9d8]">
-      {/* MOBILE HEADER */}
+
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
@@ -518,7 +518,7 @@ export default function CustomerDashboard() {
       </div>
 
       <div className="lg:flex gap-6 max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-6 pb-12">
-        {/* SIDEBAR */}
+
         <aside
           className={`fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-3rem)] lg:top-6 w-72 bg-white p-6 rounded-none lg:rounded-2xl shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
             }`}
@@ -621,10 +621,10 @@ export default function CustomerDashboard() {
           />
         )}
 
-        {/* MAIN CONTENT */}
+
         <main className="flex-1 w-full">
 
-          {/* BECOME PROVIDER TAB */}
+
           {activeTab === "become-provider" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
               <h2
@@ -635,8 +635,8 @@ export default function CustomerDashboard() {
                 <span>Become a Provider</span>
               </h2>
 
-              {/* LOGIC: Check profile.providerProfile.applicationStatus */}
-              {/* If NO profile or NOT_APPLIED -> Show Form */}
+
+
               {(!profile?.providerProfile || profile.providerProfile.applicationStatus === 'NOT_APPLIED') ? (
                 <BecomeProviderForm onSuccess={() => { fetchProfile(); }} />
               ) : (
@@ -654,7 +654,7 @@ export default function CustomerDashboard() {
                     </>
                   )}
 
-                  {/* REJECTED */}
+
                   {profile.providerProfile.applicationStatus === "REJECTED" && (
                     <>
                       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
@@ -668,7 +668,7 @@ export default function CustomerDashboard() {
                     </>
                   )}
 
-                  {/* APPROVED */}
+
                   {profile.providerProfile.applicationStatus === "APPROVED" && (
                     <>
                       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -687,7 +687,7 @@ export default function CustomerDashboard() {
                     </>
                   )}
 
-                  {/* SUSPENDED */}
+
                   {profile.providerProfile.applicationStatus === "SUSPENDED" && (
                     <>
                       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
@@ -705,7 +705,7 @@ export default function CustomerDashboard() {
             </div>
           )}
 
-          {/* PROFILE TAB */}
+
           {activeTab === "profile" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -827,7 +827,7 @@ export default function CustomerDashboard() {
             </div>
           )}
 
-          {/* ADDRESSES TAB */}
+
           {activeTab === "addresses" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -913,7 +913,7 @@ export default function CustomerDashboard() {
             </div>
           )}
 
-          {/* BOOKINGS TAB */}
+
           {activeTab === "bookings" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
               <div className="mb-6">
@@ -987,7 +987,7 @@ export default function CustomerDashboard() {
                             </div>
                           </div>
 
-                          {/* Refund / Fee Info Messages */}
+
                           {(b.status === "PENDING" || b.status === "ACCEPTED") && (
                             <div className="mt-3 bg-[#f1dfc9] border border-[#A97155] p-2 rounded text-xs text-[#A97155] flex items-start gap-2">
                               <span className="font-bold">Note:</span>
@@ -1023,7 +1023,7 @@ export default function CustomerDashboard() {
 
 
                             <div className="flex gap-2">
-                              {/* Report Button (Accepted/Confirmed/Completed) */}
+
                               {(b.status === "ACCEPTED" || b.status === "CONFIRMED" || b.status === "COMPLETED") && (
                                 <button
                                   onClick={() => openReport(b.id)}
@@ -1033,7 +1033,7 @@ export default function CustomerDashboard() {
                                 </button>
                               )}
 
-                              {/* Rate Button (Completed only) */}
+
                               {b.status === "COMPLETED" && (
                                 <button
                                   onClick={() => !b.review && openFeedback(b.id)}
@@ -1053,7 +1053,7 @@ export default function CustomerDashboard() {
                     })}
                   </div>
 
-                  {/* Pagination Controls */}
+
                   {bookings.length > BOOKINGS_PAGE_SIZE && (
                     <div className="flex justify-between items-center mt-8 pt-4 border-t border-gray-100">
                       <button
@@ -1082,7 +1082,7 @@ export default function CustomerDashboard() {
         </main>
       </div>
 
-      {/* ADDRESS MODAL */}
+
       {addrModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -1204,7 +1204,7 @@ export default function CustomerDashboard() {
           </div>
         </div>
       )}
-      {/* FEEDBACK MODAL */}
+
       <FeedbackModal
         isOpen={feedbackModalOpen}
         onClose={() => setFeedbackModalOpen(false)}
@@ -1213,7 +1213,7 @@ export default function CustomerDashboard() {
         onSubmit={submitFeedback}
       />
 
-      {/* REPORT MODAL */}
+
       <ReportModal
         isOpen={reportModalOpen}
         onClose={() => setReportModalOpen(false)}

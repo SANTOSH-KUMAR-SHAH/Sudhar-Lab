@@ -166,42 +166,8 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Handler logic update inline */}
-          {/* 
-            const handleSubmit = async (e) => {
-              e.preventDefault();
-              try {
-                const response = await axios.post(`${URL}/api/auth/login`, form, {
-                  headers: { "Content-Type": "application/json" },
-                  withCredentials: true,
-                  validateStatus: () => true,
-                });
 
-                const data = response.data || {};
-                if (data.token) localStorage.setItem("token", data.token);
 
-                if (response.status < 200 || response.status >= 300) {
-                  throw new Error(data.message || "Something went wrong");
-                }
-
-                toast.success(`Welcome Back, ${data.user.name}`, {
-                  style: { background: "#e6ffed", color: "#03543f" },
-                });
-                
-                // REDIRECT LOGIC
-                setTimeout(() => {
-                  if (data.user.role === "ADMIN") {
-                      router.push("/admin/dashboard");
-                  } else {
-                      router.push("/landingpage");
-                  }
-                }, 1500);
-                
-              } catch (err) {
-                 toast.error(err.message || "Login failed");
-              }
-            };
-          */}
 
           <p className="text-sm text-gray-600 mt-4 text-center">
             Want to create an account?

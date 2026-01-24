@@ -14,5 +14,3 @@ router.use("/count", require("./count.route"));
 router.use("/feedback", require("./feedback.route"));
 module.exports = router;
 
-
-// /categories/categoryid/providers

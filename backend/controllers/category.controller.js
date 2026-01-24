@@ -14,7 +14,22 @@ exports.getCategories = async (req, res) => {
       }
     });
 
-    res.json({ categories });
+    const categoriesWithCounts = await Promise.all(categories.map(async (cat) => {
+      const availableProviders = await prisma.providerProfile.count({
+        where: {
+          isAvailable: true,
+          applicationStatus: "APPROVED",
+          services: {
+            some: {
+              categoryId: cat.id
+            }
+          }
+        }
+      });
+      return { ...cat, availableProviders };
+    }));
+
+    res.json({ categories: categoriesWithCounts });
   } catch (err) {
     console.error("getCategories error:", err);
     res.status(500).json({ message: "Internal server error" });

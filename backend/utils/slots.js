@@ -1,6 +1,6 @@
 function generateDailySlots(startHour = 9, endHour = 19, durationMins = 60) {
   const slots = [];
-  let current = startHour * 60; // minutes
+  let current = startHour * 60;
   const end = endHour * 60;
 
   while (current + durationMins <= end) {

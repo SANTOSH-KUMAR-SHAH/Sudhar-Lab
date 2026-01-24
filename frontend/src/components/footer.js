@@ -22,7 +22,7 @@ function Footer() {
           </ul>
         </div>
 
-        {/* Column 3: Contact */}
+
         <div>
           <h4 className="text-lg font-semibold mb-4 text-white">Contact Us</h4>
           <ul className="space-y-2 text-[#d4cbb8]">

@@ -18,7 +18,7 @@ export default function ConfirmationModal({
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all scale-100 opacity-100">
 
-                {/* Header */}
+
                 <div className={`px-6 py-4 flex items-center justify-between border-b border-gray-100 ${isDanger ? 'bg-red-50' : 'bg-gray-50'}`}>
                     <div className="flex items-center gap-3">
                         {isDanger && <FaExclamationTriangle className="text-red-500 text-xl" />}
@@ -34,14 +34,14 @@ export default function ConfirmationModal({
                     </button>
                 </div>
 
-                {/* Body */}
+
                 <div className="p-6">
                     <p className="text-gray-600 leading-relaxed text-[15px]">
                         {message}
                     </p>
                 </div>
 
-                {/* Footer */}
+
                 <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
                     <button
                         onClick={onClose}

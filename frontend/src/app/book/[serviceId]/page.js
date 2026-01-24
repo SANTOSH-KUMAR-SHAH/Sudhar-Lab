@@ -35,8 +35,8 @@ function formatDateYMD(d) {
 
 export default function BookServicePage() {
   const router = useRouter();
-  const params = useParams(); // { serviceId }
-  const search = useSearchParams(); // ?provider=...
+  const params = useParams();
+  const search = useSearchParams();
   const serviceId = params?.serviceId;
   const providerUserId = search?.get("provider") || "";
 
@@ -48,12 +48,11 @@ export default function BookServicePage() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [creatingBooking, setCreatingBooking] = useState(false);
 
-  // Flow State
-  const [bookingStep, setBookingStep] = useState("slot-selection"); // 'slot-selection' | 'redirecting' | 'payment'
+  const [bookingStep, setBookingStep] = useState("slot-selection");
   const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [paymentDetails, setPaymentDetails] = useState({});
   const [errors, setErrors] = useState({});
-  const [qrTimer, setQrTimer] = useState(300); // 5 mins
+  const [qrTimer, setQrTimer] = useState(300);
 
   const BOOKING_FEE = 500;
   const PLATFORM_FEE = 49;
@@ -64,7 +63,6 @@ export default function BookServicePage() {
   useEffect(() => {
     if (!serviceId || !providerUserId) return;
     fetchServiceAndSlots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceId, providerUserId, date]);
 
   useEffect(() => {
@@ -183,7 +181,6 @@ export default function BookServicePage() {
     if (!validatePayment()) return;
 
     setCreatingBooking(true);
-    // Simulate processing
     await new Promise(r => setTimeout(r, 2000));
     await createBooking();
   }
@@ -195,8 +192,7 @@ export default function BookServicePage() {
         serviceId,
         providerUserId,
         slot: `${date}T${selectedSlot.time}:00`,
-        address: "", // Can be enhanced later
-        // Note: In a real system we'd send payment transaction ID here
+        address: "",
       };
 
       const res = await axios.post(`${API_BASE}/api/bookings`, payload, {
@@ -222,11 +218,9 @@ export default function BookServicePage() {
     }
   }
 
-  // --- RENDER HELPERS ---
 
   if (loading) return <Loading />;
 
-  // Redirecting View
   if (bookingStep === "redirecting") {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
@@ -237,7 +231,6 @@ export default function BookServicePage() {
     );
   }
 
-  // Payment Link View
   if (bookingStep === "payment") {
     const formatTime = (seconds) => {
       const m = Math.floor(seconds / 60);
@@ -248,7 +241,6 @@ export default function BookServicePage() {
     return (
       <div className="min-h-screen bg-[#f8f9fa] py-8 px-4 flex items-center justify-center">
         <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          {/* LEFT: PAYMENT OPTIONS */}
           <div className="md:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full min-h-[500px]">
               <div className="bg-[#fcfbf9] px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
@@ -259,7 +251,7 @@ export default function BookServicePage() {
               </div>
 
               <div className="flex flex-col md:flex-row flex-1">
-                {/* Sidebar Options */}
+
                 <div className="w-full md:w-64 bg-gray-50 border-r border-gray-100 shrink-0">
                   {[
                     { id: "UPI", label: "UPI", icon: <FaMobileAlt /> },
@@ -282,7 +274,7 @@ export default function BookServicePage() {
                   ))}
                 </div>
 
-                {/* Content Area */}
+
                 <div className="flex-1 p-6 md:p-8 flex flex-col justify-center">
                   {paymentMethod === "UPI" && (
                     <div className="max-w-sm w-full mx-auto">
@@ -299,7 +291,7 @@ export default function BookServicePage() {
                           {errors.vpa && <p className="text-red-500 text-xs mt-1">{errors.vpa}</p>}
                         </div>
                         <div className="flex justify-center gap-4 pt-2 opacity-60 grayscale hover:grayscale-0 transition-all">
-                          {/* Icons placeholders or small text */}
+
                           <p className="text-xs text-gray-400 text-center">Supported: GPay, PhonePe, Paytm,BHIM</p>
                         </div>
                       </div>
@@ -366,11 +358,11 @@ export default function BookServicePage() {
                       <p className="text-xl text-[#4a2e21] font-bold mb-6">₹{BOOKING_FEE.toFixed(2)}</p>
 
                       <div className="bg-white p-4 border border-gray-200 rounded-xl shadow-inner relative overflow-hidden group">
-                        {/* Placeholder QR */}
+
                         <div className="w-48 h-48 bg-gray-100 flex items-center justify-center rounded-lg relative z-10">
                           <FaQrcode size={120} className="text-gray-800" />
                         </div>
-                        {/* Fake scan line */}
+
                         <div className="absolute top-0 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_rgba(255,0,0,0.5)] z-20 animate-[scan_2s_ease-in-out_infinite]"></div>
                       </div>
 
@@ -397,7 +389,7 @@ export default function BookServicePage() {
                 </div>
               </div>
 
-              {/* Footer Pay Button */}
+
               <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center shrink-0">
                 <div className="text-xs text-gray-500 hidden md:block">
                   By paying you agree to our Terms & Conditions
@@ -420,7 +412,7 @@ export default function BookServicePage() {
             </button>
           </div>
 
-          {/* RIGHT: ORDER SUMMARY */}
+
           <div className="md:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 w-full">
               <h3 className="font-bold text-[#4a2e21] mb-6 pb-4 border-b border-gray-100">Order Summary</h3>
@@ -468,7 +460,6 @@ export default function BookServicePage() {
     );
   }
 
-  // DEFAULT: SLOT SELECTION VIEW
   return (
     <div className="min-h-screen bg-[#ece9d8] pt-24 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
@@ -489,7 +480,7 @@ export default function BookServicePage() {
         <div className="bg-white rounded-2xl p-6 shadow">
           <div className="md:flex md:items-start gap-6">
             <div className="md:w-1/2">
-              {/* Provider Info & Date Picker */}
+
               <div className="bg-[#f9f6f0] p-4 rounded-lg border border-[#e5dcc7]">
                 <p className="text-sm text-gray-600">Provider</p>
                 <div className="flex items-center gap-3 mt-2">
@@ -564,7 +555,7 @@ export default function BookServicePage() {
                 </div>
               )}
 
-              {/* Preliminary Payment Breakdown */}
+
               <div className="mt-6 bg-[#fcfbf9] p-5 rounded-xl border border-[#e5dcc7]">
                 <h4 className="font-semibold text-[#4a2e21] mb-4 flex items-center gap-2">
                   <FaMoneyBillWave /> Payment Breakdown
