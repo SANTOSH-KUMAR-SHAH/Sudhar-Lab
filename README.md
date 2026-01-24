@@ -1,8 +1,8 @@
 # 🏡 LocalHelp – Home Services Marketplace
 
-LocalHelp is a **full-stack home-services platform** inspired by **Urban Company**. It serves as a comprehensive two-sided marketplace allowing **customers** to book local service providers and **providers** to manage their availability, bookings, and earnings.
+LocalHelp is a **full-stack home-services platform** inspired by **Urban Company**. It serves as a comprehensive two-sided marketplace allowing **customers** to book local service providers and **providers** to manage their availability, bookings, and earnings. The platform has an **Admin** to manage providers and customers, check reports and feedbacks, and manage services.
 
-The system includes a complete booking flow, robust authentication, dedicated dashboards for both roles, dynamic slot management, and a mock payment system.
+The system includes a complete booking flow, robust authentication, dedicated dashboards for every role, dynamic slot management, and a mock payment system.
 
 ---
 
@@ -53,11 +53,13 @@ The system includes a complete booking flow, robust authentication, dedicated da
 
 **Customer Dashboard:**
 * View bookings with statuses (**Pending / Accepted / Rejected / Completed**).
+* View booking history.
+* Provide feedback for completed services or report against the bad service.
 * Manage saved addresses (Create, Edit, Delete).
 * Update profile information.
 
 ### Provider Features
-* Simple **onboarding** to become a provider.
+* Mock Aadhar system to verify customers to become a provider.
 * Add services, defining duration and price.
 * **New Dedicated Slot Management**: Separate "Slots" tab for weekly schedule editing.
 * **Separated Profile Management**: Dedicated read-only view for personal and account details.
@@ -71,10 +73,11 @@ The system includes a complete booking flow, robust authentication, dedicated da
 * Live and Completed requests.
 * Earnings summary.
 * Profile management & Dedicated Slot Manager.
+* Add services, defining duration and price or Edit existing services.
 
 ---
 
-## 🧠 Intelligent Slot and Availability System
+##  Intelligent Slot and Availability System
 
 LocalHelp uses a structured and flexible availability format:
 
@@ -107,11 +110,9 @@ This system is designed to be more flexible compared to platforms with rigid, pr
 
 - **Transparent Provider Details**
   - LocalHelp shows provider name, contact details (after acceptance), experience, bio, and real-time availability.
-  - Urban Company restricts most provider information before payment.
 
 - **Faster, Developer-Friendly Onboarding**
   - Providers can start offering services immediately on LocalHelp.
-  - Urban Company often requires slower verification processes.
 
 - **Real-Time System Updates**
   - Slot availability, booking conflicts, and earnings update instantly and automatically.
@@ -121,7 +122,6 @@ This system is designed to be more flexible compared to platforms with rigid, pr
 
 ### Future Enhancements
 
-- Admin dashboard for full platform control
 - Real payment gateway integration
 - Advanced provider verification workflows
 - Customer–service chat system
@@ -158,6 +158,32 @@ This system is designed to be more flexible compared to platforms with rigid, pr
 | | PATCH | `/api/admin/providers/:id/verify` | Verify provider application |
 
 ---
+
+## Setup Instructions
+
+1. Clone the repository
+```bash
+git clone https://github.com/paramkhodiyar/LocalHelpv2.git
+```
+2. Install dependencies
+```bash
+npm install
+```
+3. Set up environment variables
+```bash
+.env
+```
+4. Run the development server
+```bash
+npm run dev
+```
+
+---
+
+## Note
+
+I am glad you are reading this README. If you find any issues or have suggestions for improvement, please let me know. I am always open to feedback and suggestions.
+
 # Made with ❤️ by Param Khodiyar
 - GitHub: [ParamKhodiyar](https://github.com/paramkhodiyar)
 - LinkedIn: [paramkhodiyar](https://www.linkedin.com/in/paramkhodiyar/)
