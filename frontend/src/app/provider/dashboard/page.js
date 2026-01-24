@@ -58,9 +58,9 @@ export default function Dashboard() {
     selectedDays: [],
   });
 
-  const [stats] = useState({
-    completedServices: 47,
-    pendingBookings: 5,
+  const [stats, setStats] = useState({
+    completedServices: 0,
+    pendingBookings: 0,
   });
 
   const token =
@@ -73,10 +73,20 @@ export default function Dashboard() {
     fetchCategories();
     fetchServices();
     fetchRequests();
-    fetchRequests();
     fetchEarnings();
     fetchFeedback();
+    fetchStats();
   }, []);
+
+  async function fetchStats() {
+    try {
+      const headers = token ? { Authorization: "Bearer " + token } : {};
+      const res = await axios.get(`${API_BASE}/api/providers/stats`, { headers });
+      setStats(res.data.stats || { completedServices: 0, pendingBookings: 0 });
+    } catch (err) {
+      console.error("fetchStats error", err);
+    }
+  }
 
   async function fetchProfile() {
     try {

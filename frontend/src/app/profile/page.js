@@ -28,7 +28,7 @@ import {
 import Loading from "@/components/loading";
 
 
-function BecomeProviderForm() {
+function BecomeProviderForm({ onSuccess }) {
   const [aadharNumber, setAadharNumber] = useState("");
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -73,10 +73,8 @@ function BecomeProviderForm() {
         { withCredentials: true, headers }
       );
 
-      toast.success("Application Submitted! Reloading...");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      toast.success("Application Submitted!");
+      if (onSuccess) onSuccess();
 
     } catch (err) {
       console.error(err);
@@ -640,7 +638,7 @@ export default function CustomerDashboard() {
               {/* LOGIC: Check profile.providerProfile.applicationStatus */}
               {/* If NO profile or NOT_APPLIED -> Show Form */}
               {(!profile?.providerProfile || profile.providerProfile.applicationStatus === 'NOT_APPLIED') ? (
-                <BecomeProviderForm />
+                <BecomeProviderForm onSuccess={() => { fetchProfile(); }} />
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-[#e5dcc7] rounded-xl bg-[#fdfcfa]">
 

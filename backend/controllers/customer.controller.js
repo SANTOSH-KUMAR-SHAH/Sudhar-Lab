@@ -13,6 +13,12 @@ exports.getCustomerProfile = async (req, res) => {
         phone: true,
         role: true,
         createdAt: true,
+        providerProfile: {
+          select: {
+            id: true,
+            applicationStatus: true
+          }
+        },
       },
     });
 
@@ -59,6 +65,12 @@ exports.updateCustomerProfile = async (req, res) => {
         email: true,
         phone: true,
         role: true,
+        providerProfile: {
+          select: {
+            id: true,
+            applicationStatus: true
+          }
+        },
       },
     });
 

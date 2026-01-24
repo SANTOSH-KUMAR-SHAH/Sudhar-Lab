@@ -163,6 +163,36 @@ exports.getProviderServices = async (req, res) => {
   }
 };
 
+exports.getProviderStats = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const completedServices = await prisma.booking.count({
+      where: {
+        providerId: providerId,
+        status: "COMPLETED",
+      },
+    });
+
+    const pendingBookings = await prisma.booking.count({
+      where: {
+        providerId: providerId,
+        status: "PENDING",
+      },
+    });
+
+    return res.json({
+      stats: {
+        completedServices,
+        pendingBookings,
+      },
+    });
+  } catch (err) {
+    console.error("getProviderStats error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 exports.getProviderEarnings = async (req, res) => {
   try {
     const providerId = req.user.id;

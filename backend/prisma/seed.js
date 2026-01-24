@@ -7,7 +7,7 @@ async function main() {
 
   // --- 1. CLEANUP (Delete existing data to avoid conflicts) ---
   console.log("Cleaning up old data...");
-  // Use try-catch for delete loops or just deleteMany which doesn't throw on 0
+  await prisma.report.deleteMany();
   await prisma.review.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.providerService.deleteMany();
