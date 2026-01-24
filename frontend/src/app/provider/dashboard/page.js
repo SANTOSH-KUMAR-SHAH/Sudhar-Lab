@@ -18,7 +18,9 @@ import {
   FaChartLine,
   FaBars,
   FaPhone,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
+  FaStar,
+  FaComment
 } from "react-icons/fa";
 import { MdCalendarViewDay } from "react-icons/md";
 import { MdDoneAll } from "react-icons/md";
@@ -44,6 +46,7 @@ export default function Dashboard() {
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [earnings, setEarnings] = useState(0);
+  const [feedbackStats, setFeedbackStats] = useState({ reviews: [], avg: 0, total: 0 });
 
   const [form, setForm] = useState({
     id: "",
@@ -70,7 +73,9 @@ export default function Dashboard() {
     fetchCategories();
     fetchServices();
     fetchRequests();
+    fetchRequests();
     fetchEarnings();
+    fetchFeedback();
   }, []);
 
   async function fetchProfile() {
@@ -135,11 +140,21 @@ export default function Dashboard() {
       );
 
       setRequests(enriched);
-      console.log("Enriched requests:", enriched);
+      // console.log("Enriched requests:", enriched);
     } catch (err) {
       console.error(err);
     }
     setLoadingRequests(false);
+  }
+
+  async function fetchFeedback() {
+    try {
+      const headers = token ? { Authorization: "Bearer " + token } : {};
+      const res = await axios.get(`${API_BASE}/api/feedback/reviews/provider`, { headers });
+      setFeedbackStats(res.data);
+    } catch (err) {
+      console.error("fetchFeedback error", err);
+    }
   }
 
   async function handleAction(bookingId, action) {
@@ -430,6 +445,19 @@ export default function Dashboard() {
               >
                 <MdCalendarViewDay /> Slots
               </button>
+              <button
+                onClick={() => {
+                  setActiveTab("feedback");
+                  setSidebarOpen(false);
+                }}
+                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "feedback"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+                  }`}
+              >
+                <FaStar /> Feedback Stats
+              </button>
+
               <button
                 onClick={() => {
                   setActiveTab("requests");
@@ -816,9 +844,67 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
-          </main>
-        </div>
-      </div>
+
+
+            {activeTab === "feedback" && (
+              <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
+                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-6 flex items-center gap-2">
+                  <FaStar /> Feedback & Ratings
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="bg-[#fdfcfa] border border-[#e5dcc7] p-6 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm">Average Rating</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-4xl font-bold text-[#6F4E37]">{feedbackStats.avg.toFixed(1)}</span>
+                        <div className="flex text-yellow-400 text-xl">
+                          {[1, 2, 3, 4, 5].map(s => (
+                            <FaStar key={s} className={s <= Math.round(feedbackStats.avg) ? "opacity-100" : "opacity-30"} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-12 w-12 bg-[#f1dfc9] rounded-full flex items-center justify-center text-[#6F4E37] text-xl">
+                      <FaStar />
+                    </div>
+                  </div>
+
+                  <div className="bg-[#fdfcfa] border border-[#e5dcc7] p-6 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm">Total Reviews</p>
+                      <p className="text-4xl font-bold text-[#6F4E37] mt-2">{feedbackStats.total}</p>
+                    </div>
+                    <div className="h-12 w-12 bg-[#f1dfc9] rounded-full flex items-center justify-center text-[#6F4E37] text-xl">
+                      <FaComment />
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-[#4a2e21] mb-4">Recent Reviews</h3>
+                <div className="space-y-4">
+                  {feedbackStats.reviews.length === 0 ? (
+                    <p className="text-gray-500 italic">No reviews yet.</p>
+                  ) : feedbackStats.reviews.map(rev => (
+                    <div key={rev.id} className="p-4 border border-gray-100 rounded-lg bg-gray-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium text-[#4a2e21]">{rev.reviewer.name}</p>
+                        <span className="text-xs text-gray-500">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex text-yellow-500 text-sm mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <FaStar key={i} className={i < rev.rating ? "opacity-100" : "opacity-20"} />
+                        ))}
+                      </div>
+                      {rev.comment && <p className="text-gray-700 text-sm">{rev.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main >
+        </div >
+      </div >
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -983,7 +1069,8 @@ export default function Dashboard() {
             </div>
           </form>
         </div>
-      )}
+      )
+      }
     </>
   );
 }

@@ -21,7 +21,9 @@ import {
   FaBriefcase,
   FaUser,
   FaHome,
-  FaCheckCircle, // Added
+  FaCheckCircle,
+  FaStar,
+  FaExclamationTriangle
 } from "react-icons/fa";
 
 
@@ -41,9 +43,9 @@ function BecomeProviderForm() {
           headers: { Authorization: `Bearer ${token}` }
         });
         // console.log(res.data.user);
-        // setUserName(res.data.user.name);
+        setUserName(res.data.user.name);
         // console.log(res.data.user.name);
-        // setUserEmail(res.data.user.email);
+        setUserEmail(res.data.user.email);
       } catch (err) {
         console.error(err);
       }
@@ -168,6 +170,8 @@ export default function CustomerDashboard() {
 
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [bookingsPage, setBookingsPage] = useState(1);
+  const BOOKINGS_PAGE_SIZE = 6;
 
   const [addresses, setAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
@@ -182,6 +186,14 @@ export default function CustomerDashboard() {
     longitude: "",
     type: "HOME",
   });
+
+  // FEEDBACK STATE
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [feedbackForm, setFeedbackForm] = useState({ bookingId: null, rating: 0, comment: "" });
+
+  // REPORT STATE
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportForm, setReportForm] = useState({ bookingId: null, issueType: "Provider did not arrive", description: "" });
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -418,6 +430,52 @@ export default function CustomerDashboard() {
     }
   }
 
+  // --- FEEDBACK & REPORT HANDLERS ---
+
+  function openFeedback(bookingId) {
+    setFeedbackForm({ bookingId, rating: 0, comment: "" });
+    setFeedbackModalOpen(true);
+  }
+
+  async function submitFeedback() {
+    try {
+      if (feedbackForm.rating === 0) return toast.error("Please select a star rating");
+
+      const res = await axios.post(`${API_BASE}/api/feedback/reviews`, feedbackForm, {
+        headers: { "Content-Type": "application/json", ...authHeaders() }
+      });
+
+      if (res.status === 200) {
+        toast.success("Feedback submitted!");
+        setFeedbackModalOpen(false);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to submit feedback");
+    }
+  }
+
+  function openReport(bookingId) {
+    setReportForm({ bookingId, issueType: "Provider did not arrive", description: "" });
+    setReportModalOpen(true);
+  }
+
+  async function submitReport() {
+    try {
+      if (!reportForm.description) return toast.error("Please provide a description");
+
+      const res = await axios.post(`${API_BASE}/api/feedback/reports`, reportForm, {
+        headers: { "Content-Type": "application/json", ...authHeaders() }
+      });
+
+      if (res.status === 200) {
+        toast.success("Report submitted. We will investigate.");
+        setReportModalOpen(false);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to submit report");
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem("token");
     Cookies.remove("token");
@@ -609,7 +667,7 @@ export default function CustomerDashboard() {
                       <p className="text-gray-600 max-w-md mt-2">
                         Unfortunately, your application was not approved at this time.
                       </p>
-                      {/* Option to Re-apply could go here later */}
+
                     </>
                   )}
 
@@ -883,92 +941,144 @@ export default function CustomerDashboard() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {bookings.map((b) => {
-                    const st = statusLabel(b.status);
-                    return (
-                      <div
-                        key={b.id}
-                        className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                          <div className="flex-1">
-                            <p className="text-sm text-gray-500 mb-1">
-                              {b.service.category?.name} •{" "}
-                              {b.service.subcategory?.name}
-                            </p>
-                            <h3 className="font-semibold text-lg text-[#4a2e21] mb-2">
-                              {b.service.subcategory?.name}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              Provider:{" "}
-                              <span className="font-semibold">
-                                {b.provider?.name || "Provider"}
-                              </span>
-                            </p>
-                          </div>
-                          <div
-                            className={`font-semibold text-sm ${st.className}`}
-                          >
-                            {st.text}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-4 py-3 border-t border-gray-100">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <FaRegCalendarAlt size={14} />
-                            <span>
-                              {new Date(b.bookingStart).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="font-semibold text-[#4a2e21]">
-                              ₹{b.service.price?.toLocaleString() ?? b.amount}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              • {b.service.duration} min
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Refund / Fee Info Messages */}
-                        {(b.status === "PENDING" || b.status === "ACCEPTED") && (
-                          <div className="mt-3 bg-blue-50 border border-blue-100 p-2 rounded text-xs text-blue-700 flex items-start gap-2">
-                            <span className="font-bold">Note:</span>
-                            Booking fee (₹500) will be refunded automatically after service completion.
-                          </div>
-                        )}
-                        {b.status === "CANCELLED" && (
-                          <div className="mt-3 bg-orange-50 border border-orange-100 p-2 rounded text-xs text-orange-700 flex items-start gap-2">
-                            <span className="font-bold">Refund:</span>
-                            Refund of ₹500 is in progress (usually takes 3-5 days).
-                          </div>
-                        )}
-
-                        <div className="flex justify-end gap-2 mt-3">
-                          {b.status === "PENDING" && (
-                            <button
-                              onClick={() => cancelBooking(b.id)}
-                              className="px-4 py-2 rounded-lg bg-[#A97155] text-white hover:bg-[#8a5944] transition-colors text-sm font-medium"
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {bookings.slice((bookingsPage - 1) * BOOKINGS_PAGE_SIZE, bookingsPage * BOOKINGS_PAGE_SIZE).map((b) => {
+                      const st = statusLabel(b.status);
+                      return (
+                        <div
+                          key={b.id}
+                          className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-4">
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-500 mb-1">
+                                {b.service.category?.name} •{" "}
+                                {b.service.subcategory?.name}
+                              </p>
+                              <h3 className="font-semibold text-lg text-[#4a2e21] mb-2">
+                                {b.service.subcategory?.name}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                Provider:{" "}
+                                <span className="font-semibold">
+                                  {b.provider?.name || "Provider"}
+                                </span>
+                              </p>
+                            </div>
+                            <div
+                              className={`font-semibold text-sm ${st.className}`}
                             >
-                              Cancel
-                            </button>
-                          )}
-                          {b.status === "ACCEPTED" && (
-                            <div className="px-4 py-2 rounded-lg border-2 border-[#6F4E37] text-[#4a2e21] font-semibold text-sm">
-                              Upcoming
+                              {st.text}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-4 py-3 border-t border-gray-100">
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <FaRegCalendarAlt size={14} />
+                              <span>
+                                {new Date(b.bookingStart).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="font-semibold text-[#4a2e21]">
+                                ₹{b.service.price?.toLocaleString() ?? b.amount}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                • {b.service.duration} min
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Refund / Fee Info Messages */}
+                          {(b.status === "PENDING" || b.status === "ACCEPTED") && (
+                            <div className="mt-3 bg-[#f1dfc9] border border-[#A97155] p-2 rounded text-xs text-[#A97155] flex items-start gap-2">
+                              <span className="font-bold">Note:</span>
+                              Booking fee (₹500) will be refunded automatically after service completion.
                             </div>
                           )}
                           {b.status === "CANCELLED" && (
-                            <div className="px-4 py-2 rounded-lg border-2 border-red-600 text-red-700 font-semibold text-sm">
-                              Cancelled
+                            <div className="mt-3 bg-orange-50 border border-orange-100 p-2 rounded text-xs text-orange-700 flex items-start gap-2">
+                              <span className="font-bold">Refund:</span>
+                              Refund of ₹500 is in progress (usually takes 3-5 days).
                             </div>
                           )}
+
+                          <div className="flex justify-end gap-2 mt-3">
+                            {b.status === "PENDING" && (
+                              <button
+                                onClick={() => cancelBooking(b.id)}
+                                className="px-4 py-2 rounded-lg bg-[#A97155] text-white hover:bg-[#8a5944] transition-colors text-sm font-medium"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                            {b.status === "ACCEPTED" && (
+                              <div className="px-4 py-2 rounded-lg border-2 border-[#6F4E37] text-[#4a2e21] font-semibold text-sm">
+                                Upcoming
+                              </div>
+                            )}
+                            {b.status === "CANCELLED" && (
+                              <div className="px-4 py-2 rounded-lg border-2 border-red-600 text-red-700 font-semibold text-sm">
+                                Cancelled
+                              </div>
+                            )}
+
+
+                            <div className="flex gap-2">
+                              {/* Report Button (Accepted/Confirmed/Completed) */}
+                              {(b.status === "ACCEPTED" || b.status === "CONFIRMED" || b.status === "COMPLETED") && (
+                                <button
+                                  onClick={() => openReport(b.id)}
+                                  className="px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors text-sm flex items-center gap-1"
+                                >
+                                  <FaExclamationTriangle size={12} /> Report
+                                </button>
+                              )}
+
+                              {/* Rate Button (Completed only) */}
+                              {b.status === "COMPLETED" && (
+                                <button
+                                  onClick={() => !b.review && openFeedback(b.id)}
+                                  disabled={!!b.review}
+                                  className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors ${b.review
+                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    : "bg-[#f1dfc9] text-[#4a2e21] hover:bg-[#e2b8a0]"
+                                    }`}
+                                >
+                                  <FaStar size={12} /> {b.review ? "Rated" : "Rate"}
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {bookings.length > BOOKINGS_PAGE_SIZE && (
+                    <div className="flex justify-between items-center mt-8 pt-4 border-t border-gray-100">
+                      <button
+                        disabled={bookingsPage === 1}
+                        onClick={() => setBookingsPage((p) => p - 1)}
+                        className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40 transition-colors"
+                      >
+                        Previous
+                      </button>
+                      <span className="text-sm text-gray-500">
+                        Page {bookingsPage} of {Math.ceil(bookings.length / BOOKINGS_PAGE_SIZE)}
+                      </span>
+                      <button
+                        disabled={bookingsPage === Math.ceil(bookings.length / BOOKINGS_PAGE_SIZE)}
+                        onClick={() => setBookingsPage((p) => p + 1)}
+                        className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40 transition-colors"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -1097,6 +1207,110 @@ export default function CustomerDashboard() {
           </div>
         </div>
       )}
+      {/* FEEDBACK MODAL */}
+      <FeedbackModal
+        isOpen={feedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        form={feedbackForm}
+        setForm={setFeedbackForm}
+        onSubmit={submitFeedback}
+      />
+
+      {/* REPORT MODAL */}
+      <ReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        form={reportForm}
+        setForm={setReportForm}
+        onSubmit={submitReport}
+      />
     </div>
   );
+}
+
+function FeedbackModal({ isOpen, onClose, form, setForm, onSubmit }) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <FaTimes size={20} />
+        </button>
+
+        <h3 className="text-xl font-bold text-[#4a2e21] mb-6 text-center">Rate Service</h3>
+
+        <div className="flex justify-center gap-2 mb-6">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              onClick={() => setForm({ ...form, rating: star })}
+              className={`text-3xl transition-transform hover:scale-110 ${form.rating >= star ? "text-yellow-400" : "text-gray-300"}`}
+            >
+              <FaStar />
+            </button>
+          ))}
+        </div>
+
+        <textarea
+          className="w-full p-3 border border-gray-200 rounded-lg mb-4 h-32 text-gray-700 outline-none focus:ring-2 focus:ring-[#6F4E37]"
+          placeholder="Tell us about your experience..."
+          value={form.comment}
+          onChange={(e) => setForm({ ...form, comment: e.target.value })}
+        ></textarea>
+
+        <button
+          onClick={onSubmit}
+          className="w-full py-3 bg-[#6F4E37] text-white rounded-lg font-semibold hover:bg-[#5a3f2c] transition shadow-md"
+        >
+          Submit Review
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ReportModal({ isOpen, onClose, form, setForm, onSubmit }) {
+  if (!isOpen) return null;
+  const issues = ["Provider did not arrive", "Provider was rude/unprofessional", "Service quality unexpected", "Overcharging", "Other"];
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <FaTimes size={20} />
+        </button>
+
+        <h3 className="text-xl font-bold text-red-700 mb-6 flex items-center gap-2 justify-center">
+          <FaExclamationTriangle /> Report Issue
+        </h3>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Issue Type</label>
+          <select
+            className="w-full p-3 border border-gray-200 rounded-lg text-gray-700 outline-none focus:ring-2 focus:ring-red-200"
+            value={form.issueType}
+            onChange={(e) => setForm({ ...form, issueType: e.target.value })}
+          >
+            {issues.map(i => <option key={i} value={i}>{i}</option>)}
+          </select>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea
+            className="w-full p-3 border border-gray-200 rounded-lg h-32 text-gray-700 outline-none focus:ring-2 focus:ring-red-200"
+            placeholder="Please describe what went wrong..."
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+          ></textarea>
+        </div>
+
+        <button
+          onClick={onSubmit}
+          className="w-full py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-md"
+        >
+          Submit Report
+        </button>
+      </div>
+    </div>
+  )
 }

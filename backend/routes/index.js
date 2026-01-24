@@ -11,6 +11,7 @@ router.use("/customers", require("./customer.route"));
 router.use("/customers/addresses", require("./customerAddress.route"));
 router.use("/admin", require("./admin.route"));
 router.use("/count", require("./count.route"));
+router.use("/feedback", require("./feedback.route"));
 module.exports = router;
 
 

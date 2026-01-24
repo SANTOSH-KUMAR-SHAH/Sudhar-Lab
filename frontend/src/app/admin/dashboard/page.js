@@ -19,7 +19,10 @@ import {
     FaRunning,
     FaChartBar,
     FaChartLine,
+    FaStar,
     FaUser,
+    FaExclamationTriangle,
+    FaComment
 } from "react-icons/fa";
 import ConfirmationModal from "@/components/ConfirmationModal";
 
@@ -55,6 +58,8 @@ export default function AdminDashboard() {
     const [pendingApps, setPendingApps] = useState([]);
     const [allProviders, setAllProviders] = useState([]);
     const [usersPage, setUsersPage] = useState(1);
+    const [reports, setReports] = useState([]);
+    const [adminReviews, setAdminReviews] = useState([]);
 
     const [allUsers, setAllUsers] = useState([]);
     const [activeTab, setActiveTab] = useState("pending");
@@ -64,6 +69,8 @@ export default function AdminDashboard() {
     // Pagination
     const [pendingPage, setPendingPage] = useState(1);
     const [providersPage, setProvidersPage] = useState(1);
+    const [reportsPage, setReportsPage] = useState(1);
+    const [reviewsPage, setReviewsPage] = useState(1);
     const PAGE_SIZE = 8;
 
     // Modal
@@ -96,10 +103,11 @@ export default function AdminDashboard() {
 
             const headers = { Authorization: `Bearer ${token}` };
 
-            const [statsRes, appsRes, providersRes] = await Promise.all([
+            const [statsRes, appsRes, providersRes, reportsRes] = await Promise.all([
                 axios.get(`${URL}/api/count/admin-stats`, { headers }),
                 axios.get(`${URL}/api/admin/applications/pending`, { headers }),
                 axios.get(`${URL}/api/admin/providers`, { headers }),
+                axios.get(`${URL}/api/feedback/reports/admin`, { headers }),
             ]);
 
             const s = statsRes.data;
@@ -117,6 +125,8 @@ export default function AdminDashboard() {
 
             setPendingApps(appsRes.data.applications || []);
             setAllProviders(providersRes.data.providers || []);
+            setReports(reportsRes.data.reports || []);
+            setAdminReviews(reportsRes.data.reviews || []);
             setTimeout(() => generateChartData(), 100);
         } catch (err) {
             console.error(err);
@@ -296,6 +306,18 @@ export default function AdminDashboard() {
         (providersPage - 1) * PAGE_SIZE,
         providersPage * PAGE_SIZE
     );
+
+    const reportsTotalPages = Math.ceil(reports.length / PAGE_SIZE);
+    const reportsSlice = reports.slice(
+        (reportsPage - 1) * PAGE_SIZE,
+        reportsPage * PAGE_SIZE
+    );
+
+    const reviewsTotalPages = Math.ceil(adminReviews.length / PAGE_SIZE);
+    const reviewsSlice = adminReviews.slice(
+        (reviewsPage - 1) * PAGE_SIZE,
+        reviewsPage * PAGE_SIZE
+    );
     const maxActive = Math.max(...chartData.bookingsTrend.map(i => i.active), 1);
     const maxCompleted = Math.max(...chartData.bookingsTrend.map(i => i.completed), 1);
     // const maxRevenue = Math.max(...chartData.revenueByMonth.map(d => d.revenue));
@@ -403,6 +425,19 @@ export default function AdminDashboard() {
                         >
                             <FaSignOutAlt />
                             Logout
+                        </button>
+                        <button
+                            onClick={() => {
+                                setActiveTab("reports");
+                                setSidebarOpen(false);
+                            }}
+                            className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "reports"
+                                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                                : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                        >
+                            <FaExclamationTriangle />
+                            Reports & Feedback
                         </button>
                     </nav>
                 </aside>
@@ -624,6 +659,141 @@ export default function AdminDashboard() {
                                             </button>
                                         </div>
                                     </>
+                                )}
+                            </>
+                        )}
+
+                        {activeTab === "reports" && (
+                            <>
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa]">
+                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                                        User Reports & Issues
+                                    </h3>
+                                </div>
+                                {reports.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        No reports found.
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="px-6 py-3 font-medium">Reporter</th>
+                                                    <th className="px-6 py-3 font-medium">Against Provider</th>
+                                                    <th className="px-6 py-3 font-medium">Issue</th>
+                                                    <th className="px-6 py-3 font-medium">Description</th>
+                                                    <th className="px-6 py-3 font-medium">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 text-sm">
+                                                {reportsSlice.map((r) => (
+                                                    <tr key={r.id} className="hover:bg-gray-50/50 transition">
+                                                        <td className="px-6 py-4 font-medium text-gray-900">{r.reporter?.name}</td>
+                                                        <td className="px-6 py-4 text-gray-600">{r.provider?.name}</td>
+                                                        <td className="px-6 py-4">
+                                                            <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">{r.issueType}</span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={r.description}>
+                                                            {r.description}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-500 text-xs">
+                                                            {new Date(r.createdAt).toLocaleDateString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Reports Pagination */}
+                                        <div className="flex justify-between items-center px-6 py-4 border-t">
+                                            <button
+                                                disabled={reportsPage === 1}
+                                                onClick={() => setReportsPage((p) => p - 1)}
+                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                            >
+                                                Previous
+                                            </button>
+                                            <span className="text-sm text-gray-500">
+                                                Page {reportsPage} of {reportsTotalPages || 1}
+                                            </span>
+                                            <button
+                                                disabled={reportsPage === reportsTotalPages}
+                                                onClick={() => setReportsPage((p) => p + 1)}
+                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa] mt-8">
+                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                                        Recent Service Reviews
+                                    </h3>
+                                </div>
+                                {adminReviews.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        No reviews found.
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="px-6 py-3 font-medium">Customer</th>
+                                                    <th className="px-6 py-3 font-medium">Provider</th>
+                                                    <th className="px-6 py-3 font-medium">Rating</th>
+                                                    <th className="px-6 py-3 font-medium">Comment</th>
+                                                    <th className="px-6 py-3 font-medium">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 text-sm">
+                                                {reviewsSlice.map((r) => (
+                                                    <tr key={r.id} className="hover:bg-gray-50/50 transition">
+                                                        <td className="px-6 py-4 font-medium text-gray-900">{r.reviewer?.name}</td>
+                                                        <td className="px-6 py-4 text-gray-600">{r.reviewedUser?.name}</td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex text-yellow-400">
+                                                                {[...Array(5)].map((_, i) => (
+                                                                    <FaStar key={i} className={i < r.rating ? "opacity-100" : "opacity-20"} />
+                                                                ))}
+                                                            </div>
+                                                            <span className="text-xs font-bold text-gray-500">{r.rating}/5</span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={r.comment}>
+                                                            {r.comment || "—"}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-500 text-xs">
+                                                            {new Date(r.createdAt).toLocaleDateString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Reviews Pagination */}
+                                        <div className="flex justify-between items-center px-6 py-4 border-t">
+                                            <button
+                                                disabled={reviewsPage === 1}
+                                                onClick={() => setReviewsPage((p) => p - 1)}
+                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                            >
+                                                Previous
+                                            </button>
+                                            <span className="text-sm text-gray-500">
+                                                Page {reviewsPage} of {reviewsTotalPages || 1}
+                                            </span>
+                                            <button
+                                                disabled={reviewsPage === reviewsTotalPages}
+                                                onClick={() => setReviewsPage((p) => p + 1)}
+                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </>
                         )}

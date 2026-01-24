@@ -95,6 +95,12 @@ exports.getCustomerBookings = async (req, res) => {
             email: true,
           },
         },
+        review: {
+          select: {
+            id: true,
+            rating: true
+          }
+        }
       },
     });
 
