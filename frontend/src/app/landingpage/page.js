@@ -35,6 +35,8 @@ export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [allCustomer, setAllCustomers] = useState(0);
+  const [allProviders, setAllProviders] = useState(0);
 
   const isProd = process.env.NEXT_PUBLIC_IS_PROD === "true";
 
@@ -60,6 +62,29 @@ export default function Dashboard() {
     misc: FaEllipsisH,
   };
 
+  const getAllCustomers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${URL}/api/customers/all-customers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAllCustomers(res.data.count);
+    } catch (err) {
+      console.error("Failed to fetch customers", err);
+    }
+  };
+
+  const getAllProviders = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${URL}/api/customers/all-providers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAllProviders(res.data.count);
+    } catch (err) {
+      console.error("Failed to fetch providers", err);
+    }
+  };
 
   useEffect(() => {
     async function initPage() {
@@ -105,6 +130,8 @@ export default function Dashboard() {
     }
 
     initPage();
+    getAllCustomers();
+    getAllProviders();
   }, []);
 
   if (loading) return (
@@ -190,12 +217,12 @@ export default function Dashboard() {
               {/* STATS */}
               <div className="flex items-center justify-around bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-md border border-gray-200">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#4a2e21]">10k+</p>
+                  <p className="text-3xl font-bold text-[#4a2e21]">{allCustomer}</p>
                   <p className="text-xs text-gray-600 font-medium tracking-wide uppercase mt-1">Customers</p>
                 </div>
                 <div className="w-px h-10 bg-gray-300"></div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#4a2e21]">500+</p>
+                  <p className="text-3xl font-bold text-[#4a2e21]">{allProviders}</p>
                   <p className="text-xs text-gray-600 font-medium tracking-wide uppercase mt-1">Providers</p>
                 </div>
                 <div className="w-px h-10 bg-gray-300"></div>

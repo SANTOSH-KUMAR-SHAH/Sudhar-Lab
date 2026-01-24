@@ -110,3 +110,23 @@ exports.getCustomerBookings = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.getAllCustomers = async (req, res) => {
+  try {
+    const count = await prisma.user.count({ where: { role: "CUSTOMER" } });
+    return res.json({ count });
+  } catch (err) {
+    console.error("getAllCustomers error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getAllProviders = async (req, res) => {
+  try {
+    const count = await prisma.user.count({ where: { role: "PROVIDER" } });
+    return res.json({ count });
+  } catch (err) {
+    console.error("getAllProviders error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
