@@ -108,7 +108,7 @@ export default function Dashboard() {
   }, []);
 
   if (loading) return (
-    <Loading message="Please wait, the server takes time to load (Free Tier)..." />
+    <Loading message="Please wait, the server takes time to load sometimes.Thanks for your patience..." />
   );
 
   // Framer Motion Variants
