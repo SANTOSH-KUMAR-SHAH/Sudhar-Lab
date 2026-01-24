@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 export default function Home() {
   const router = useRouter();
   const [steps, setSteps] = useState([
-    { id: 1, label: "Connecting to server...", status: "pending" }, // pending, loading, success, error
+    { id: 1, label: "Connecting to server...", status: "pending" },
     { id: 2, label: "Verifying API availability...", status: "pending" },
     { id: 3, label: "Preparing application...", status: "pending" },
   ]);
@@ -31,34 +31,25 @@ export default function Home() {
   const startChecks = async () => {
     try {
       setError(null);
-      // Step 1: Connecting
       updateStep(1, "loading");
 
-      // Ping server
-      // Using /api/categories as a health check since it's likely public
       const start = Date.now();
       try {
         await axios.get(`${URL}/api/categories`);
       } catch (e) {
-        // If 404 or 500, we still might be "connected" but if network error then failed
         if (!e.response) throw e;
       }
       const duration = Date.now() - start;
 
       updateStep(1, "success");
-
-      // Step 2: Verifying
       updateStep(2, "loading");
-      // If it took longer than 1s, it likely woke up from sleep
       await new Promise((r) => setTimeout(r, duration > 1000 ? 1000 : 500));
       updateStep(2, "success");
-
-      // Step 3: Redirecting
       updateStep(3, "loading");
       await new Promise((r) => setTimeout(r, 600));
       updateStep(3, "success");
 
-      router.push("/landingpage");
+      router.push("/login");
     } catch (err) {
       console.error(err);
       updateStep(1, "error");
@@ -95,12 +86,12 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={`flex items-center p-3 rounded-lg border transition-colors ${step.status === "pending"
-                  ? "border-transparent text-gray-400"
-                  : step.status === "loading"
-                    ? "border-[#f1dfc9] bg-[#fffbf5] text-[#4a2e21]"
-                    : step.status === "success"
-                      ? "border-green-100 bg-green-50 text-green-800"
-                      : "border-red-100 bg-red-50 text-red-800"
+                ? "border-transparent text-gray-400"
+                : step.status === "loading"
+                  ? "border-[#f1dfc9] bg-[#fffbf5] text-[#4a2e21]"
+                  : step.status === "success"
+                    ? "border-green-100 bg-green-50 text-green-800"
+                    : "border-red-100 bg-red-50 text-red-800"
                 }`}
             >
               <div className="flex-shrink-0 w-8">
