@@ -25,6 +25,7 @@ import {
     FaComment
 } from "react-icons/fa";
 import ConfirmationModal from "@/components/ConfirmationModal";
+import Loading from "@/components/loading";
 
 const COFFEE = {
     dark: "#6F4E37",
@@ -37,8 +38,6 @@ const COFFEE = {
 
 export default function AdminDashboard() {
     const router = useRouter();
-
-    // Stats
     const [stats, setStats] = useState({
         totalProviders: 0,
         totalUsers: 0,
@@ -278,12 +277,10 @@ export default function AdminDashboard() {
         router.push("/login");
     };
 
+
+
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#ece9d8]">
-                <FaSpinner className="animate-spin text-4xl text-[#672410]" />
-            </div>
-        );
+        return <Loading />;
     }
 
     // Pagination slices

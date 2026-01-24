@@ -25,6 +25,7 @@ import {
   FaStar,
   FaExclamationTriangle
 } from "react-icons/fa";
+import Loading from "@/components/loading";
 
 
 function BecomeProviderForm() {
@@ -135,8 +136,6 @@ function BecomeProviderForm() {
     </div>
   );
 }
-import Loading from "@/components/loading";
-
 const AVATAR_URL =
   "sandbox:/mnt/data/Screenshot 2025-11-25 at 18.47.51 (2).png";
 

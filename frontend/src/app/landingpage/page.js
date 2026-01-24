@@ -107,7 +107,9 @@ export default function Dashboard() {
     initPage();
   }, []);
 
-  if (loading) return <Loading />;
+  if (loading) return (
+    <Loading message="Please wait, the server takes time to load (Free Tier)..." />
+  );
 
   // Framer Motion Variants
   const containerVariants = {

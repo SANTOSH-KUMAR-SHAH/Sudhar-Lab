@@ -49,14 +49,14 @@ export default function Navbar() {
             {role === "PROVIDER" ? (
               <a
                 href="/provider/dashboard"
-                className="px-4 py-2 bg-[#672410] text-white rounded-lg shadow hover:bg-rose-800 transition"
+                className="px-4 py-2 bg-[#672410] text-white rounded-lg shadow hover:bg-[#4d1a0a] transition"
               >
                 Dashboard
               </a>
             ) : (
               <a
                 href="/profile"
-                className="px-4 py-2 bg-[#672410] text-white rounded-lg shadow hover:bg-rose-800 transition"
+                className="px-4 py-2 bg-[#672410] text-white rounded-lg shadow hover:bg-[#4d1a0a] transition"
               >
                 Profile
               </a>
