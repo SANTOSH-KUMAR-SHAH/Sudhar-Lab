@@ -20,6 +20,7 @@ import {
   FaPhone,
   FaMapMarkerAlt
 } from "react-icons/fa";
+import { MdCalendarViewDay } from "react-icons/md";
 import { MdDoneAll } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
@@ -42,7 +43,7 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
-const [earnings, setEarnings] = useState(0);
+  const [earnings, setEarnings] = useState(0);
 
   const [form, setForm] = useState({
     id: "",
@@ -62,12 +63,27 @@ const [earnings, setEarnings] = useState(0);
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  const [profile, setProfile] = useState(null);
+
   useEffect(() => {
+    fetchProfile();
     fetchCategories();
     fetchServices();
     fetchRequests();
     fetchEarnings();
   }, []);
+
+  async function fetchProfile() {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      // We need an endpoint for "me". I added /me in backend earlier.
+      const res = await axios.get(`${API_BASE}/api/providers/me`, { headers });
+      setProfile(res.data.profile);
+    } catch (err) {
+      console.error("Fetch profile error", err);
+    }
+  }
   function isPastBooking(b) {
     return new Date(b.bookingEnd) < new Date();
   }
@@ -85,10 +101,10 @@ const [earnings, setEarnings] = useState(0);
     }
   }
   async function fetchEarnings() {
-  const headers = token ? { Authorization: "Bearer " + token } : {};
-  const res = await axios.get(`${API_BASE}/api/providers/earnings`, { headers });
-  setEarnings(res.data.earnings || 0);
-}
+    const headers = token ? { Authorization: "Bearer " + token } : {};
+    const res = await axios.get(`${API_BASE}/api/providers/earnings`, { headers });
+    setEarnings(res.data.earnings || 0);
+  }
 
   async function fetchServices() {
     setLoading(true);
@@ -103,37 +119,46 @@ const [earnings, setEarnings] = useState(0);
     setLoading(false);
   }
   async function fetchRequests() {
-  setLoadingRequests(true);
-  try {
-    const headers = token ? { Authorization: "Bearer " + token } : {};
-    const res = await axios.get(`${API_BASE}/api/bookings/providers/bookings`, { headers });
-    const data = res.data.bookings || [];
+    setLoadingRequests(true);
+    try {
+      const headers = token ? { Authorization: "Bearer " + token } : {};
+      const res = await axios.get(`${API_BASE}/api/bookings/providers/bookings`, { headers });
+      const data = res.data.bookings || [];
 
-    // inject subcategory name
-    const enriched = await Promise.all(
-      data.map(async (req) => {
-        const subcatId = req.service?.subcategoryId;
-        const subcatName = subcatId ? await getSubcatName(subcatId) : "Service";
-        return { ...req, subcatName };
-      })
-    );
+      // inject subcategory name
+      const enriched = await Promise.all(
+        data.map(async (req) => {
+          const subcatId = req.service?.subcategoryId;
+          const subcatName = subcatId ? await getSubcatName(subcatId) : "Service";
+          return { ...req, subcatName };
+        })
+      );
 
-    setRequests(enriched);
-    console.log("Enriched requests:", enriched);
-  } catch (err) {
-    console.error(err);
+      setRequests(enriched);
+      console.log("Enriched requests:", enriched);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoadingRequests(false);
   }
-  setLoadingRequests(false);
-}
 
   async function handleAction(bookingId, action) {
     try {
       const headers = token ? { Authorization: "Bearer " + token } : {};
-      await axios.patch(
-        `${API_BASE}/api/bookings/${bookingId}/status`,
-        { action },
-        { headers }
-      );
+
+      if (action === "complete") {
+        await axios.patch(
+          `${API_BASE}/api/providers/bookings/${bookingId}/complete`,
+          {},
+          { headers }
+        );
+      } else {
+        await axios.patch(
+          `${API_BASE}/api/bookings/${bookingId}/status`,
+          { action },
+          { headers }
+        );
+      }
 
       toast.success(`Booking ${action}ed`, {
         style: { background: "#e6ffed", color: "#03543f" },
@@ -141,7 +166,36 @@ const [earnings, setEarnings] = useState(0);
 
       fetchRequests();
     } catch (err) {
-      toast.error("Action failed");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Action failed");
+    }
+  }
+
+  async function handleAvailabilityToggle() {
+    if (!profile) return;
+    const newVal = !profile.isAvailable;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(`${API_BASE}/api/providers/availability`, { isAvailable: newVal }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProfile(prev => ({ ...prev, isAvailable: newVal }));
+      toast.success(newVal ? "You are now Online" : "You are now Offline");
+    } catch (err) {
+      toast.error("Failed to update availability");
+    }
+  }
+
+  async function handleSaveSchedule(scheduleData) {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(`${API_BASE}/api/providers/schedule`, { schedule: scheduleData }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProfile(prev => ({ ...prev, schedule: scheduleData }));
+      toast.success("Schedule updated successfully");
+    } catch (err) {
+      toast.error("Failed to update schedule");
     }
   }
 
@@ -168,13 +222,13 @@ const [earnings, setEarnings] = useState(0);
     }
   }
   async function getSubcatName(id) {
-  try {
-    const res = await axios.get(`${API_BASE}/api/categories/subcategory/${id}`);
-    return res.data.subcategory?.name || "Unknown";
-  } catch (err) {
-    return "Unknown";
+    try {
+      const res = await axios.get(`${API_BASE}/api/categories/subcategory/${id}`);
+      return res.data.subcategory?.name || "Unknown";
+    } catch (err) {
+      return "Unknown";
+    }
   }
-}
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -212,8 +266,8 @@ const [earnings, setEarnings] = useState(0);
       duration: service.duration || "",
       selectedDays: service.availability
         ? Object.keys(service.availability).filter(
-            (d) => service.availability[d]?.length > 0
-          )
+          (d) => service.availability[d]?.length > 0
+        )
         : [],
     });
 
@@ -305,11 +359,10 @@ const [earnings, setEarnings] = useState(0);
             fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-3rem)] lg:top-6
             w-64 bg-white rounded-none lg:rounded-2xl p-4 shadow-lg lg:shadow
             transform transition-transform duration-300 ease-in-out z-50
-            ${
-              sidebarOpen
+            ${sidebarOpen
                 ? "translate-x-0"
                 : "-translate-x-full lg:translate-x-0"
-            }
+              }
           `}
           >
             <button
@@ -319,49 +372,73 @@ const [earnings, setEarnings] = useState(0);
               <FaTimes />
             </button>
 
-            <div className="mb-6 text-center mt-8 lg:mt-0">
+            <div className="mb-6 text-center mt-8 lg:mt-0 flex flex-col items-center">
               <FaUserCircle className="text-6xl mx-auto text-[#7a5c49]" />
-              <p className="mt-2 font-semibold text-[#4a2e21]">Provider</p>
+              <p className="mt-2 font-semibold text-[#4a2e21]">{profile?.user?.name || "Provider"}</p>
+
+              {/* Availability Switch */}
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <span className={`text-xs font-bold ${profile?.isAvailable ? "text-green-600" : "text-gray-500"}`}>
+                  {profile?.isAvailable ? "ONLINE" : "OFFLINE"}
+                </span>
+                <button
+                  onClick={handleAvailabilityToggle}
+                  className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${profile?.isAvailable ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                >
+                  <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform duration-300 ${profile?.isAvailable ? "translate-x-5" : "translate-x-0"
+                    }`}></div>
+                </button>
+              </div>
             </div>
 
             <nav className="flex flex-col gap-2">
               <button
                 onClick={() => {
+                  setActiveTab("profile");
+                  setSidebarOpen(false);
+                }}
+                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "profile"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+                  }`}
+              >
+                <FaUserCircle /> Profile
+              </button>
+              <button
+                onClick={() => {
                   setActiveTab("services");
                   setSidebarOpen(false);
                 }}
-                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  activeTab === "services"
-                    ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "services"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <FaRegListAlt /> Services
               </button>
 
               <button
                 onClick={() => {
-                  setActiveTab("profile");
+                  setActiveTab("slots");
                   setSidebarOpen(false);
                 }}
-                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  activeTab === "profile"
-                    ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "slots"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+                  }`}
               >
-                <FaUserCircle /> Profile
+                <MdCalendarViewDay /> Slots
               </button>
               <button
                 onClick={() => {
                   setActiveTab("requests");
                   setSidebarOpen(false);
                 }}
-                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  activeTab === "requests"
-                    ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "requests"
+                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <FaClock /> Requests
               </button>
@@ -531,7 +608,7 @@ const [earnings, setEarnings] = useState(0);
                         >
                           {/* SERVICE NAME */}
                           <p className="font-semibold text-lg text-[#4a2e21]">
-                            {r.subcatName|| "Service"}
+                            {r.subcatName || "Service"}
                           </p>
 
                           {/* DATE + TIME */}
@@ -582,24 +659,22 @@ const [earnings, setEarnings] = useState(0);
                               </div>
                             )}
 
-                            {/* ACCEPTED BEFORE TIME ENDS → SHOW CONFIRMED */}
-                            {r.status === "ACCEPTED" && !isPast && (
-                              <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
-                                <VscVerifiedFilled className="text-[#6F4E37] text-xl" />
-                                Confirmed
+                            {/* ACCEPTED → SHOW MARK COMPLETED */}
+                            {r.status === "ACCEPTED" && (
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 text-[#4a2e21] font-semibold text-sm">
+                                  <VscVerifiedFilled className="text-[#6F4E37] text-xl" />
+                                  Confirmed
+                                </div>
+                                <button
+                                  onClick={() => handleAction(r.id, "complete")}
+                                  className="px-4 py-2 rounded-lg bg-[#7a5d49] text-white 
+                  hover:bg-[#674b3a] transition flex items-center gap-2 justify-center"
+                                >
+                                  <MdDoneAll className="text-white" />
+                                  Mark Completed
+                                </button>
                               </div>
-                            )}
-
-                            {/* ACCEPTED + TIME PASSED → SHOW MARK COMPLETED */}
-                            {r.status === "ACCEPTED" && isPast && (
-                              <button
-                                onClick={() => handleAction(r.id, "complete")}
-                                className="px-4 py-2 rounded-lg bg-[#7a5d49] text-white 
-                hover:bg-[#674b3a] transition flex items-center gap-2"
-                              >
-                                <MdDoneAll className="text-white" />
-                                Mark Completed
-                              </button>
                             )}
 
                             {/* COMPLETED */}
@@ -627,12 +702,118 @@ const [earnings, setEarnings] = useState(0);
             )}
             {activeTab === "profile" && (
               <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
-                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-4">
-                  Profile
+                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-6 flex items-center gap-2">
+                  <FaUserCircle /> Provider Profile
                 </h2>
-                <p className="text-gray-700">
-                  This is a static profile page. You can edit it later.
-                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Personal Info */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
+                      <div className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-800">
+                        {profile?.user?.name || "N/A"}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
+                      <div className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-800">
+                        {profile?.user?.email || "N/A"}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Phone Number</label>
+                      <div className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-800">
+                        {profile?.user?.phone || "N/A"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Provider Specifics */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Aadhaar Number</label>
+                      <div className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-800 font-mono tracking-wider">
+                        {profile?.aadharNumber || "XXXX-XXXX-XXXX"}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        <VscVerifiedFilled className="inline text-green-500 mr-1" />
+                        Verified by Admin
+                      </p>
+                    </div>
+
+                    <div className="bg-[#f9f6f0] p-4 rounded-xl border border-[#e5dcc7] mt-4">
+                      <h4 className="font-semibold text-[#6F4E37] mb-2">Account Status</h4>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${profile?.applicationStatus === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {profile?.applicationStatus || "UNKNOWN"}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          Since {new Date().getFullYear()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "slots" && (
+              <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
+                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-6 flex items-center gap-2">
+                  <MdCalendarViewDay /> Weekly Schedule / Slots
+                </h2>
+                <div className="space-y-4">
+                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => {
+                    const schedule = profile?.schedule || {};
+                    const s = schedule[day] || {};
+                    return (
+                      <div key={day} className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-gray-100 pb-4 last:border-0">
+                        <div className="w-32 font-medium text-[#4a2e21]">{day}</div>
+
+                        {/* Using uncontrolled inputs for simplicity in this large component */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500 text-sm">Start:</span>
+                          <input
+                            type="time"
+                            className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#672410] placeholder-gray-500 text-black outline-none"
+                            defaultValue={s.start || ""}
+                            id={`start-${day}`}
+                          />
+                          <span className="text-gray-500 text-sm ml-2">End:</span>
+                          <input
+                            type="time"
+                            className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#672410] placeholder-gray-500 text-black outline-none"
+                            defaultValue={s.end || ""}
+                            id={`end-${day}`}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={() => {
+                      const newSched = {};
+                      ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(day => {
+                        const startInput = document.getElementById(`start-${day}`);
+                        const endInput = document.getElementById(`end-${day}`);
+
+                        const valStart = startInput ? startInput.value : "";
+                        const valEnd = endInput ? endInput.value : "";
+
+                        if (valStart && valEnd) {
+                          newSched[day] = { start: valStart, end: valEnd };
+                        }
+                      });
+                      handleSaveSchedule(newSched);
+                    }}
+                    className="px-6 py-2.5 bg-[#672410] text-white rounded-lg hover:bg-[#4d1a0a] shadow-md transition-colors"
+                  >
+                    Save Schedule
+                  </button>
+                </div>
               </div>
             )}
           </main>
@@ -758,11 +939,10 @@ const [earnings, setEarnings] = useState(0);
                       }
                       className={`
           border px-3 py-2 rounded-lg capitalize text-sm
-          ${
-            form.selectedDays?.includes(day)
-              ? "bg-[#672410] text-white border-[#672410]"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-          }
+          ${form.selectedDays?.includes(day)
+                          ? "bg-[#672410] text-white border-[#672410]"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                        }
         `}
                     >
                       {day.slice(0, 3)}

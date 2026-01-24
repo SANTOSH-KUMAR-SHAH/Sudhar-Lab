@@ -9,6 +9,8 @@ router.use("/services", require("./providerService.route"));
 router.use("/bookings", require("./booking.route"));
 router.use("/customers", require("./customer.route"));
 router.use("/customers/addresses", require("./customerAddress.route"));
+router.use("/admin", require("./admin.route"));
+router.use("/count", require("./count.route"));
 module.exports = router;
 
 

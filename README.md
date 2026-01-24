@@ -42,7 +42,7 @@ The system includes a complete booking flow, robust authentication, dedicated da
 
 ---
 
-## ✨ Features
+##  Features
 
 ### Customer Features
 * Secure **login and signup** using JWT.
@@ -59,16 +59,18 @@ The system includes a complete booking flow, robust authentication, dedicated da
 ### Provider Features
 * Simple **onboarding** to become a provider.
 * Add services, defining duration and price.
+* **New Dedicated Slot Management**: Separate "Slots" tab for weekly schedule editing.
+* **Separated Profile Management**: Dedicated read-only view for personal and account details.
 * Manage availability through **dynamic time-slot JSON**.
 * View **real-time booking requests**.
 * **Accept or reject** requests (rejection automatically frees up the slot).
 * View customer details **after accepting** the request.
-* **Mark completed services** (logic based on service end-time).
+* **Mark completed services** proactively via the dashboard.
 
 **Provider Dashboard:**
 * Live and Completed requests.
 * Earnings summary.
-* Profile management.
+* Profile management & Dedicated Slot Manager.
 
 ---
 
@@ -93,7 +95,7 @@ LocalHelp uses a structured and flexible availability format:
 - Automatic slot marking when bookings are created.
 - Automatic slot opening when a provider rejects a booking.
 - Dynamic booking duration based on service settings.
-- Completion button appears only when the booking end-time has passed.
+- **Manual Completion Control**: Providers can mark services as complete immediately after finishing the job.
 
 This system is designed to be more flexible compared to platforms with rigid, pre-defined time blocks.
 
@@ -129,6 +131,31 @@ This system is designed to be more flexible compared to platforms with rigid, pr
 - Subscription plans for providers
 - AI-driven provider recommendations
 - GST invoice generation for customers
+
+---
+
+## API Endpoints
+
+| Resource | Method | Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **Auth** | POST | `/api/auth/register` | Register a new user |
+| | POST | `/api/auth/login` | Login user |
+| | GET | `/api/auth/me` | Get current user details |
+| **Providers** | POST | `/api/become-provider` | Apply to become a provider |
+| | GET | `/api/providers/me` | Get own provider profile |
+| | PATCH | `/api/providers/availability` | Toggle online/offline status |
+| | PATCH | `/api/providers/schedule` | Update weekly slots |
+| | PATCH | `/api/providers/bookings/:id/complete` | Mark booking as complete |
+| | GET | `/api/providers/earnings` | Get total earnings |
+| **Services** | GET | `/api/services` | GetAll / Filter services |
+| | POST | `/api/services` | Add new service |
+| | PUT | `/api/services/:id` | Update service |
+| **Bookings** | GET | `/api/bookings/providers/bookings` | Get requests for provider |
+| | POST | `/api/bookings` | Create a new booking |
+| | PATCH | `/api/bookings/:id/status` | Update booking status (Accept/Reject) |
+| **Categories** | GET | `/api/categories` | List all categories |
+| **Admin** | GET | `/api/admin/stats` | Get platform statistics |
+| | PATCH | `/api/admin/providers/:id/verify` | Verify provider application |
 
 ---
 # Made with ❤️ by Param Khodiyar

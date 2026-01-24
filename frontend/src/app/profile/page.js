@@ -21,7 +21,118 @@ import {
   FaBriefcase,
   FaUser,
   FaHome,
+  FaCheckCircle, // Added
 } from "react-icons/fa";
+
+
+function BecomeProviderForm() {
+  const [aadharNumber, setAadharNumber] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await axios.get(`${API_BASE}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // console.log(res.data.user);
+        // setUserName(res.data.user.name);
+        // console.log(res.data.user.name);
+        // setUserEmail(res.data.user.email);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!aadharNumber || aadharNumber.length < 12) {
+      toast.error("Please enter a valid 12-digit Aadhaar number");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      await axios.post(
+        `${API_BASE}/api/become-provider`,
+        { aadharNumber },
+        { withCredentials: true, headers }
+      );
+
+      toast.success("Application Submitted! Reloading...");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.message || "Application failed";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-xl mx-auto">
+      <div className="bg-[#f7f3eb] p-4 rounded-xl border border-[#e5dcc7] mb-6">
+        <h3 className="font-semibold text-[#4a2e21] mb-2">Join our Provider Network</h3>
+        <p className="text-sm text-gray-600">
+          Offer your services to thousands of customers. Apply now by verifying your identity.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-[#6F4E37] font-medium mb-1">
+            User Name:
+          </label>
+          <input type="text" value={userName} readOnly className="w-full p-3 border border-[#C8B69E] text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F4E37] bg-[#FFFDF6] tracking-widest" />
+          <label className="block text-[#6F4E37] font-medium mb-1">
+            User Email:
+          </label>
+          <input type="text" value={userEmail} readOnly className="w-full p-3 border border-[#C8B69E] text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F4E37] bg-[#FFFDF6] tracking-widest" />
+          <label className="block text-[#6F4E37] font-medium mb-1">
+            Aadhaar Number <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={aadharNumber}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 12);
+              setAadharNumber(val);
+            }}
+            className="w-full p-3 border border-[#C8B69E] text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F4E37] bg-[#FFFDF6] tracking-widest"
+            placeholder="XXXX XXXX XXXX"
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Your ID will be verified by our admin team securely.
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[#6F4E37] text-white py-3 rounded-xl hover:bg-[#5A3F2E] transition-all shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {loading ? "Submitting..." : "Submit for Verification"}
+        </button>
+      </form>
+    </div>
+  );
+}
 import Loading from "@/components/loading";
 
 const AVATAR_URL =
@@ -354,9 +465,8 @@ export default function CustomerDashboard() {
       <div className="lg:flex gap-6 max-w-7xl mx-auto px-4 lg:px-6 pt-20 lg:pt-6 pb-12">
         {/* SIDEBAR */}
         <aside
-          className={`fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-3rem)] lg:top-6 w-72 bg-white p-6 rounded-none lg:rounded-2xl shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-          }`}
+          className={`fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-3rem)] lg:top-6 w-72 bg-white p-6 rounded-none lg:rounded-2xl shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+            }`}
         >
           <div className="mb-8 text-center mt-8 lg:mt-0">
             <div
@@ -380,11 +490,10 @@ export default function CustomerDashboard() {
                 setActiveTab("profile");
                 setSidebarOpen(false);
               }}
-              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === "profile"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "profile"
+                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <FaUser size={18} />
               <span>Profile</span>
@@ -395,11 +504,10 @@ export default function CustomerDashboard() {
                 setActiveTab("addresses");
                 setSidebarOpen(false);
               }}
-              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === "addresses"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "addresses"
+                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <FaMapMarkerAlt size={18} />
               <span>Addresses</span>
@@ -410,11 +518,10 @@ export default function CustomerDashboard() {
                 setActiveTab("bookings");
                 setSidebarOpen(false);
               }}
-              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === "bookings"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "bookings"
+                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <FaClock size={18} />
               <span>My Bookings</span>
@@ -423,8 +530,14 @@ export default function CustomerDashboard() {
             <div className="my-2 border-t border-gray-200"></div>
 
             <button
-              onClick={goBecomeProvider}
-              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-[#f1dfc9] hover:text-[#4a2e21] transition-colors"
+              onClick={() => {
+                setActiveTab("become-provider");
+                setSidebarOpen(false);
+              }}
+              className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "become-provider"
+                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <FaBriefcase size={18} />
               <span>Become a Provider</span>
@@ -455,6 +568,88 @@ export default function CustomerDashboard() {
 
         {/* MAIN CONTENT */}
         <main className="flex-1 w-full">
+
+          {/* BECOME PROVIDER TAB */}
+          {activeTab === "become-provider" && (
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <h2
+                className="text-2xl font-semibold flex items-center gap-3 mb-6"
+                style={{ color: COFFEE.text }}
+              >
+                <FaBriefcase size={24} />
+                <span>Become a Provider</span>
+              </h2>
+
+              {/* LOGIC: Check profile.providerProfile.applicationStatus */}
+              {/* If NO profile or NOT_APPLIED -> Show Form */}
+              {(!profile?.providerProfile || profile.providerProfile.applicationStatus === 'NOT_APPLIED') ? (
+                <BecomeProviderForm />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-[#e5dcc7] rounded-xl bg-[#fdfcfa]">
+
+                  {profile.providerProfile.applicationStatus === "PENDING" && (
+                    <>
+                      <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                        <FaClock className="text-yellow-600 text-3xl" />
+                      </div>
+                      <h3 className="text-xl font-bold text-[#4a2e21]">Application Pending</h3>
+                      <p className="text-gray-600 max-w-md mt-2">
+                        Your application is currently under review by our admin team. This process usually takes 24-48 hours.
+                      </p>
+                    </>
+                  )}
+
+                  {/* REJECTED */}
+                  {profile.providerProfile.applicationStatus === "REJECTED" && (
+                    <>
+                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                        <FaTimes className="text-red-600 text-3xl" />
+                      </div>
+                      <h3 className="text-xl font-bold text-[#4a2e21]">Application Rejected</h3>
+                      <p className="text-gray-600 max-w-md mt-2">
+                        Unfortunately, your application was not approved at this time.
+                      </p>
+                      {/* Option to Re-apply could go here later */}
+                    </>
+                  )}
+
+                  {/* APPROVED */}
+                  {profile.providerProfile.applicationStatus === "APPROVED" && (
+                    <>
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <FaCheckCircle className="text-green-600 text-3xl" />
+                      </div>
+                      <h3 className="text-xl font-bold text-[#4a2e21]">You are a Partner!</h3>
+                      <p className="text-gray-600 max-w-md mt-2 mb-6">
+                        Congratulations! Your provider account is active.
+                      </p>
+                      <button
+                        onClick={() => router.push('/provider/dashboard')}
+                        className="px-6 py-2 bg-[#6F4E37] text-white rounded-lg hover:bg-[#5a3f2c] transition"
+                      >
+                        Go to Provider Dashboard
+                      </button>
+                    </>
+                  )}
+
+                  {/* SUSPENDED */}
+                  {profile.providerProfile.applicationStatus === "SUSPENDED" && (
+                    <>
+                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                        <FaTimes className="text-red-600 text-3xl" />
+                      </div>
+                      <h3 className="text-xl font-bold text-[#4a2e21]">Account Suspended</h3>
+                      <p className="text-gray-600 max-w-md mt-2">
+                        Your provider account has been suspended. Please contact support.
+                      </p>
+                    </>
+                  )}
+
+                </div>
+              )}
+            </div>
+          )}
+
           {/* PROFILE TAB */}
           {activeTab === "profile" && (
             <div className="bg-white rounded-xl p-6 shadow-md">
@@ -735,6 +930,20 @@ export default function CustomerDashboard() {
                             </span>
                           </div>
                         </div>
+
+                        {/* Refund / Fee Info Messages */}
+                        {(b.status === "PENDING" || b.status === "ACCEPTED") && (
+                          <div className="mt-3 bg-blue-50 border border-blue-100 p-2 rounded text-xs text-blue-700 flex items-start gap-2">
+                            <span className="font-bold">Note:</span>
+                            Booking fee (₹500) will be refunded automatically after service completion.
+                          </div>
+                        )}
+                        {b.status === "CANCELLED" && (
+                          <div className="mt-3 bg-orange-50 border border-orange-100 p-2 rounded text-xs text-orange-700 flex items-start gap-2">
+                            <span className="font-bold">Refund:</span>
+                            Refund of ₹500 is in progress (usually takes 3-5 days).
+                          </div>
+                        )}
 
                         <div className="flex justify-end gap-2 mt-3">
                           {b.status === "PENDING" && (

@@ -31,6 +31,12 @@ exports.getCategoryById = async (req, res) => {
         subcategories: {
           include: {
             services: {
+              where: {
+                provider: {
+                  isAvailable: true,
+                  applicationStatus: "APPROVED"
+                }
+              },
               include: {
                 provider: {
                   include: {
@@ -59,7 +65,13 @@ exports.getProvidersByCategory = async (req, res) => {
     const { id } = req.params;
 
     const services = await prisma.providerService.findMany({
-      where: { categoryId: id },
+      where: {
+        categoryId: id,
+        provider: {
+          isAvailable: true,
+          applicationStatus: "APPROVED"
+        }
+      },
       include: {
         provider: {
           include: { user: true }
@@ -94,6 +106,6 @@ exports.getSubcategoryById = async (req, res) => {
     return res.json({ subcategory });
   } catch (err) {
     console.log("getSubcategoryById error:", err);
-    return res.status(500).json({ message: "Server error",err : err.message});
+    return res.status(500).json({ message: "Server error", err: err.message });
   }
 };

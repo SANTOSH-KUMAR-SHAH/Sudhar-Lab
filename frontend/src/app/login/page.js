@@ -27,19 +27,18 @@ export default function Login() {
       const response = await axios.post(`${URL}/api/auth/login`, form, {
         headers: {
           "Content-Type": "application/json",
-          authorization: "Bearer " + localStorage.getItem("token"),
         },
-        withCredentials: true, // <-- REQUIRED
+        withCredentials: true,
         validateStatus: () => true,
       });
 
       const data = response.data || {};
-      // Mirror previous behavior: store token even if server responded non-2xx
-      if (data.token) localStorage.setItem("token", data.token);
 
       if (response.status < 200 || response.status >= 300) {
         throw new Error(data.message || "Something went wrong");
       }
+
+      if (data.token) localStorage.setItem("token", data.token);
 
       toast.success(`Welcome Back, ${data.user.name}`, {
         style: {
@@ -49,8 +48,14 @@ export default function Login() {
       });
 
       setTimeout(() => {
-        router.push("/landingpage");
-      }, 1500);
+        if (data.user.role === "ADMIN") {
+          router.push("/admin/dashboard");
+        } else if (data.user.role === "PROVIDER") {
+          router.push("/provider/dashboard");
+        } else {
+          router.push("/landingpage");
+        }
+      }, 1000);
     } catch (err) {
       toast.error(err.message || "Something went wrong", {
         style: {
@@ -78,7 +83,7 @@ export default function Login() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="flex items-center justify-between gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() =>
@@ -87,8 +92,9 @@ export default function Login() {
                     password: "password123",
                   })
                 }
-                className="flex-1 py-2 text-sm rounded-lg border border-[#d6c7b4] 
-                 bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] transition"
+                className="h-11 rounded-xl border border-[#d6c7b4] 
+                          bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] 
+                          transition font-medium text-sm"
               >
                 User Demo
               </button>
@@ -97,16 +103,33 @@ export default function Login() {
                 type="button"
                 onClick={() =>
                   setForm({
-                    email: "provider1@example.com",
+                    email: "rahul.sharma@example.com",
                     password: "password123",
                   })
                 }
-                className="flex-1 py-2 text-sm rounded-lg border border-[#d6c7b4] 
-                 bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] transition"
+                className="h-11 rounded-xl border border-[#d6c7b4] 
+                          bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] 
+                          transition font-medium text-sm"
               >
                 Provider Demo
               </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({
+                    email: "admin@example.com",
+                    password: "password123",
+                  })
+                }
+                className="h-11 rounded-xl border border-[#d6c7b4] 
+                          bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] 
+                          transition font-medium text-sm"
+              >
+                Admin Demo
+              </button>
             </div>
+
 
             <div>
               <input
@@ -142,6 +165,43 @@ export default function Login() {
               Log In
             </button>
           </form>
+
+          {/* Handler logic update inline */}
+          {/* 
+            const handleSubmit = async (e) => {
+              e.preventDefault();
+              try {
+                const response = await axios.post(`${URL}/api/auth/login`, form, {
+                  headers: { "Content-Type": "application/json" },
+                  withCredentials: true,
+                  validateStatus: () => true,
+                });
+
+                const data = response.data || {};
+                if (data.token) localStorage.setItem("token", data.token);
+
+                if (response.status < 200 || response.status >= 300) {
+                  throw new Error(data.message || "Something went wrong");
+                }
+
+                toast.success(`Welcome Back, ${data.user.name}`, {
+                  style: { background: "#e6ffed", color: "#03543f" },
+                });
+                
+                // REDIRECT LOGIC
+                setTimeout(() => {
+                  if (data.user.role === "ADMIN") {
+                      router.push("/admin/dashboard");
+                  } else {
+                      router.push("/landingpage");
+                  }
+                }, 1500);
+                
+              } catch (err) {
+                 toast.error(err.message || "Login failed");
+              }
+            };
+          */}
 
           <p className="text-sm text-gray-600 mt-4 text-center">
             Want to create an account?

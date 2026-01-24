@@ -1,5 +1,16 @@
 const prisma = require("../utils/db");
 const getDayAndTime = require("../utils/getDayAndTime");
+const toMinutes = (timeStr) => {
+  const [h, m] = timeStr.split(":").map(Number);
+  return h * 60 + m;
+};
+
+const toTimeStr = (totalMins) => {
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+};
+
 exports.getSlotsForDate = async (req, res) => {
   try {
     const { serviceId } = req.params;
@@ -9,45 +20,72 @@ exports.getSlotsForDate = async (req, res) => {
       return res.status(400).json({ message: "Date is required" });
     }
 
-    const dayName = new Date(date)
-      .toLocaleString("en-US", { weekday: "long" })
-      .toLowerCase();
-
     const service = await prisma.providerService.findUnique({
       where: { id: serviceId },
+      include: { provider: true }
     });
 
-    if (!service || !service.availability) {
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    if (!service.provider.isAvailable) {
+      return res.json({ slots: [], message: "Provider is currently unavailable" });
+    }
+
+    const targetDate = new Date(date);
+    const dayName = targetDate.toLocaleDateString("en-US", { weekday: "long" });
+
+    const schedule = service.provider.schedule || {};
+    const daySchedule = schedule[dayName];
+
+    if (!daySchedule || !daySchedule.start || !daySchedule.end) {
       return res.json({ slots: [] });
     }
 
-    const daySlots = service.availability[dayName];
-    if (!daySlots) return res.json({ slots: [] });
+    const startOfDay = toMinutes(daySchedule.start);
+    const endOfDay = toMinutes(daySchedule.end);
+    const serviceDuration = service.duration || 60;
+    const startDateTime = new Date(`${date}T00:00:00.000Z`);
+    const endDateTime = new Date(`${date}T23:59:59.999Z`);
 
-    const slots = Object.keys(daySlots).map((time) => {
-      const val = daySlots[time];
-
-      const isBooked =
-        Array.isArray(val) &&
-        val.length > 0 &&
-        typeof val[0] === "string" &&
-        val[0].match(/^[0-9a-fA-F-]{36}$/); // uuid
-
-      // Calculate end time
-      const [h, m] = time.split(":").map(Number);
-      const startMins = h * 60 + m;
-      const endMins = startMins + (service.duration || 60);
-      const endH = Math.floor(endMins / 60);
-      const endM = endMins % 60;
-      const endTime = `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
-
-      return {
-        time,
-        booked: isBooked,
-        start: time,
-        end: endTime
-      };
+    const existingBookings = await prisma.booking.findMany({
+      where: {
+        providerId: service.providerId,
+        bookingStart: {
+          gte: startDateTime,
+          lte: endDateTime
+        },
+        status: { not: "CANCELLED" }
+      },
+      select: { bookingStart: true, bookingEnd: true }
     });
+
+    const slots = [];
+    let currentMins = startOfDay;
+
+    while (currentMins + serviceDuration <= endOfDay) {
+      const slotStartMins = currentMins;
+      const slotEndMins = currentMins + serviceDuration;
+      const isConflict = existingBookings.some(booking => {
+        const bStart = booking.bookingStart;
+        const bEnd = booking.bookingEnd;
+        const bStartMins = bStart.getUTCHours() * 60 + bStart.getUTCMinutes();
+        const bEndMins = bEnd.getUTCHours() * 60 + bEnd.getUTCMinutes();
+        return slotStartMins < bEndMins && slotEndMins > bStartMins;
+      });
+
+      if (!isConflict) {
+        slots.push({
+          time: toTimeStr(slotStartMins),
+          booked: false,
+          start: toTimeStr(slotStartMins),
+          end: toTimeStr(slotEndMins)
+        });
+      }
+
+      currentMins += 30;
+    }
 
     return res.json({ slots });
   } catch (err) {
@@ -60,7 +98,6 @@ exports.createBooking = async (req, res) => {
   try {
     const customerId = req.user.id;
     const { serviceId, providerUserId, slot, address } = req.body;
-
     if (!serviceId || !providerUserId || !slot)
       return res.status(400).json({
         message: "serviceId, providerUserId and slot are required",
@@ -73,29 +110,34 @@ exports.createBooking = async (req, res) => {
     if (!service)
       return res.status(404).json({ message: "Service not found" });
 
-    const { day, time } = getDayAndTime(slot);
+    const bookingStart = new Date(slot);
+    const bookingEnd = new Date(bookingStart.getTime() + service.duration * 60000);
+    const conflict = await prisma.booking.findFirst({
+      where: {
+        providerId: providerUserId,
+        status: { not: "CANCELLED" },
+        OR: [
+          {
 
-    const availability = service.availability;
-    const daySlots = availability[day];
+            bookingStart: { gte: bookingStart, lt: bookingEnd }
+          },
+          {
 
-    if (!daySlots || !daySlots[time])
-      return res.status(400).json({ message: "Slot not available" });
+            bookingEnd: { gt: bookingStart, lte: bookingEnd }
+          },
+          {
 
-    // If booked array has a booking UUID → already booked
-    if (
-      Array.isArray(daySlots[time]) &&
-      daySlots[time].length > 0 &&
-      daySlots[time][0].match(/^[0-9a-fA-F-]{36}$/)
-    ) {
+            bookingStart: { lte: bookingStart },
+            bookingEnd: { gte: bookingEnd }
+          }
+        ]
+      }
+    });
+
+    if (conflict) {
       return res.status(409).json({ message: "Slot already booked" });
     }
 
-    const bookingStart = new Date(slot);
-    const bookingEnd = new Date(
-      bookingStart.getTime() + service.duration * 60000
-    );
-
-    // Create booking first
     const booking = await prisma.booking.create({
       data: {
         customerId,
@@ -106,14 +148,6 @@ exports.createBooking = async (req, res) => {
         amount: service.price,
         address: address || null,
       },
-    });
-
-    // Mark slot as booked (store booking ID)
-    availability[day][time] = [booking.id];
-
-    await prisma.providerService.update({
-      where: { id: serviceId },
-      data: { availability },
     });
 
     return res.status(201).json({ booking });
@@ -146,26 +180,6 @@ exports.updateBookingStatus = async (req, res) => {
 
     if (!booking)
       return res.status(404).json({ message: "Booking not found" });
-
-    const service = await prisma.providerService.findUnique({
-      where: { id: booking.serviceId },
-    });
-
-    const availability = service.availability;
-
-    const { day, time } = getDayAndTime(booking.bookingStart);
-
-    if (action === "cancel") {
-      // Free the slot
-      if (availability[day] && availability[day][time]) {
-        availability[day][time] = [];
-      }
-
-      await prisma.providerService.update({
-        where: { id: service.id },
-        data: { availability },
-      });
-    }
 
     const updated = await prisma.booking.update({
       where: { id },

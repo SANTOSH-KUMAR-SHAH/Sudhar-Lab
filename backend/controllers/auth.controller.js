@@ -36,7 +36,7 @@ async function Signup(req, res) {
                 email,
                 password: hashedPassword,
                 phone: phone || null
-            
+
             }
         });
         console.log("Signup successful")
@@ -47,7 +47,7 @@ async function Signup(req, res) {
                 name: newUser.name,
                 email: newUser.email,
                 phone: newUser.phone,
-                role: newUser.role      
+                role: newUser.role
             }
         });
 
@@ -76,20 +76,17 @@ async function Login(req, res) {
         if (!isPasswordValid) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
         const token = generateToken({
             id: user.id,
+            name: user.name,
             email: user.email,
             role: user.role
         });
-        
+
         res.cookie("token", token, {
             httpOnly: process.env.NODE_ENV === 'production',
-            // Use secure cookies only in production (HTTPS). In dev (http) this prevents cookie being set.
             secure: process.env.NODE_ENV === 'production',
-            // When in production and cross-site, SameSite=None is required for cookies to be sent.
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-            // domain : process.env.NODE_ENV === 'production' ? 'localhelpbackendv2.onrender.com' : 'localhost',
             maxAge: 3600000,
         });
 
