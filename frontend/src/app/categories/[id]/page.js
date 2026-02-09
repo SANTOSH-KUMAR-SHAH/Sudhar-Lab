@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_IS_PROD === "true"
-    ? "https://localhelpbackendv2.onrender.com"
+    ? "https://localhelp-hu2d.onrender.com"
     : "http://localhost:4040";
 
 const ITEMS_PER_PAGE = 6;

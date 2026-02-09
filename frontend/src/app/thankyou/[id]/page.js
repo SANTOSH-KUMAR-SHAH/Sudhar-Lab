@@ -7,7 +7,7 @@ import { FaCheckCircle, FaClock, FaUser, FaRupeeSign } from "react-icons/fa";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_IS_PROD === "true"
-    ? "https://localhelpbackendv2.onrender.com"
+    ? "https://localhelp-hu2d.onrender.com"
     : "http://localhost:4040";
 
 export default function ThankYouPage({ params }) {

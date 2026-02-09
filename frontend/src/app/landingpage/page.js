@@ -41,7 +41,7 @@ export default function Dashboard() {
   const isProd = process.env.NEXT_PUBLIC_IS_PROD === "true";
 
   const URL = isProd
-    ? "https://localhelpbackendv2.onrender.com"
+    ? "https://localhelp-hu2d.onrender.com"
     : "http://localhost:4040";
 
   const iconMap = {

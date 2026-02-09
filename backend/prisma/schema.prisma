@@ -184,7 +184,7 @@ model Report {
   bookingId   String       @unique
   reporterId  String
   providerId  String
-  issueType   String // e.g. "Did not arrive", "Behavior", "Other"
+  issueType   String 
   description String?
   status      ReportStatus @default(OPEN)
   createdAt   DateTime     @default(now())

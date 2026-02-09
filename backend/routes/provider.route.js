@@ -16,7 +16,7 @@ const { addService: addProviderService } = require("../controllers/providerServi
 
 router.post("/become", auth, becomeProvider);
 
-// Dashboard routes
+
 router.get("/me", auth, getMyProviderProfile);
 router.patch("/availability", auth, updateAvailability);
 router.patch("/schedule", auth, updateSchedule);
@@ -27,6 +27,7 @@ router.get("/earnings", auth, checkRole("PROVIDER"), getProviderEarnings);
 router.get("/:id", getProviderProfile);
 router.get("/:id/services", getProviderServices);
 router.post("/services", auth, addProviderService);
+
 
 
 module.exports = router;

@@ -11,7 +11,7 @@ The system includes a complete booking flow, robust authentication, dedicated da
 | Platform | Link |
 | :--- | :--- |
 | **Frontend** (Next.js) | https://localhelpfrontendv2.vercel.app/ |
-| **Backend API** (Express.js) | https://localhelpbackendv2.onrender.com |
+| **Backend API** (Express.js) | https://localhelp-hu2d.onrender.com |
 | *Please note: These links are for the deployed versions.* |
 
 ---

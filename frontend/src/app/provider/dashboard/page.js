@@ -29,7 +29,7 @@ import axios from "axios";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_IS_PROD === "true"
-    ? "https://localhelpbackendv2.onrender.com"
+    ? "https://localhelp-hu2d.onrender.com"
     : "http://localhost:4040";
 
 export default function Dashboard() {
