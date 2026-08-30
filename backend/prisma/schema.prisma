@@ -31,6 +31,7 @@ model User {
   serviceRequests    ServiceRequest[]              @relation("CustomerRequests")
   assignedRequests   ServiceRequest[]              @relation("TechnicianRequests")
   statusChanges      ServiceRequestStatusHistory[]
+  diagnosesWritten   Diagnosis[]
 }
 
 enum UserStatus {
@@ -213,6 +214,8 @@ model ServiceRequest {
   category      ServiceCategory?              @relation(fields: [categoryId], references: [id])
   subcategory   ServiceSubCategory?           @relation(fields: [subcategoryId], references: [id])
   statusHistory ServiceRequestStatusHistory[]
+  diagnosis    Diagnosis?
+  estimate     Estimate?
 
   @@index([customerId, status])
   @@index([technicianId, status])
@@ -247,6 +250,48 @@ model ServiceRequestStatusHistory {
   changedBy User           @relation(fields: [changedById], references: [id])
 
   @@index([requestId, changedAt])
+}
+
+model Diagnosis {
+  id              String   @id @default(uuid())
+  requestId       String   @unique
+  technicianId    String
+  findings        String
+  recommendedWork String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  technician  User @relation(fields: [technicianId], references: [id])
+}
+
+model Estimate {
+  id           String @id @default(uuid())
+  requestId    String @unique
+  status       EstimateStatus @default(PENDING)
+  customerNote String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  request ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  items   EstimateItem[]
+}
+
+model EstimateItem {
+  id          String @id @default(uuid())
+  estimateId  String
+  description String
+  quantity    Int @default(1)
+  unitPrice   Float
+
+  estimate Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  @@index([estimateId])
+}
+
+enum EstimateStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum BookingStatus {
