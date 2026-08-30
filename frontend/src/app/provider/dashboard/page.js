@@ -479,6 +479,9 @@ export default function Dashboard() {
               >
                 <FaClock /> Requests
               </button>
+              <a href="/provider/requests" className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-[#E8F2EE]">
+                <FaClock /> Service Requests
+              </a>
 
               <button
                 onClick={handleLogout}

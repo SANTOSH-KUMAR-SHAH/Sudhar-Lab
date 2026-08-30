@@ -448,6 +448,14 @@ export default function AdminDashboard() {
                             <FaCalendarCheck />
                             All Bookings
                         </button>
+                        <a href="/admin/requests" className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 hover:bg-[#E8F2EE]">
+                            <FaClipboardList />
+                            Service Requests
+                        </a>
+                        <a href="/admin/appointments" className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 hover:bg-[#E8F2EE]">
+                            <FaCalendarCheck />
+                            Appointments
+                        </a>
                         <button
                             onClick={() => {
                                 setActiveTab("stats");
