@@ -12,6 +12,7 @@ const transitions = {
   INVOICED: ["PAID"],
   PAID: ["CLOSED"],
 };
+const notificationTypes = { ASSIGNED: "TECHNICIAN_ASSIGNED", CONFIRMED: "JOB_CONFIRMED", TECHNICIAN_ON_WAY: "TECHNICIAN_ON_WAY", DIAGNOSING: "DIAGNOSIS_ADDED", IN_PROGRESS: "INFO", WAITING_FOR_PARTS: "WAITING_FOR_PARTS", COMPLETED: "SERVICE_COMPLETED", INVOICED: "INVOICE_CREATED", PAID: "PAYMENT_RECEIVED", CLOSED: "SERVICE_CLOSED", CANCELLED: "BOOKING_CANCELLED" };
 
 function canAccess(request, user) {
   return user.role === "ADMIN" || request.customerId === user.id || request.technicianId === user.id;
@@ -58,6 +59,8 @@ exports.changeStatus = async (req, res) => {
     const updated = await prisma.$transaction(async (tx) => {
       const result = await tx.serviceRequest.update({ where: { id: request.id }, data: { status } });
       await tx.serviceRequestStatusHistory.create({ data: { requestId: request.id, fromStatus: request.status, toStatus: status, changedById: req.user.id, note } });
+      const recipientId = request.customerId === req.user.id ? request.technicianId : request.customerId;
+      if (recipientId) await tx.notification.create({ data: { userId: recipientId, title: `Service request ${status.toLowerCase().replaceAll("_", " ")}`, message: note || `Your service request is now ${status.toLowerCase().replaceAll("_", " ")}.`, type: notificationTypes[status] || "INFO" } });
       return result;
     });
     res.json({ message: "Service request status updated", request: updated });
