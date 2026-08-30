@@ -4,6 +4,7 @@ const controller = require("../controllers/serviceRequest.controller");
 const de = require("../controllers/diagnosisEstimate.controller");
 const parts = require("../controllers/parts.controller");
 const financial = require("../controllers/financial.controller");
+const warranty = require("../controllers/warranty.controller");
 
 router.use(auth);
 router.get("/", controller.list);
@@ -19,4 +20,6 @@ router.post("/:id/invoice", financial.createInvoice);
 router.get("/:id/invoice", financial.getInvoice);
 router.post("/:id/pay", financial.pay);
 router.post("/:id/close", financial.close);
+router.get("/:id/warranty", warranty.get);
+router.post("/:id/warranty", warranty.create);
 module.exports = router;

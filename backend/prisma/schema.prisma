@@ -219,6 +219,7 @@ model ServiceRequest {
   partsUsed    PartUsage[]
   invoice       Invoice?
   appointment   Appointment?
+  warranty      Warranty?
   workPerformed String?
   completedAt  DateTime?
 
@@ -288,6 +289,18 @@ enum AppointmentStatus {
   RESCHEDULED
   CANCELLED
   COMPLETED
+}
+
+model Warranty {
+  id          String @id @default(uuid())
+  requestId   String @unique
+  coverage    String
+  startsAt    DateTime @default(now())
+  expiresAt   DateTime?
+  terms       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
 }
 
 model Estimate {
