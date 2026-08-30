@@ -1,0 +1,14 @@
+"use client";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+const API = process.env.NEXT_PUBLIC_IS_PROD === "true" ? "https://localhelp-hu2d.onrender.com" : "http://localhost:4040";
+export default function AdminAppointmentsPage() {
+  const [requests, setRequests] = useState([]); const [times, setTimes] = useState({}); const [loading, setLoading] = useState(true);
+  const headers = { Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("token") : ""}` };
+  async function load() { try { const r = await axios.get(`${API}/api/admin/service-requests`, { headers }); setRequests((r.data.requests || []).filter(x => x.technician && ["ASSIGNED", "CONFIRMED"].includes(x.status))); } catch (e) { toast.error(e.response?.data?.message || "Could not load appointments"); } finally { setLoading(false); } }
+  useEffect(() => { load(); }, []);
+  async function save(id) { if (!times[id]) return toast.error("Choose a visit time"); try { await axios.post(`${API}/api/admin/service-requests/${id}/appointment`, { scheduledAt: new Date(times[id]).toISOString() }, { headers }); toast.success("Appointment saved"); load(); } catch (e) { toast.error(e.response?.data?.message || "Could not save appointment"); } }
+  return <main className="min-h-screen bg-[#F4F5F0] px-4 py-8 text-[#112E40]"><div className="mx-auto max-w-5xl"><a href="/admin/dashboard" className="text-[#127373]">← Admin dashboard</a><h1 className="mt-6 text-3xl font-bold">Appointments</h1><p className="mt-2 text-gray-600">Set or reschedule the technician visit after assignment.</p>{loading ? <p className="mt-8 rounded-xl bg-white p-8 text-center">Loading…</p> : requests.length === 0 ? <div className="mt-8 rounded-xl bg-white p-10 text-center">No assigned requests need scheduling.</div> : <div className="mt-8 space-y-4">{requests.map(r => <article key={r.id} className="rounded-2xl bg-white p-6 shadow-sm"><div className="flex flex-wrap justify-between gap-4"><div><p className="text-xs font-bold uppercase text-[#127373]">{r.status}</p><h2 className="mt-1 text-xl font-bold">{r.appliance?.brand} {r.appliance?.model || r.appliance?.type}</h2><p className="mt-2">{r.customer?.name} · Technician: {r.technician.name}</p><p className="mt-1 text-sm text-gray-600">{r.problem}</p>{r.appointment && <p className="mt-2 text-sm font-semibold text-[#127373]">Current: {new Date(r.appointment.scheduledAt).toLocaleString()}</p>}</div><div className="flex items-center gap-2"><input type="datetime-local" value={times[r.id] || ""} onChange={e => setTimes({ ...times, [r.id]: e.target.value })} className="rounded-lg border border-gray-300 p-3" /><button onClick={() => save(r.id)} className="rounded-lg bg-[#127373] px-4 py-3 font-semibold text-white">{r.appointment ? "Reschedule" : "Schedule"}</button></div></div></article>)}</div>}</div></main>;
+}
