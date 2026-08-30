@@ -590,6 +590,13 @@ export default function CustomerDashboard() {
               <FaTools size={18} />
               <span>My Appliances</span>
             </button>
+            <button
+              onClick={() => router.push("/requests")}
+              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              <FaTools size={18} />
+              <span>Service Requests</span>
+            </button>
 
             <div className="my-2 border-t border-gray-200"></div>
 

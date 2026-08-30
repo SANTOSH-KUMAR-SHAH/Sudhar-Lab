@@ -21,14 +21,14 @@ exports.list = async (req, res) => {
   try {
     const where = req.user.role === "ADMIN" ? {} : req.user.role === "PROVIDER" || req.user.role === "BOTH"
       ? { technicianId: req.user.id } : { customerId: req.user.id };
-    const requests = await prisma.serviceRequest.findMany({ where, orderBy: { createdAt: "desc" }, include: { appliance: true, customer: { select: { id: true, name: true, email: true, phone: true } }, technician: { select: { id: true, name: true, email: true, phone: true } }, statusHistory: { orderBy: { changedAt: "asc" } } } });
+    const requests = await prisma.serviceRequest.findMany({ where, orderBy: { createdAt: "desc" }, include: { appliance: true, diagnosis: true, estimate: { include: { items: true } }, invoice: { include: { items: true, payments: true } }, customer: { select: { id: true, name: true, email: true, phone: true } }, technician: { select: { id: true, name: true, email: true, phone: true } }, statusHistory: { orderBy: { changedAt: "asc" } } } });
     res.json({ requests });
   } catch (e) { res.status(500).json({ message: "Unable to load service requests" }); }
 };
 
 exports.getById = async (req, res) => {
   try {
-    const request = await prisma.serviceRequest.findUnique({ where: { id: req.params.id }, include: { appliance: true, customer: { select: { id: true, name: true, email: true, phone: true } }, technician: { select: { id: true, name: true, email: true, phone: true } }, statusHistory: { orderBy: { changedAt: "asc" } } } });
+    const request = await prisma.serviceRequest.findUnique({ where: { id: req.params.id }, include: { appliance: true, diagnosis: true, estimate: { include: { items: true } }, invoice: { include: { items: true, payments: true } }, partsUsed: { include: { part: true } }, customer: { select: { id: true, name: true, email: true, phone: true } }, technician: { select: { id: true, name: true, email: true, phone: true } }, statusHistory: { orderBy: { changedAt: "asc" } } } });
     if (!request) return res.status(404).json({ message: "Service request not found" });
     if (!canAccess(request, req.user)) return res.status(403).json({ message: "Access denied" });
     res.json({ request });
