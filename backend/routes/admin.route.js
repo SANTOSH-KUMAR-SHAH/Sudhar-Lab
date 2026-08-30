@@ -10,7 +10,9 @@ const {
     promoteProvider,
     getAllUsers,
     updateUserStatus,
-    getAllBookings
+    getAllBookings,
+    getServiceRequests,
+    assignServiceRequest
 } = require("../controllers/admin.controller");
 
 router.use(auth);
@@ -23,4 +25,6 @@ router.put("/providers/:id/promote", checkRole("ADMIN"), promoteProvider);
 router.get("/users", checkRole("ADMIN"), getAllUsers);
 router.patch("/users/:id/status", checkRole("ADMIN"), updateUserStatus);
 router.get("/bookings/all", checkRole("ADMIN"), getAllBookings);
+router.get("/service-requests", checkRole("ADMIN"), getServiceRequests);
+router.post("/service-requests/:id/assign", checkRole("ADMIN"), assignServiceRequest);
 module.exports = router;

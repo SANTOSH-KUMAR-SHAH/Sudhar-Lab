@@ -128,6 +128,41 @@ exports.getAllBookings = async (req, res) => {
     }
 };
 
+exports.getServiceRequests = async (req, res) => {
+    try {
+        const requests = await prisma.serviceRequest.findMany({
+            orderBy: { createdAt: "desc" },
+            include: {
+                appliance: true,
+                customer: { select: { id: true, name: true, email: true, phone: true } },
+                technician: { select: { id: true, name: true, email: true, phone: true } },
+                statusHistory: { orderBy: { changedAt: "asc" } }
+            }
+        });
+        res.json({ requests });
+    } catch (err) { res.status(500).json({ message: "Unable to load service requests" }); }
+};
+
+exports.assignServiceRequest = async (req, res) => {
+    try {
+        const { technicianId } = req.body;
+        if (!technicianId) return res.status(400).json({ message: "Technician is required" });
+        const request = await prisma.serviceRequest.findUnique({ where: { id: req.params.id } });
+        if (!request) return res.status(404).json({ message: "Service request not found" });
+        if (request.status !== "REQUESTED") return res.status(400).json({ message: "Only requested jobs can be assigned" });
+        const technician = await prisma.user.findUnique({ where: { id: technicianId }, include: { providerProfile: true } });
+        if (!technician || !["PROVIDER", "BOTH"].includes(technician.role) || technician.status !== "ACTIVE" || !technician.providerProfile?.isAvailable) return res.status(400).json({ message: "Technician is unavailable" });
+        const updated = await prisma.$transaction(async (tx) => {
+            const result = await tx.serviceRequest.update({ where: { id: request.id }, data: { technicianId, status: "ASSIGNED" } });
+            await tx.serviceRequestStatusHistory.create({ data: { requestId: request.id, fromStatus: "REQUESTED", toStatus: "ASSIGNED", changedById: req.user.id, note: "Technician assigned by operations" } });
+            await tx.notification.create({ data: { userId: technicianId, title: "New service request assigned", message: `You have been assigned service request ${request.id}.`, type: "INFO" } });
+            await tx.notification.create({ data: { userId: request.customerId, title: "Technician assigned", message: "A technician has been assigned to your service request.", type: "INFO" } });
+            return result;
+        });
+        res.json({ message: "Technician assigned", request: updated });
+    } catch (err) { res.status(500).json({ message: "Unable to assign technician" }); }
+};
+
 exports.approveApplication = async (req, res) => {
     try {
         const providerId = req.params.id;
