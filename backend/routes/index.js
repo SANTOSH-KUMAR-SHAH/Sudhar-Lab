@@ -13,5 +13,7 @@ router.use("/admin", require("./admin.route"));
 router.use("/count", require("./count.route"));
 router.use("/feedback", require("./feedback.route"));
 router.use("/notifications", require("./notification.route"));
+router.use("/appliances", require("./appliance.route"));
+router.use("/service-requests", require("./serviceRequest.route"));
 module.exports = router;
 

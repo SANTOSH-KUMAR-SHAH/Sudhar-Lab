@@ -8,25 +8,29 @@ datasource db {
 }
 
 model User {
-  id                 String           @id @default(uuid())
+  id                 String                        @id @default(uuid())
   name               String
-  email              String           @unique
+  email              String                        @unique
   phone              String?
   password           String
-  earnings           Float            @default(0)
-  role               UserRole         @default(CUSTOMER)
-  status             UserStatus       @default(ACTIVE)
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  earnings           Float                         @default(0)
+  role               UserRole                      @default(CUSTOMER)
+  status             UserStatus                    @default(ACTIVE)
+  createdAt          DateTime                      @default(now())
+  updatedAt          DateTime                      @updatedAt
   providerProfile    ProviderProfile?
   addresses          Address[]
-  bookingsAsCustomer Booking[]        @relation("CustomerBookings")
-  bookingsAsProvider Booking[]        @relation("ProviderBookings")
-  reviewsWritten     Review[]         @relation("UserReviewsWritten")
-  reviewsReceived    Review[]         @relation("UserReviewsReceived")
-  reportsWritten     Report[]         @relation("UserReportsWritten")
-  reportsReceived    Report[]         @relation("UserReportsReceived")
+  bookingsAsCustomer Booking[]                     @relation("CustomerBookings")
+  bookingsAsProvider Booking[]                     @relation("ProviderBookings")
+  reviewsWritten     Review[]                      @relation("UserReviewsWritten")
+  reviewsReceived    Review[]                      @relation("UserReviewsReceived")
+  reportsWritten     Report[]                      @relation("UserReportsWritten")
+  reportsReceived    Report[]                      @relation("UserReportsReceived")
   notifications      Notification[]
+  appliances         Appliance[]
+  serviceRequests    ServiceRequest[]              @relation("CustomerRequests")
+  assignedRequests   ServiceRequest[]              @relation("TechnicianRequests")
+  statusChanges      ServiceRequestStatusHistory[]
 }
 
 enum UserStatus {
@@ -108,11 +112,12 @@ model ProviderService {
 }
 
 model ServiceCategory {
-  id            String               @id @default(uuid())
-  name          String               @unique
-  icon          String?
-  subcategories ServiceSubCategory[]
-  services      ProviderService[]
+  id              String               @id @default(uuid())
+  name            String               @unique
+  icon            String?
+  subcategories   ServiceSubCategory[]
+  services        ProviderService[]
+  serviceRequests ServiceRequest[]
 }
 
 model ServiceSubCategory {
@@ -120,8 +125,9 @@ model ServiceSubCategory {
   name       String
   categoryId String
 
-  category ServiceCategory   @relation(fields: [categoryId], references: [id])
-  services ProviderService[]
+  category        ServiceCategory   @relation(fields: [categoryId], references: [id])
+  services        ProviderService[]
+  serviceRequests ServiceRequest[]
 }
 
 model Address {
@@ -158,16 +164,89 @@ model Booking {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  customer User            @relation("CustomerBookings", fields: [customerId], references: [id])
-  provider User            @relation("ProviderBookings", fields: [providerId], references: [id])
-  service  ProviderService @relation(fields: [serviceId], references: [id])
-  review   Review?
-  report   Report?
+  customer      User            @relation("CustomerBookings", fields: [customerId], references: [id])
+  provider      User            @relation("ProviderBookings", fields: [providerId], references: [id])
+  service       ProviderService @relation(fields: [serviceId], references: [id])
+  review        Review?
+  report        Report?
   notifications Notification[]
 
   @@index([providerId, bookingStart, bookingEnd])
   @@index([customerId, status])
   @@index([providerId, status])
+}
+
+model Appliance {
+  id           String    @id @default(uuid())
+  customerId   String
+  type         String
+  brand        String
+  model        String?
+  serialNumber String?
+  purchaseDate DateTime?
+  warrantyInfo String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  customer        User             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  serviceRequests ServiceRequest[]
+
+  @@index([customerId])
+}
+
+model ServiceRequest {
+  id            String               @id @default(uuid())
+  customerId    String
+  applianceId   String
+  technicianId  String?
+  categoryId    String?
+  subcategoryId String?
+  problem       String
+  address       String?
+  status        ServiceRequestStatus @default(REQUESTED)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  customer      User                          @relation("CustomerRequests", fields: [customerId], references: [id])
+  appliance     Appliance                     @relation(fields: [applianceId], references: [id])
+  technician    User?                         @relation("TechnicianRequests", fields: [technicianId], references: [id])
+  category      ServiceCategory?              @relation(fields: [categoryId], references: [id])
+  subcategory   ServiceSubCategory?           @relation(fields: [subcategoryId], references: [id])
+  statusHistory ServiceRequestStatusHistory[]
+
+  @@index([customerId, status])
+  @@index([technicianId, status])
+  @@index([status, createdAt])
+}
+
+enum ServiceRequestStatus {
+  REQUESTED
+  ASSIGNED
+  CONFIRMED
+  TECHNICIAN_ON_WAY
+  DIAGNOSING
+  IN_PROGRESS
+  WAITING_FOR_PARTS
+  COMPLETED
+  INVOICED
+  PAID
+  CLOSED
+  CANCELLED
+}
+
+model ServiceRequestStatusHistory {
+  id          String                @id @default(uuid())
+  requestId   String
+  fromStatus  ServiceRequestStatus?
+  toStatus    ServiceRequestStatus
+  changedById String
+  note        String?
+  changedAt   DateTime              @default(now())
+
+  request   ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  changedBy User           @relation(fields: [changedById], references: [id])
+
+  @@index([requestId, changedAt])
 }
 
 enum BookingStatus {
@@ -196,7 +275,7 @@ model Report {
   bookingId   String       @unique
   reporterId  String
   providerId  String
-  issueType   String 
+  issueType   String
   description String?
   status      ReportStatus @default(OPEN)
   createdAt   DateTime     @default(now())
