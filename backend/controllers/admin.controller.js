@@ -137,10 +137,28 @@ exports.getServiceRequests = async (req, res) => {
                 customer: { select: { id: true, name: true, email: true, phone: true } },
                 technician: { select: { id: true, name: true, email: true, phone: true } },
                 statusHistory: { orderBy: { changedAt: "asc" } }
+                , appointment: true
             }
         });
         res.json({ requests });
     } catch (err) { res.status(500).json({ message: "Unable to load service requests" }); }
+};
+
+exports.scheduleServiceRequest = async (req, res) => {
+    try {
+        const { scheduledAt, endsAt, note } = req.body;
+        const start = new Date(scheduledAt);
+        if (!scheduledAt || Number.isNaN(start.getTime())) return res.status(400).json({ message: "A valid appointment time is required" });
+        const request = await prisma.serviceRequest.findUnique({ where: { id: req.params.id } });
+        if (!request) return res.status(404).json({ message: "Service request not found" });
+        if (!["REQUESTED", "ASSIGNED", "CONFIRMED"].includes(request.status)) return res.status(400).json({ message: "This request cannot be scheduled in its current state" });
+        if (request.technicianId) {
+            const conflict = await prisma.appointment.findFirst({ where: { request: { technicianId: request.technicianId }, status: { in: ["SCHEDULED", "RESCHEDULED"] }, scheduledAt: { lt: endsAt ? new Date(endsAt) : new Date(start.getTime() + 3600000) }, endsAt: { gt: start } } });
+            if (conflict && conflict.requestId !== request.id) return res.status(409).json({ message: "Technician already has an appointment at that time" });
+        }
+        const appointment = await prisma.appointment.upsert({ where: { requestId: request.id }, update: { scheduledAt: start, endsAt: endsAt ? new Date(endsAt) : null, status: "RESCHEDULED", note }, create: { requestId: request.id, scheduledAt: start, endsAt: endsAt ? new Date(endsAt) : null, note } });
+        res.json({ message: "Appointment scheduled", appointment });
+    } catch (e) { res.status(500).json({ message: "Unable to schedule appointment" }); }
 };
 
 exports.assignServiceRequest = async (req, res) => {

@@ -218,6 +218,7 @@ model ServiceRequest {
   estimate     Estimate?
   partsUsed    PartUsage[]
   invoice       Invoice?
+  appointment   Appointment?
   workPerformed String?
   completedAt  DateTime?
 
@@ -267,6 +268,26 @@ model Diagnosis {
 
   request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   technician  User @relation(fields: [technicianId], references: [id])
+}
+
+model Appointment {
+  id          String @id @default(uuid())
+  requestId   String @unique
+  scheduledAt DateTime
+  endsAt      DateTime?
+  status      AppointmentStatus @default(SCHEDULED)
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  @@index([scheduledAt, status])
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  RESCHEDULED
+  CANCELLED
+  COMPLETED
 }
 
 model Estimate {

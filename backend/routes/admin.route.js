@@ -12,7 +12,8 @@ const {
     updateUserStatus,
     getAllBookings,
     getServiceRequests,
-    assignServiceRequest
+    assignServiceRequest,
+    scheduleServiceRequest
 } = require("../controllers/admin.controller");
 
 router.use(auth);
@@ -27,4 +28,5 @@ router.patch("/users/:id/status", checkRole("ADMIN"), updateUserStatus);
 router.get("/bookings/all", checkRole("ADMIN"), getAllBookings);
 router.get("/service-requests", checkRole("ADMIN"), getServiceRequests);
 router.post("/service-requests/:id/assign", checkRole("ADMIN"), assignServiceRequest);
+router.post("/service-requests/:id/appointment", checkRole("ADMIN"), scheduleServiceRequest);
 module.exports = router;
