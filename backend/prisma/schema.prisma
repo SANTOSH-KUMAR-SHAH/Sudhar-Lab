@@ -217,6 +217,7 @@ model ServiceRequest {
   diagnosis    Diagnosis?
   estimate     Estimate?
   partsUsed    PartUsage[]
+  invoice       Invoice?
   workPerformed String?
   completedAt  DateTime?
 
@@ -319,6 +320,60 @@ model PartUsage {
   request         ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   part            SparePart @relation(fields: [partId], references: [id])
   @@index([requestId])
+}
+
+model Invoice {
+  id          String @id @default(uuid())
+  requestId   String @unique
+  status      InvoiceStatus @default(ISSUED)
+  subtotal    Float
+  total       Float
+  currency    String @default("NPR")
+  issuedAt    DateTime @default(now())
+  paidAt      DateTime?
+  items       InvoiceItem[]
+  request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  payments    Payment[]
+}
+
+model InvoiceItem {
+  id          String @id @default(uuid())
+  invoiceId   String
+  description String
+  quantity    Int @default(1)
+  unitPrice   Float
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  @@index([invoiceId])
+}
+
+model Payment {
+  id          String @id @default(uuid())
+  invoiceId   String
+  amount      Float
+  method      PaymentMethod
+  status      PaymentStatus @default(SIMULATED)
+  reference   String?
+  createdAt   DateTime @default(now())
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+enum InvoiceStatus {
+  ISSUED
+  PAID
+}
+
+enum PaymentMethod {
+  DEMO
+  ESEWA
+  KHALTI
+  FONEPAY
+  IMEPAY
+}
+
+enum PaymentStatus {
+  SIMULATED
+  SUCCESS
+  FAILED
 }
 
 enum BookingStatus {

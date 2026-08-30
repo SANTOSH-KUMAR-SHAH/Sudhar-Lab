@@ -3,6 +3,7 @@ const auth = require("../middlewares/auth.middleware");
 const controller = require("../controllers/serviceRequest.controller");
 const de = require("../controllers/diagnosisEstimate.controller");
 const parts = require("../controllers/parts.controller");
+const financial = require("../controllers/financial.controller");
 
 router.use(auth);
 router.get("/", controller.list);
@@ -14,4 +15,8 @@ router.post("/:id/estimate", de.createEstimate);
 router.patch("/:id/estimate/decision", de.decideEstimate);
 router.post("/:id/parts", parts.addUsage);
 router.post("/:id/complete", parts.complete);
+router.post("/:id/invoice", financial.createInvoice);
+router.get("/:id/invoice", financial.getInvoice);
+router.post("/:id/pay", financial.pay);
+router.post("/:id/close", financial.close);
 module.exports = router;
