@@ -15,6 +15,7 @@ model User {
   password           String
   earnings           Float            @default(0)
   role               UserRole         @default(CUSTOMER)
+  status             UserStatus       @default(ACTIVE)
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   providerProfile    ProviderProfile?
@@ -25,6 +26,13 @@ model User {
   reviewsReceived    Review[]         @relation("UserReviewsReceived")
   reportsWritten     Report[]         @relation("UserReportsWritten")
   reportsReceived    Report[]         @relation("UserReportsReceived")
+  notifications      Notification[]
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  SUSPENDED
 }
 
 enum UserRole {
@@ -148,14 +156,18 @@ model Booking {
   amount    Float
   address   String?
   createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   customer User            @relation("CustomerBookings", fields: [customerId], references: [id])
   provider User            @relation("ProviderBookings", fields: [providerId], references: [id])
   service  ProviderService @relation(fields: [serviceId], references: [id])
   review   Review?
   report   Report?
+  notifications Notification[]
 
   @@index([providerId, bookingStart, bookingEnd])
+  @@index([customerId, status])
+  @@index([providerId, status])
 }
 
 enum BookingStatus {
@@ -198,4 +210,34 @@ enum ReportStatus {
   OPEN
   RESOLVED
   DISMISSED
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  isRead    Boolean          @default(false)
+  bookingId String?
+  createdAt DateTime         @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+enum NotificationType {
+  INFO
+  BOOKING_REQUEST
+  BOOKING_ACCEPTED
+  BOOKING_REJECTED
+  BOOKING_COMPLETED
+  BOOKING_CANCELLED
+  REVIEW
+  SYSTEM
+  USER_BLOCKED
+  USER_UNBLOCKED
 }

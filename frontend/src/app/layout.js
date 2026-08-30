@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Local Help",
-  description: "Find help from people nearby.",
+  title: "Sudhar Lab — Nepal's Home Service Platform",
+  description: "Book verified technicians for TV, AC, Washing Machine, Fridge repair in Kathmandu, Pokhara & across Nepal. Rs. pricing, Citizenship-verified providers.",
 };
 
 export default function RootLayout({ children }) {

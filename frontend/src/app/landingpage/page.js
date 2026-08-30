@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -156,7 +156,7 @@ export default function Dashboard() {
     <>
       <Navbar />
 
-      <div className="min-h-screen pt-20 bg-[#ece9d8]">
+      <div className="min-h-screen pt-20 bg-[#F4F5F0]">
 
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
@@ -167,8 +167,8 @@ export default function Dashboard() {
               transition={{ duration: 0.6 }}
             >
               <div>
-                <h1 className="text-5xl lg:text-6xl font-extrabold text-[#4a2e21] leading-tight mb-6">
-                  Expert Help, <br /> Just a <span className="text-[#6a4b39] underline decoration-4 underline-offset-4">Click</span> Away
+                <h1 className="text-5xl lg:text-6xl font-extrabold text-[#112E40] leading-tight mb-6">
+                  Expert Help, <br /> Just a <span className="text-[#112E40] underline decoration-4 underline-offset-4">Click</span> Away
                 </h1>
                 <p className="text-xl text-gray-700 max-w-lg">
                   Connect with verified professionals for home services, tutoring, repairs, and more.
@@ -181,7 +181,7 @@ export default function Dashboard() {
                 initial="hidden"
                 animate="visible"
               >
-                <h2 className="text-2xl font-semibold text-[#4a2e21] mb-6">
+                <h2 className="text-2xl font-semibold text-[#112E40] mb-6">
                   Explore Services
                 </h2>
 
@@ -193,10 +193,10 @@ export default function Dashboard() {
                         key={cat.id}
                         variants={itemVariants}
                         onClick={() => router.push("/service")}
-                        className="flex flex-col items-center text-center p-4 bg-[#f7f3eb] rounded-xl hover:shadow-lg hover:bg-[#eaddcf] cursor-pointer transition-all border border-[#e5dcc7] group"
+                        className="flex flex-col items-center text-center p-4 bg-[#F4F5F0] rounded-xl hover:shadow-lg hover:bg-[#E8F2EE] cursor-pointer transition-all border border-[#DDE3E0] group"
                       >
-                        <Icon className="text-3xl text-[#7a5c49] mb-3 group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-medium text-[#4a2e21]">
+                        <Icon className="text-3xl text-[#127373] mb-3 group-hover:scale-110 transition-transform" />
+                        <span className="text-sm font-medium text-[#112E40]">
                           {cat.name}
                         </span>
                       </motion.div>
@@ -207,7 +207,7 @@ export default function Dashboard() {
                 <div className="mt-8 flex justify-center">
                   <button
                     onClick={() => router.push("/service")}
-                    className="px-8 py-3 bg-[#4a2e21] text-white font-medium rounded-full hover:bg-[#6a4b39] hover:shadow-lg transition-all transform hover:-translate-y-1"
+                    className="px-8 py-3 bg-[#112E40] text-white font-medium rounded-full hover:bg-[#112E40] hover:shadow-lg transition-all transform hover:-translate-y-1"
                   >
                     View All Categories
                   </button>
@@ -217,17 +217,17 @@ export default function Dashboard() {
 
               <div className="flex items-center justify-around bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-md border border-gray-200">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#4a2e21]">{allCustomer}</p>
+                  <p className="text-3xl font-bold text-[#112E40]">{allCustomer}</p>
                   <p className="text-xs text-gray-600 font-medium tracking-wide uppercase mt-1">Customers</p>
                 </div>
                 <div className="w-px h-10 bg-gray-300"></div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#4a2e21]">{allProviders}</p>
+                  <p className="text-3xl font-bold text-[#112E40]">{allProviders}</p>
                   <p className="text-xs text-gray-600 font-medium tracking-wide uppercase mt-1">Providers</p>
                 </div>
                 <div className="w-px h-10 bg-gray-300"></div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#4a2e21]">4.9</p>
+                  <p className="text-3xl font-bold text-[#112E40]">4.9</p>
                   <p className="text-xs text-gray-600 font-medium tracking-wide uppercase mt-1">Rating</p>
                 </div>
               </div>
@@ -252,11 +252,11 @@ export default function Dashboard() {
 
         <div className="bg-white py-24 relative overflow-hidden">
 
-          <div className="absolute top-0 left-0 w-64 h-64 bg-[#f3efe6] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 bg-[#E8F2EE] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
 
           <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
             <motion.h2
-              className="text-4xl font-bold text-[#4a2e21] text-center mb-16"
+              className="text-4xl font-bold text-[#112E40] text-center mb-16"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -287,16 +287,16 @@ export default function Dashboard() {
               ].map((feature, idx) => (
                 <motion.div
                   key={idx}
-                  className="text-center p-8 bg-[#fdfbf7] rounded-2xl hover:shadow-xl transition-all border border-[#f0ebe0]"
+                  className="text-center p-8 bg-white rounded-2xl hover:shadow-xl transition-all border border-[#DDE3E0] hover:border-[#E8A324]/30"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.2 }}
                   viewport={{ once: true }}
                 >
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-[#efe9dc] text-[#4a2e21] rounded-full mb-6 shadow-inner">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 shadow-inner bg-[#E8A324] text-white shadow-[0_4px_12px_rgba(232,163,36,0.3)]">
                     <feature.icon className="text-4xl" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#4a2e21] mb-3">
+                  <h3 className="text-xl font-bold text-[#112E40] mb-3">
                     {feature.title}
                   </h3>
                   <p className="text-gray-600 leading-relaxed">{feature.description}</p>

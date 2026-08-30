@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -86,22 +86,22 @@ export default function CategoryServicesPage() {
   if (loading) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-[#ece9d8] pt-24 pb-16 px-4">
+    <div className="min-h-screen bg-[#F4F5F0] pt-24 pb-16 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.push("/service")}
-            className="px-4 py-2 rounded-full text-white bg-[#6F4E37] hover:bg-[#5A3F2E] shadow"
+            className="px-4 py-2 rounded-full text-white bg-[#127373] hover:bg-[#0E6363] shadow"
           >
             Back
           </button>
-          <h1 className="text-2xl font-bold text-[#4a2e21]">
+          <h1 className="text-2xl font-bold text-[#112E40]">
             {category?.name || "Category"}
           </h1>
           <div className="w-16" />
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow mb-6 border border-[#e5dcc7]">
+        <div className="bg-white p-4 rounded-xl shadow mb-6 border border-[#DDE3E0]">
           <div className="flex flex-col md:flex-row gap-4">
 
             <div className="flex-1 relative">
@@ -111,13 +111,13 @@ export default function CategoryServicesPage() {
                 placeholder="Search services..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:border-[#6F4E37]"
+                className="w-full pl-10 pr-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:border-[#127373]"
               />
             </div>
 
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
-                <span className="text-gray-500 text-sm">₹ Min</span>
+                <span className="text-gray-500 text-sm">Rs.  Min</span>
                 <input
                   type="number"
                   value={minPrice}
@@ -128,7 +128,7 @@ export default function CategoryServicesPage() {
               </div>
               <span className="text-gray-400">-</span>
               <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
-                <span className="text-gray-500 text-sm">₹ Max</span>
+                <span className="text-gray-500 text-sm">Rs.  Max</span>
                 <input
                   type="number"
                   value={maxPrice}
@@ -159,16 +159,16 @@ export default function CategoryServicesPage() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                    <h3 className="text-lg font-semibold text-[#112E40]">
                       {category?.subcategories?.find((sub) => sub.id === s.subcategoryId)?.name || "Service"}
                     </h3>
-                    <div className="text-sm font-semibold text-[#4a2e21]">
-                      ₹{s.price}
+                    <div className="text-sm font-semibold text-[#112E40]">
+                      Rs. {s.price}
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">
                     Provided by:{" "}
-                    <span className="font-medium text-[#4a2e21]">
+                    <span className="font-medium text-[#112E40]">
                       {s.provider?.user?.name || "Provider"}
                     </span>
                   </p>
@@ -185,7 +185,7 @@ export default function CategoryServicesPage() {
                       onClick={() =>
                         router.push(`/book/${s.id}?provider=${s.provider?.user?.id}`)
                       }
-                      className="px-4 py-2 rounded-md bg-[#6F4E37] text-white hover:bg-[#5A3F2E] shadow"
+                      className="px-4 py-2 rounded-md bg-[#127373] text-white hover:bg-[#0E6363] shadow"
                     >
                       Book
                     </button>
@@ -194,7 +194,7 @@ export default function CategoryServicesPage() {
                       onClick={() =>
                         router.push(`/providers/${s.provider?.user?.id || ""}`)
                       }
-                      className="px-3 py-1 rounded-md bg-[#f3f4f6] text-[#4a2e21]"
+                      className="px-3 py-1 rounded-md bg-[#F4F5F0] text-[#112E40]"
                     >
                       View provider
                     </button>
@@ -211,17 +211,17 @@ export default function CategoryServicesPage() {
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-2 rounded-full bg-white shadow disabled:opacity-50 hover:bg-gray-50 text-[#6F4E37]"
+              className="p-2 rounded-full bg-white shadow disabled:opacity-50 hover:bg-gray-50 text-[#127373]"
             >
               <FaChevronLeft />
             </button>
-            <span className="flex items-center text-[#4a2e21] font-medium">
+            <span className="flex items-center text-[#112E40] font-medium">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-full bg-white shadow disabled:opacity-50 hover:bg-gray-50 text-[#6F4E37]"
+              className="p-2 rounded-full bg-white shadow disabled:opacity-50 hover:bg-gray-50 text-[#127373]"
             >
               <FaChevronRight />
             </button>

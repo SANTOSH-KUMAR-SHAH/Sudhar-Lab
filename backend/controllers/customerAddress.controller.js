@@ -1,4 +1,4 @@
-
+﻿
 
 const prisma = require("../utils/db");
 
@@ -23,7 +23,7 @@ exports.createAddress = async (req, res) => {
     const { street, city, state, pincode, latitude, longitude, type } = req.body;
 
     if (!street || !city || !state || !pincode) {
-      return res.status(400).json({ message: "street, city, state and pincode are required" });
+      return res.status(400).json({ message: "Street, City, Province and Postal Code are required" });
     }
 
     const newAddress = await prisma.address.create({

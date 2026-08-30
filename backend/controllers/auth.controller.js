@@ -65,10 +65,35 @@ async function Login(req, res) {
             return res.status(400).json({ message: "Required fields are missing" });
         }
 
+        // DEMO MOCK — works without DB for 3 demo accounts
+        const demoUsers = {
+            "rohan.das@example.com": { id: "demo-customer-1", name: "Rohan Das", role: "CUSTOMER" },
+            "rahul.sharma@example.com": { id: "demo-provider-1", name: "Rahul Sharma", role: "PROVIDER" },
+            "admin@example.com": { id: "demo-admin-1", name: "Admin", role: "ADMIN" }
+        };
+        if (demoUsers[email] && password === "password123") {
+            const mock = demoUsers[email];
+            const token = generateToken({ id: mock.id, name: mock.name, email, role: mock.role });
+            res.cookie("token", token, {
+                httpOnly: process.env.NODE_ENV === 'production',
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+                maxAge: 3600000,
+            });
+            return res.status(200).json({ message: "Login successful", token, user: mock });
+        }
+
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
             return res.status(404).json({ message: "User with this email does not exist" });
+        }
+
+        if (user.status === "BLOCKED") {
+            return res.status(403).json({ message: "Your account is BLOCKED by admin. Contact support." });
+        }
+        if (user.status === "SUSPENDED") {
+            return res.status(403).json({ message: "Your account is suspended." });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);

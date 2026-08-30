@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import axios from "axios";
 import React from "react";
@@ -14,7 +14,7 @@ export default function Login() {
     : "http://localhost:4040";
   const [form, setForm] = useState({
     email: "",
-    phone: "",
+    password: "",
   });
 
   const handleChange = (e) => {
@@ -76,7 +76,7 @@ export default function Login() {
         ></div>
         <div className="absolute inset-0 bg-black/10" />
       </div>
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-10 bg-[#ece9d8]">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-10 bg-[#F4F5F0]">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
             Create your account
@@ -92,8 +92,8 @@ export default function Login() {
                     password: "password123",
                   })
                 }
-                className="h-11 rounded-xl border border-[#d6c7b4] 
-                          bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] 
+                className="h-11 rounded-xl border border-[#DDE3E0] 
+                          bg-[#f6efe1] text-[#112E40] hover:bg-[#E8F2EE] 
                           transition font-medium text-sm"
               >
                 User Demo
@@ -107,8 +107,8 @@ export default function Login() {
                     password: "password123",
                   })
                 }
-                className="h-11 rounded-xl border border-[#d6c7b4] 
-                          bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] 
+                className="h-11 rounded-xl border border-[#DDE3E0] 
+                          bg-[#f6efe1] text-[#112E40] hover:bg-[#E8F2EE] 
                           transition font-medium text-sm"
               >
                 Provider Demo
@@ -122,8 +122,8 @@ export default function Login() {
                     password: "password123",
                   })
                 }
-                className="h-11 rounded-xl border border-[#d6c7b4] 
-                          bg-[#f6efe1] text-[#4a2e21] hover:bg-[#efe6d6] 
+                className="h-11 rounded-xl border border-[#DDE3E0] 
+                          bg-[#f6efe1] text-[#112E40] hover:bg-[#E8F2EE] 
                           transition font-medium text-sm"
               >
                 Admin Demo
@@ -136,7 +136,7 @@ export default function Login() {
                 type="email"
                 name="email"
                 placeholder="Email Address"
-                value={form.email}
+                value={form.email || ""}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg 
                  bg-white placeholder-gray-400 focus:outline-none 
@@ -149,7 +149,7 @@ export default function Login() {
                 type="password"
                 name="password"
                 placeholder="Password"
-                value={form.password}
+                value={form.password || ""}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg 
                  bg-white placeholder-gray-400 focus:outline-none 
@@ -159,8 +159,8 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#672410] text-white rounded-lg 
-               font-semibold hover:bg-[#4d1a0a] transition shadow-sm"
+              className="w-full py-3 bg-[#127373] text-white rounded-lg 
+               font-semibold hover:bg-[#0E6363] transition shadow-sm"
             >
               Log In
             </button>
@@ -171,7 +171,7 @@ export default function Login() {
 
           <p className="text-sm text-gray-600 mt-4 text-center">
             Want to create an account?
-            <a href="/signup" className="ml-1 text-[#672410] hover:underline">
+            <a href="/signup" className="ml-1 text-[#127373] hover:underline">
               Sign Up
             </a>
           </p>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -58,7 +58,7 @@ function BecomeProviderForm({ onSuccess }) {
     e.preventDefault();
 
     if (!aadharNumber || aadharNumber.length < 12) {
-      toast.error("Please enter a valid 12-digit Aadhaar number");
+      toast.error("Please enter a valid 12-digit Citizenship number");
       return;
     }
 
@@ -87,8 +87,8 @@ function BecomeProviderForm({ onSuccess }) {
 
   return (
     <div className="max-w-xl mx-auto">
-      <div className="bg-[#f7f3eb] p-4 rounded-xl border border-[#e5dcc7] mb-6">
-        <h3 className="font-semibold text-[#4a2e21] mb-2">Join our Provider Network</h3>
+      <div className="bg-[#F4F5F0] p-4 rounded-xl border border-[#DDE3E0] mb-6">
+        <h3 className="font-semibold text-[#112E40] mb-2">Join our Provider Network</h3>
         <p className="text-sm text-gray-600">
           Offer your services to thousands of customers. Apply now by verifying your identity.
         </p>
@@ -96,16 +96,16 @@ function BecomeProviderForm({ onSuccess }) {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-[#6F4E37] font-medium mb-1">
+          <label className="block text-[#127373] font-medium mb-1">
             User Name:
           </label>
-          <input type="text" value={userName} readOnly className="w-full p-3 border border-[#C8B69E] text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F4E37] bg-[#FFFDF6] tracking-widest" />
-          <label className="block text-[#6F4E37] font-medium mb-1">
+          <input type="text" value={userName} readOnly className="w-full p-3 border border-[#DDE3E0] text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#127373] bg-[#FFFDF6] tracking-widest" />
+          <label className="block text-[#127373] font-medium mb-1">
             User Email:
           </label>
-          <input type="text" value={userEmail} readOnly className="w-full p-3 border border-[#C8B69E] text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F4E37] bg-[#FFFDF6] tracking-widest" />
-          <label className="block text-[#6F4E37] font-medium mb-1">
-            Aadhaar Number <span className="text-red-500">*</span>
+          <input type="text" value={userEmail} readOnly className="w-full p-3 border border-[#DDE3E0] text-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#127373] bg-[#FFFDF6] tracking-widest" />
+          <label className="block text-[#127373] font-medium mb-1">
+            Citizenship Number <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -114,7 +114,7 @@ function BecomeProviderForm({ onSuccess }) {
               const val = e.target.value.replace(/\D/g, '').slice(0, 12);
               setAadharNumber(val);
             }}
-            className="w-full p-3 border border-[#C8B69E] text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F4E37] bg-[#FFFDF6] tracking-widest"
+            className="w-full p-3 border border-[#DDE3E0] text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-[#127373] bg-[#FFFDF6] tracking-widest"
             placeholder="XXXX XXXX XXXX"
             required
           />
@@ -126,7 +126,7 @@ function BecomeProviderForm({ onSuccess }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#6F4E37] text-white py-3 rounded-xl hover:bg-[#5A3F2E] transition-all shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full bg-[#127373] text-white py-3 rounded-xl hover:bg-[#0E6363] transition-all shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {loading ? "Submitting..." : "Submit for Verification"}
         </button>
@@ -143,12 +143,12 @@ const API_BASE =
     : "http://localhost:4040";
 
 const COFFEE = {
-  dark: "#6F4E37",
-  mid: "#7a5c49",
-  light: "#f1dfc9",
-  accent: "#A97155",
-  text: "#4a2e21",
-  cardBg: "#fdfcfa",
+  dark: "#127373",
+  mid: "#127373",
+  light: "#E8F2EE",
+  accent: "#127373",
+  text: "#112E40",
+  cardBg: "#FFFFFF",
 };
 
 export default function CustomerDashboard() {
@@ -363,7 +363,7 @@ export default function CustomerDashboard() {
         !addrForm.state ||
         !addrForm.pincode
       ) {
-        toast.error("Street, city, state and pincode are required");
+        toast.error("Street, City, Province and Postal Code are required");
         return;
       }
 
@@ -485,7 +485,7 @@ export default function CustomerDashboard() {
 
   function statusLabel(status) {
     if (status === "PENDING") {
-      return { text: "Pending", className: "text-[#A97155]" };
+      return { text: "Pending", className: "text-[#127373]" };
     }
     if (status === "ACCEPTED" || status === "CONFIRMED") {
       return { text: "Confirmed", className: "text-[#2b7a0b]" };
@@ -497,21 +497,21 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#ece9d8]">
+    <div className="min-h-screen bg-[#F4F5F0]">
 
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/landingpage")}
-            className="text-[#6F4E37] hover:text-[#4a2e21]"
+            className="text-[#127373] hover:text-[#112E40]"
           >
             <FaChevronLeft size={20} />
           </button>
-          <h1 className="text-xl font-bold text-[#6F4E37]">My Profile</h1>
+          <h1 className="text-xl font-bold text-[#127373]">My Profile</h1>
         </div>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-[#6F4E37] hover:text-[#4a2e21]"
+          className="text-[#127373] hover:text-[#112E40]"
         >
           <FaTimes size={24} />
         </button>
@@ -528,7 +528,7 @@ export default function CustomerDashboard() {
               className="mx-auto w-28 h-28 rounded-full justify-center items-center flex overflow-hidden border-4"
               style={{ borderColor: COFFEE.mid }}
             >
-              <FaUserCircle size={100} className="text-[#4a2e21]" />
+              <FaUserCircle size={100} className="text-[#112E40]" />
             </div>
             <p
               className="mt-4 font-semibold text-lg"
@@ -546,7 +546,7 @@ export default function CustomerDashboard() {
                 setSidebarOpen(false);
               }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "profile"
-                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                 : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
@@ -560,7 +560,7 @@ export default function CustomerDashboard() {
                 setSidebarOpen(false);
               }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "addresses"
-                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                 : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
@@ -574,7 +574,7 @@ export default function CustomerDashboard() {
                 setSidebarOpen(false);
               }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "bookings"
-                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                 : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
@@ -590,7 +590,7 @@ export default function CustomerDashboard() {
                 setSidebarOpen(false);
               }}
               className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === "become-provider"
-                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                 : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
@@ -599,7 +599,7 @@ export default function CustomerDashboard() {
             </button>
             <button
               onClick={() => router.push("/landingpage")}
-              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-[#f1dfc9] hover:text-[#4a2e21] transition-colors"
+              className="text-left flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-[#E8F2EE] hover:text-[#112E40] transition-colors"
             >
               <FaHome size={18} />
               Home Page
@@ -640,14 +640,14 @@ export default function CustomerDashboard() {
               {(!profile?.providerProfile || profile.providerProfile.applicationStatus === 'NOT_APPLIED') ? (
                 <BecomeProviderForm onSuccess={() => { fetchProfile(); }} />
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-[#e5dcc7] rounded-xl bg-[#fdfcfa]">
+                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-[#DDE3E0] rounded-xl bg-[#FFFFFF]">
 
                   {profile.providerProfile.applicationStatus === "PENDING" && (
                     <>
                       <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
                         <FaClock className="text-yellow-600 text-3xl" />
                       </div>
-                      <h3 className="text-xl font-bold text-[#4a2e21]">Application Pending</h3>
+                      <h3 className="text-xl font-bold text-[#112E40]">Application Pending</h3>
                       <p className="text-gray-600 max-w-md mt-2">
                         Your application is currently under review by our admin team. This process usually takes 24-48 hours.
                       </p>
@@ -660,7 +660,7 @@ export default function CustomerDashboard() {
                       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                         <FaTimes className="text-red-600 text-3xl" />
                       </div>
-                      <h3 className="text-xl font-bold text-[#4a2e21]">Application Rejected</h3>
+                      <h3 className="text-xl font-bold text-[#112E40]">Application Rejected</h3>
                       <p className="text-gray-600 max-w-md mt-2">
                         Unfortunately, your application was not approved at this time.
                       </p>
@@ -674,13 +674,13 @@ export default function CustomerDashboard() {
                       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                         <FaCheckCircle className="text-green-600 text-3xl" />
                       </div>
-                      <h3 className="text-xl font-bold text-[#4a2e21]">You are a Partner!</h3>
+                      <h3 className="text-xl font-bold text-[#112E40]">You are a Partner!</h3>
                       <p className="text-gray-600 max-w-md mt-2 mb-6">
                         Congratulations! Your provider account is active.
                       </p>
                       <button
                         onClick={() => router.push('/provider/dashboard')}
-                        className="px-6 py-2 bg-[#6F4E37] text-white rounded-lg hover:bg-[#5a3f2c] transition"
+                        className="px-6 py-2 bg-[#127373] text-white rounded-lg hover:bg-[#5a3f2c] transition"
                       >
                         Go to Provider Dashboard
                       </button>
@@ -693,7 +693,7 @@ export default function CustomerDashboard() {
                       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                         <FaTimes className="text-red-600 text-3xl" />
                       </div>
-                      <h3 className="text-xl font-bold text-[#4a2e21]">Account Suspended</h3>
+                      <h3 className="text-xl font-bold text-[#112E40]">Account Suspended</h3>
                       <p className="text-gray-600 max-w-md mt-2">
                         Your provider account has been suspended. Please contact support.
                       </p>
@@ -724,7 +724,7 @@ export default function CustomerDashboard() {
                   {!editingProfile ? (
                     <button
                       onClick={() => setEditingProfile(true)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f1dfc9] border border-[#f1dfc9] text-[#4a2e21] hover:bg-gray-50 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E8F2EE] border border-[#E8F2EE] text-[#112E40] hover:bg-gray-50 transition-colors"
                     >
                       <FaEdit size={16} />
                       <span>Edit</span>
@@ -733,13 +733,13 @@ export default function CustomerDashboard() {
                     <>
                       <button
                         onClick={() => setEditingProfile(false)}
-                        className="px-4 py-2 rounded-lg  bg-[#f1dfc9] border border-[#f1dfc9] hover:bg-[#e2b8a0] text-[#4a2e21] transition-colors"
+                        className="px-4 py-2 rounded-lg  bg-[#E8F2EE] border border-[#E8F2EE] hover:bg-[#e2b8a0] text-[#112E40] transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={saveProfile}
-                        className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
+                        className="px-4 py-2 rounded-lg bg-[#127373] text-white hover:bg-[#112E40] transition-colors"
                       >
                         Save
                       </button>
@@ -750,15 +750,15 @@ export default function CustomerDashboard() {
 
               {!editingProfile ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
+                  <div className="p-5 bg-[#FFFFFF] rounded-lg border border-gray-100">
                     <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                       Name
                     </p>
-                    <p className="font-semibold text-lg text-[#6F4E37]">
-                      {profile?.name || "—"}
+                    <p className="font-semibold text-lg text-[#127373]">
+                      {profile?.name || "â€”"}
                     </p>
                   </div>
-                  <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
+                  <div className="p-5 bg-[#FFFFFF] rounded-lg border border-gray-100">
                     <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                       Email
                     </p>
@@ -768,11 +768,11 @@ export default function CustomerDashboard() {
                         className="font-semibold text-lg"
                         style={{ color: COFFEE.text }}
                       >
-                        {profile?.email || "—"}
+                        {profile?.email || "â€”"}
                       </p>
                     </div>
                   </div>
-                  <div className="p-5 bg-[#fdfcfa] rounded-lg border border-gray-100">
+                  <div className="p-5 bg-[#FFFFFF] rounded-lg border border-gray-100">
                     <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                       Phone
                     </p>
@@ -782,7 +782,7 @@ export default function CustomerDashboard() {
                         className="font-semibold text-lg"
                         style={{ color: COFFEE.text }}
                       >
-                        {profile?.phone || "—"}
+                        {profile?.phone || "â€”"}
                       </p>
                     </div>
                   </div>
@@ -797,7 +797,7 @@ export default function CustomerDashboard() {
                       name="name"
                       value={profileForm.name}
                       onChange={onProfileChange}
-                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                     />
                   </div>
                   <div>
@@ -808,7 +808,7 @@ export default function CustomerDashboard() {
                       name="email"
                       value={profileForm.email}
                       onChange={onProfileChange}
-                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                     />
                   </div>
                   <div>
@@ -819,7 +819,7 @@ export default function CustomerDashboard() {
                       name="phone"
                       value={profileForm.phone}
                       onChange={onProfileChange}
-                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                      className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                     />
                   </div>
                 </div>
@@ -840,7 +840,7 @@ export default function CustomerDashboard() {
                 </h2>
                 <button
                   onClick={openAddAddress}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#127373] text-white hover:bg-[#112E40] transition-colors"
                 >
                   <FaPlus size={16} />
                   <span>Add Address</span>
@@ -866,11 +866,11 @@ export default function CustomerDashboard() {
                   {addresses.map((a) => (
                     <div
                       key={a.id}
-                      className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow"
+                      className="p-5 border border-gray-200 rounded-lg bg-[#FFFFFF] hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <span
-                          className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-[#f1dfc9]"
+                          className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-[#E8F2EE]"
                           style={{ color: COFFEE.text }}
                         >
                           {a.type || "HOME"}
@@ -886,19 +886,19 @@ export default function CustomerDashboard() {
                             onClick={() => deleteAddress(a.id)}
                             className="p-2 rounded-md border border-gray-300 hover:bg-red-50 transition-colors"
                           >
-                            <FaTrash size={14} className="text-[#4a2e21]" />
+                            <FaTrash size={14} className="text-[#112E40]" />
                           </button>
                         </div>
                       </div>
                       <div>
-                        <p className="font-semibold text-[#4a2e21] mb-1">
+                        <p className="font-semibold text-[#112E40] mb-1">
                           {a.street}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {a.city}, {a.state}
+                          {a.city}, {a.state} Province
                         </p>
                         <p className="text-sm text-gray-600">
-                          PIN: {a.pincode}
+                          Postal Code: {a.pincode}
                         </p>
                         {a.latitude && a.longitude && (
                           <p className="text-xs text-gray-400 mt-2">
@@ -945,15 +945,15 @@ export default function CustomerDashboard() {
                       return (
                         <div
                           key={b.id}
-                          className="p-5 border border-gray-200 rounded-lg bg-[#fdfcfa] hover:shadow-md transition-shadow"
+                          className="p-5 border border-gray-200 rounded-lg bg-[#FFFFFF] hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="flex-1">
                               <p className="text-sm text-gray-500 mb-1">
-                                {b.service.category?.name} •{" "}
+                                {b.service.category?.name} â€¢{" "}
                                 {b.service.subcategory?.name}
                               </p>
-                              <h3 className="font-semibold text-lg text-[#4a2e21] mb-2">
+                              <h3 className="font-semibold text-lg text-[#112E40] mb-2">
                                 {b.service.subcategory?.name}
                               </h3>
                               <p className="text-sm text-gray-600">
@@ -978,40 +978,40 @@ export default function CustomerDashboard() {
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="font-semibold text-[#4a2e21]">
-                                ₹{b.service.price?.toLocaleString() ?? b.amount}
+                              <span className="font-semibold text-[#112E40]">
+                                â‚¹{b.service.price?.toLocaleString() ?? b.amount}
                               </span>
                               <span className="text-xs text-gray-400">
-                                • {b.service.duration} min
+                                â€¢ {b.service.duration} min
                               </span>
                             </div>
                           </div>
 
 
                           {(b.status === "PENDING" || b.status === "ACCEPTED") && (
-                            <div className="mt-3 bg-[#f1dfc9] border border-[#A97155] p-2 rounded text-xs text-[#A97155] flex items-start gap-2">
+                            <div className="mt-3 bg-[#E8F2EE] border border-[#127373] p-2 rounded text-xs text-[#127373] flex items-start gap-2">
                               <span className="font-bold">Note:</span>
-                              Booking fee (₹500) will be refunded automatically after service completion.
+                              Booking fee (â‚¹500) will be refunded automatically after service completion.
                             </div>
                           )}
                           {b.status === "CANCELLED" && (
                             <div className="mt-3 bg-orange-50 border border-orange-100 p-2 rounded text-xs text-orange-700 flex items-start gap-2">
                               <span className="font-bold">Refund:</span>
-                              Refund of ₹500 is in progress (usually takes 3-5 days).
+                              Refund of â‚¹500 is in progress (usually takes 3-5 days).
                             </div>
                           )}
 
                           <div className="flex justify-end gap-2 mt-3">
-                            {b.status === "PENDING" && (
+                            {(b.status === "PENDING" || b.status === "ACCEPTED") && (
                               <button
-                                onClick={() => cancelBooking(b.id)}
-                                className="px-4 py-2 rounded-lg bg-[#A97155] text-white hover:bg-[#8a5944] transition-colors text-sm font-medium"
+                                onClick={() => { if(confirm("Cancel this booking?")) cancelBooking(b.id)}}
+                                className="px-4 py-2 rounded-lg bg-[#127373] text-white hover:bg-[#8a5944] transition-colors text-sm font-medium"
                               >
                                 Cancel
                               </button>
                             )}
                             {b.status === "ACCEPTED" && (
-                              <div className="px-4 py-2 rounded-lg border-2 border-[#6F4E37] text-[#4a2e21] font-semibold text-sm">
+                              <div className="px-4 py-2 rounded-lg border-2 border-[#127373] text-[#112E40] font-semibold text-sm">
                                 Upcoming
                               </div>
                             )}
@@ -1040,7 +1040,7 @@ export default function CustomerDashboard() {
                                   disabled={!!b.review}
                                   className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors ${b.review
                                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    : "bg-[#f1dfc9] text-[#4a2e21] hover:bg-[#e2b8a0]"
+                                    : "bg-[#E8F2EE] text-[#112E40] hover:bg-[#e2b8a0]"
                                     }`}
                                 >
                                   <FaStar size={12} /> {b.review ? "Rated" : "Rate"}
@@ -1059,7 +1059,7 @@ export default function CustomerDashboard() {
                       <button
                         disabled={bookingsPage === 1}
                         onClick={() => setBookingsPage((p) => p - 1)}
-                        className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40 transition-colors"
+                        className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40 transition-colors"
                       >
                         Previous
                       </button>
@@ -1069,7 +1069,7 @@ export default function CustomerDashboard() {
                       <button
                         disabled={bookingsPage === Math.ceil(bookings.length / BOOKINGS_PAGE_SIZE)}
                         onClick={() => setBookingsPage((p) => p + 1)}
-                        className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40 transition-colors"
+                        className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40 transition-colors"
                       >
                         Next
                       </button>
@@ -1092,7 +1092,7 @@ export default function CustomerDashboard() {
 
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl z-10">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-[#4a2e21]">
+              <h3 className="text-xl font-semibold text-[#112E40]">
                 {addrForm.id ? "Edit Address" : "Add Address"}
               </h3>
               <button
@@ -1112,7 +1112,7 @@ export default function CustomerDashboard() {
                   name="street"
                   value={addrForm.street}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                 />
               </div>
               <div>
@@ -1123,29 +1123,29 @@ export default function CustomerDashboard() {
                   name="city"
                   value={addrForm.city}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State
+                  Province
                 </label>
                 <input
                   name="state"
                   value={addrForm.state}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pincode
+                  Postal Code
                 </label>
                 <input
                   name="pincode"
                   value={addrForm.pincode}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none   text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none   text-[#112E40]"
                 />
               </div>
               <div>
@@ -1156,7 +1156,7 @@ export default function CustomerDashboard() {
                   name="latitude"
                   value={addrForm.latitude}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                 />
               </div>
               <div>
@@ -1167,7 +1167,7 @@ export default function CustomerDashboard() {
                   name="longitude"
                   value={addrForm.longitude}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                 />
               </div>
               <div className="md:col-span-2">
@@ -1178,7 +1178,7 @@ export default function CustomerDashboard() {
                   name="type"
                   value={addrForm.type}
                   onChange={onAddrChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#A97155] focus:border-transparent outline-none text-[#4a2e21]"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#127373] focus:border-transparent outline-none text-[#112E40]"
                 >
                   <option value="HOME">HOME</option>
                   <option value="WORK">WORK</option>
@@ -1196,7 +1196,7 @@ export default function CustomerDashboard() {
               </button>
               <button
                 onClick={saveAddress}
-                className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white hover:bg-[#4a2e21] transition-colors"
+                className="px-4 py-2 rounded-lg bg-[#127373] text-white hover:bg-[#112E40] transition-colors"
               >
                 Save Address
               </button>
@@ -1234,7 +1234,7 @@ function FeedbackModal({ isOpen, onClose, form, setForm, onSubmit }) {
           <FaTimes size={20} />
         </button>
 
-        <h3 className="text-xl font-bold text-[#4a2e21] mb-6 text-center">Rate Service</h3>
+        <h3 className="text-xl font-bold text-[#112E40] mb-6 text-center">Rate Service</h3>
 
         <div className="flex justify-center gap-2 mb-6">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -1249,7 +1249,7 @@ function FeedbackModal({ isOpen, onClose, form, setForm, onSubmit }) {
         </div>
 
         <textarea
-          className="w-full p-3 border border-gray-200 rounded-lg mb-4 h-32 text-gray-700 outline-none focus:ring-2 focus:ring-[#6F4E37]"
+          className="w-full p-3 border border-gray-200 rounded-lg mb-4 h-32 text-gray-700 outline-none focus:ring-2 focus:ring-[#127373]"
           placeholder="Tell us about your experience..."
           value={form.comment}
           onChange={(e) => setForm({ ...form, comment: e.target.value })}
@@ -1257,7 +1257,7 @@ function FeedbackModal({ isOpen, onClose, form, setForm, onSubmit }) {
 
         <button
           onClick={onSubmit}
-          className="w-full py-3 bg-[#6F4E37] text-white rounded-lg font-semibold hover:bg-[#5a3f2c] transition shadow-md"
+          className="w-full py-3 bg-[#127373] text-white rounded-lg font-semibold hover:bg-[#5a3f2c] transition shadow-md"
         >
           Submit Review
         </button>

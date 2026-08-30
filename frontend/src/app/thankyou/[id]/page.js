@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -50,15 +50,15 @@ export default function ThankYouPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#ece9d8] flex items-center justify-center p-4">
-      <div className="bg-white shadow-lg rounded-2xl w-full max-w-md p-6 border border-[#e5dcc7] text-center relative">
+    <div className="min-h-screen bg-[#F4F5F0] flex items-center justify-center p-4">
+      <div className="bg-white shadow-lg rounded-2xl w-full max-w-md p-6 border border-[#DDE3E0] text-center relative">
 
 
         <div className="flex justify-center mb-4">
-          <FaCheckCircle className="text-[#6F4E37] text-5xl" />
+          <FaCheckCircle className="text-[#127373] text-5xl" />
         </div>
 
-        <h1 className="text-2xl font-bold text-[#4a2e21] mb-2">
+        <h1 className="text-2xl font-bold text-[#112E40] mb-2">
           Thank You for Booking!
         </h1>
 
@@ -77,41 +77,41 @@ export default function ThankYouPage({ params }) {
 
 
         {!loading && booking && (
-          <div className="bg-[#fdfbf7] border border-[#e5dcc7] rounded-xl p-4 text-left space-y-3 mb-6">
+          <div className="bg-[#fdfbf7] border border-[#DDE3E0] rounded-xl p-4 text-left space-y-3 mb-6">
             <div>
               <p className="text-sm text-[#7a5d49]">Service</p>
-              <p className="font-semibold text-[#4a2e21] text-lg">
+              <p className="font-semibold text-[#112E40] text-lg">
                 {booking.service.subcategory?.name}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-[#4a2e21]">
-              <FaClock className="text-[#6F4E37]" />
+            <div className="flex items-center gap-2 text-[#112E40]">
+              <FaClock className="text-[#127373]" />
               {new Date(booking.bookingStart).toLocaleString()}
             </div>
 
             {booking.provider && (
-              <div className="flex items-center gap-2 text-[#4a2e21]">
-                <FaUser className="text-[#6F4E37]" />
+              <div className="flex items-center gap-2 text-[#112E40]">
+                <FaUser className="text-[#127373]" />
                 {booking.provider.name}
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-[#4a2e21]">
-              <FaRupeeSign className="text-[#6F4E37]" />
+            <div className="flex items-center gap-2 text-[#112E40]">
+              <FaRupeeSign className="text-[#127373]" />
               {booking.service.price}
             </div>
 
             <div>
               <p className="text-sm text-[#7a5d49]">Status</p>
-              <p className="font-medium text-[#4a2e21]">{booking.status}</p>
+              <p className="font-medium text-[#112E40]">{booking.status}</p>
             </div>
           </div>
         )}
 
         <p className="text-[#7a5d49] text-sm">
           Redirecting to homepage in{" "}
-          <span className="font-bold text-[#4a2e21]">{seconds}</span> seconds...
+          <span className="font-bold text-[#112E40]">{seconds}</span> seconds...
         </p>
       </div>
     </div>

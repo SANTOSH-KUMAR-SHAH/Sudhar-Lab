@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
@@ -128,19 +128,19 @@ export default function ServicesPage() {
   if (loading) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-[#ece9d8] text-[#4a2e21] font-sans">
+    <div className="min-h-screen bg-[#F4F5F0] text-[#112E40] font-sans">
 
 
-      <div className="relative bg-[#4a2e21] text-[#ece9d8] pt-32 pb-20 px-6 rounded-b-[3rem] shadow-xl overflow-hidden">
+      <div className="relative bg-[#112E40] text-[#F4F5F0] pt-32 pb-20 px-6 rounded-b-[3rem] shadow-xl overflow-hidden">
 
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-[-50%] left-[-20%] w-[800px] h-[800px] bg-[#6F4E37] rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-[-50%] right-[-20%] w-[600px] h-[600px] bg-[#8B5E3C] rounded-full blur-[100px]"></div>
+          <div className="absolute top-[-50%] left-[-20%] w-[800px] h-[800px] bg-[#127373] rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-[-50%] right-[-20%] w-[600px] h-[600px] bg-[#127373] rounded-full blur-[100px]"></div>
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-[#6F4E37] px-4 py-1.5 rounded-full text-sm font-semibold mb-4 shadow-sm text-[#ece9d8]/90">
+            <div className="inline-flex items-center gap-2 bg-[#127373] px-4 py-1.5 rounded-full text-sm font-semibold mb-4 shadow-sm text-[#F4F5F0]/90">
               <FaTools className="text-sm" />
               <span>Expert Services</span>
             </div>
@@ -151,9 +151,9 @@ export default function ServicesPage() {
               className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 leading-tight"
             >
               Find the Perfect <br />
-              <span className="text-[#d4c5a9]">Help Near You</span>
+              <span className="text-[#DDE3E0]">Help Near You</span>
             </motion.h1>
-            <p className="text-lg text-[#ece9d8]/80 max-w-lg mb-8">
+            <p className="text-lg text-[#F4F5F0]/80 max-w-lg mb-8">
               Explore our wide range of professional services tailored to your needs.
               From home repairs to personal care, we've got you covered.
             </p>
@@ -162,7 +162,7 @@ export default function ServicesPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push("/landingpage")}
-              className="bg-[#d4c5a9] text-[#4a2e21] px-8 py-3 rounded-full font-bold shadow-lg hover:bg-white transition-colors"
+              className="bg-[#DDE3E0] text-[#112E40] px-8 py-3 rounded-full font-bold shadow-lg hover:bg-white transition-colors"
             >
               Go Home
             </motion.button>
@@ -173,10 +173,10 @@ export default function ServicesPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="w-full max-w-md bg-[#ece9d8] p-6 rounded-2xl shadow-2xl border-4 border-[#6F4E37]/20"
+            className="w-full max-w-md bg-[#F4F5F0] p-6 rounded-2xl shadow-2xl border-4 border-[#127373]/20"
           >
-            <h3 className="text-xl font-bold text-[#4a2e21] mb-4 flex items-center gap-2">
-              <FaSearch className="text-[#6F4E37]" /> Search Categories
+            <h3 className="text-xl font-bold text-[#112E40] mb-4 flex items-center gap-2">
+              <FaSearch className="text-[#127373]" /> Search Categories
             </h3>
 
             <div className="space-y-4">
@@ -189,23 +189,23 @@ export default function ServicesPage() {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#d4c5a9] focus:outline-none focus:ring-2 focus:ring-[#6F4E37] text-[#4a2e21] placeholder-[#4a2e21]/50 shadow-inner"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#DDE3E0] focus:outline-none focus:ring-2 focus:ring-[#127373] text-[#112E40] placeholder-[#112E40]/50 shadow-inner"
                 />
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6F4E37]/50" />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#127373]/50" />
               </div>
 
               <div className="flex items-center gap-4">
-                <label className="text-sm font-semibold text-[#6F4E37] whitespace-nowrap">Sort By:</label>
+                <label className="text-sm font-semibold text-[#127373] whitespace-nowrap">Sort By:</label>
                 <div className="relative w-full">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full appearance-none px-4 py-2.5 rounded-xl bg-white border border-[#d4c5a9] focus:outline-none focus:ring-2 focus:ring-[#6F4E37] text-[#4a2e21] cursor-pointer shadow-sm"
+                    className="w-full appearance-none px-4 py-2.5 rounded-xl bg-white border border-[#DDE3E0] focus:outline-none focus:ring-2 focus:ring-[#127373] text-[#112E40] cursor-pointer shadow-sm"
                   >
                     <option value="name">Name (A-Z)</option>
                     <option value="count">Most Popular</option>
                   </select>
-                  <FaFilter className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6F4E37]/50 pointer-events-none" />
+                  <FaFilter className="absolute right-3 top-1/2 -translate-y-1/2 text-[#127373]/50 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -217,11 +217,11 @@ export default function ServicesPage() {
       <div className="max-w-7xl mx-auto px-6 py-16">
 
 
-        <div className="flex justify-between items-center mb-8 border-b border-[#d4c5a9]/50 pb-4">
-          <h2 className="text-2xl font-bold text-[#4a2e21]">
+        <div className="flex justify-between items-center mb-8 border-b border-[#DDE3E0]/50 pb-4">
+          <h2 className="text-2xl font-bold text-[#112E40]">
             Help near you....
           </h2>
-          <span className="text-sm font-medium text-[#6F4E37] bg-[#d4c5a9]/30 px-3 py-1 rounded-full">
+          <span className="text-sm font-medium text-[#127373] bg-[#DDE3E0]/30 px-3 py-1 rounded-full">
             {processedCategories.length} Categories Found
           </span>
         </div>
@@ -229,11 +229,11 @@ export default function ServicesPage() {
 
         {processedCategories.length === 0 ? (
           <div className="text-center py-20 opacity-60">
-            <FaSearch className="text-6xl mx-auto mb-4 text-[#6F4E37]/30" />
+            <FaSearch className="text-6xl mx-auto mb-4 text-[#127373]/30" />
             <p className="text-xl font-medium">No categories found matching "{searchQuery}"</p>
             <button
               onClick={() => setSearchQuery("")}
-              className="mt-4 text-[#6F4E37] underline hover:text-[#4a2e21]"
+              className="mt-4 text-[#127373] underline hover:text-[#112E40]"
             >
               Clear Search
             </button>
@@ -256,21 +256,21 @@ export default function ServicesPage() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     whileHover={{ y: -8, transition: { duration: 0.2 } }}
                     onClick={() => router.push(`/categories/${cat.id}`)}
-                    className="group cursor-pointer bg-white rounded-2xl p-6 shadow-md border border-[#eee8d5] hover:shadow-xl hover:border-[#6F4E37]/30 transition-all relative overflow-hidden"
+                    className="group cursor-pointer bg-white rounded-2xl p-6 shadow-md border border-[#DDE3E0] hover:shadow-xl hover:border-[#127373]/30 transition-all relative overflow-hidden"
                   >
 
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#6F4E37]/5 rounded-bl-[100px] group-hover:scale-150 transition-transform duration-500 origin-top-right"></div>
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#127373]/5 rounded-bl-[100px] group-hover:scale-150 transition-transform duration-500 origin-top-right"></div>
 
                     <div className="relative z-10 flex flex-col items-center text-center">
-                      <div className="w-16 h-16 bg-[#ece9d8] rounded-full flex items-center justify-center mb-4 group-hover:bg-[#6F4E37] transition-colors duration-300 shadow-inner">
-                        <Icon className="text-3xl text-[#6F4E37] group-hover:text-[#ece9d8] transition-colors duration-300" />
+                      <div className="w-16 h-16 bg-[#F4F5F0] rounded-full flex items-center justify-center mb-4 group-hover:bg-[#127373] transition-colors duration-300 shadow-inner">
+                        <Icon className="text-3xl text-[#127373] group-hover:text-[#F4F5F0] transition-colors duration-300" />
                       </div>
 
-                      <h3 className="text-lg font-bold text-[#4a2e21] mb-1 line-clamp-1 group-hover:text-[#6F4E37] transition-colors">
+                      <h3 className="text-lg font-bold text-[#112E40] mb-1 line-clamp-1 group-hover:text-[#127373] transition-colors">
                         {cat.name}
                       </h3>
 
-                      <div className="flex items-center gap-2 mt-2 text-xs font-semibold text-[#8B5E3C] bg-[#ece9d8]/50 px-3 py-1 rounded-full">
+                      <div className="flex items-center gap-2 mt-2 text-xs font-semibold text-[#127373] bg-[#F4F5F0]/50 px-3 py-1 rounded-full">
                         <span>{cat.availableProviders || 0} Available</span>
                       </div>
                     </div>
@@ -287,7 +287,7 @@ export default function ServicesPage() {
             <button
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-3 rounded-full bg-white border border-[#d4c5a9] text-[#6F4E37] hover:bg-[#6F4E37] hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#6F4E37] transition-all shadow-sm"
+              className="p-3 rounded-full bg-white border border-[#DDE3E0] text-[#127373] hover:bg-[#127373] hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#127373] transition-all shadow-sm"
             >
               <FaArrowLeft />
             </button>
@@ -298,8 +298,8 @@ export default function ServicesPage() {
                   key={page}
                   onClick={() => goToPage(page)}
                   className={`w-10 h-10 rounded-full font-bold text-sm transition-all ${currentPage === page
-                    ? "bg-[#6F4E37] text-white shadow-md scale-110"
-                    : "bg-white text-[#4a2e21] border border-[#d4c5a9] hover:bg-[#ece9d8]"
+                    ? "bg-[#127373] text-white shadow-md scale-110"
+                    : "bg-white text-[#112E40] border border-[#DDE3E0] hover:bg-[#F4F5F0]"
                     }`}
                 >
                   {page}
@@ -310,7 +310,7 @@ export default function ServicesPage() {
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-3 rounded-full bg-white border border-[#d4c5a9] text-[#6F4E37] hover:bg-[#6F4E37] hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#6F4E37] transition-all shadow-sm"
+              className="p-3 rounded-full bg-white border border-[#DDE3E0] text-[#127373] hover:bg-[#127373] hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#127373] transition-all shadow-sm"
             >
               <FaArrowRight />
             </button>

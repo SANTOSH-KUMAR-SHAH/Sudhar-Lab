@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -366,12 +366,12 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#ece9d8]">
+      <div className="min-h-screen bg-[#F4F5F0]">
         <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-[#6F4E37]">Dashboard</h1>
+          <h1 className="text-xl font-bold text-[#127373]">Dashboard</h1>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-2xl text-[#6F4E37]"
+            className="text-2xl text-[#127373]"
           >
             <FaBars />
           </button>
@@ -397,8 +397,8 @@ export default function Dashboard() {
             </button>
 
             <div className="mb-6 text-center mt-8 lg:mt-0 flex flex-col items-center">
-              <FaUserCircle className="text-6xl mx-auto text-[#7a5c49]" />
-              <p className="mt-2 font-semibold text-[#4a2e21]">{profile?.user?.name || "Provider"}</p>
+              <FaUserCircle className="text-6xl mx-auto text-[#127373]" />
+              <p className="mt-2 font-semibold text-[#112E40]">{profile?.user?.name || "Provider"}</p>
 
 
               <div className="mt-3 flex items-center justify-center gap-2">
@@ -423,7 +423,7 @@ export default function Dashboard() {
                   setSidebarOpen(false);
                 }}
                 className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "profile"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  ? "bg-[#E8F2EE] text-[#112E40] font-medium"
                   : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
@@ -435,7 +435,7 @@ export default function Dashboard() {
                   setSidebarOpen(false);
                 }}
                 className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "services"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  ? "bg-[#E8F2EE] text-[#112E40] font-medium"
                   : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
@@ -448,7 +448,7 @@ export default function Dashboard() {
                   setSidebarOpen(false);
                 }}
                 className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "slots"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  ? "bg-[#E8F2EE] text-[#112E40] font-medium"
                   : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
@@ -460,7 +460,7 @@ export default function Dashboard() {
                   setSidebarOpen(false);
                 }}
                 className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "feedback"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  ? "bg-[#E8F2EE] text-[#112E40] font-medium"
                   : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
@@ -473,7 +473,7 @@ export default function Dashboard() {
                   setSidebarOpen(false);
                 }}
                 className={`text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === "requests"
-                  ? "bg-[#f1dfc9] text-[#4a2e21] font-medium"
+                  ? "bg-[#E8F2EE] text-[#112E40] font-medium"
                   : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
@@ -496,12 +496,12 @@ export default function Dashboard() {
           )}
           <main className="flex-1 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h1 className="text-2xl lg:text-3xl font-bold text-[#6F4E37] hidden lg:block">
+              <h1 className="text-2xl lg:text-3xl font-bold text-[#127373] hidden lg:block">
                 My Dashboard
               </h1>
               <button
                 onClick={openAdd}
-                className="inline-flex items-center justify-center gap-2 bg-[#672410] text-white px-4 py-2.5 rounded-lg hover:bg-[#4d1a0a] transition-colors shadow-md w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 bg-[#127373] text-white px-4 py-2.5 rounded-lg hover:bg-[#0E6363] transition-colors shadow-md w-full sm:w-auto"
               >
                 <FaPlus /> Add Service
               </button>
@@ -516,12 +516,12 @@ export default function Dashboard() {
                         <p className="text-sm text-gray-600 mb-1">
                           Live Services
                         </p>
-                        <p className="text-2xl font-bold text-[#4a2e21]">
+                        <p className="text-2xl font-bold text-[#112E40]">
                           {services.length}
                         </p>
                       </div>
                       <div className="bg-[#F3E9D7] p-3 rounded-full">
-                        <FaRegListAlt className="text-[#6F4E37] text-xl" />
+                        <FaRegListAlt className="text-[#127373] text-xl" />
                       </div>
                     </div>
                   </div>
@@ -529,12 +529,12 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600 mb-1">Completed</p>
-                        <p className="text-2xl font-bold text-[#4a2e21]">
+                        <p className="text-2xl font-bold text-[#112E40]">
                           {stats.completedServices}
                         </p>
                       </div>
                       <div className="bg-[#F3E9D7] p-3 rounded-full">
-                        <FaCheckCircle className="text-[#6F4E37] text-xl" />
+                        <FaCheckCircle className="text-[#127373] text-xl" />
                       </div>
                     </div>
                   </div>
@@ -542,12 +542,12 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600 mb-1">Pending</p>
-                        <p className="text-2xl font-bold text-[#4a2e21]">
+                        <p className="text-2xl font-bold text-[#112E40]">
                           {stats.pendingBookings}
                         </p>
                       </div>
                       <div className="bg-[#F3E9D7] p-3 rounded-full">
-                        <FaClock className="text-[#6F4E37] text-xl" />
+                        <FaClock className="text-[#127373] text-xl" />
                       </div>
                     </div>
                   </div>
@@ -555,16 +555,16 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600 mb-1">Revenue</p>
-                        <p className="text-2xl font-bold text-[#4a2e21]">₹{earnings}</p>
+                        <p className="text-2xl font-bold text-[#112E40]">â‚¹{earnings}</p>
                       </div>
                       <div className="bg-[#F3E9D7] p-3 rounded-full">
-                        <FaClock className="text-[#6F4E37] text-xl" />
+                        <FaClock className="text-[#127373] text-xl" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
-                  <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-4 flex items-center gap-2">
+                  <h2 className="text-lg lg:text-xl font-semibold text-[#112E40] mb-4 flex items-center gap-2">
                     <FaRegListAlt /> Active Services
                   </h2>
 
@@ -582,23 +582,23 @@ export default function Dashboard() {
                       {services.map((s) => (
                         <div
                           key={s.id}
-                          className="p-4 border border-gray-200 rounded-lg relative hover:shadow-md transition-shadow bg-[#fdfcfa]"
+                          className="p-4 border border-gray-200 rounded-lg relative hover:shadow-md transition-shadow bg-[#FFFFFF]"
                           onClick={() => openEdit(s)}
                         >
                           <button
                             onClick={() => openEdit(s)}
-                            className="absolute top-3 right-3 text-gray-500 hover:text-[#672410] transition-colors"
+                            className="absolute top-3 right-3 text-gray-500 hover:text-[#127373] transition-colors"
                           >
-                            <FaEdit className="text-[#6F4E37]" />
+                            <FaEdit className="text-[#127373]" />
                           </button>
 
-                          <h3 className="font-semibold text-[#4a2e21] mb-2 pr-8">
+                          <h3 className="font-semibold text-[#112E40] mb-2 pr-8">
                             {s.subcategory?.name || "Untitled service"}
                           </h3>
 
                           <div className="space-y-1">
                             <p className="text-sm text-gray-600">
-                              <span className="font-medium">Price:</span> ₹
+                              <span className="font-medium">Price:</span> â‚¹
                               {s.price}
                             </p>
                             <p className="text-sm text-gray-600">
@@ -621,7 +621,7 @@ export default function Dashboard() {
             )}
             {activeTab === "requests" && (
               <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
-                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-4 flex items-center gap-2">
+                <h2 className="text-lg lg:text-xl font-semibold text-[#112E40] mb-4 flex items-center gap-2">
                   <FaClock /> Live Requests
                 </h2>
 
@@ -644,7 +644,7 @@ export default function Dashboard() {
                           className="p-4 border border-[#e4d7c5] rounded-xl bg-[#fdfcf8] shadow-sm"
                         >
 
-                          <p className="font-semibold text-lg text-[#4a2e21]">
+                          <p className="font-semibold text-lg text-[#112E40]">
                             {r.subcatName || "Service"}
                           </p>
 
@@ -657,12 +657,12 @@ export default function Dashboard() {
 
                           {r.status === "ACCEPTED" && (
                             <div className="mt-3 bg-[#f7f2ea] p-3 rounded-lg border border-[#e4d7c5]">
-                              <p className="font-medium text-[#4a2e21] flex items-center gap-2">
-                                <FaUserCircle className="text-[#6F4E37]" />{" "}
+                              <p className="font-medium text-[#112E40] flex items-center gap-2">
+                                <FaUserCircle className="text-[#127373]" />{" "}
                                 {r.customer.name}
                               </p>
                               <p className="text-sm text-[#7a5d49] flex items-center gap-2 mt-1">
-                                <FaPhone className="text-[#6F4E37]" />{" "}
+                                <FaPhone className="text-[#127373]" />{" "}
                                 {r.customer.phone}
                               </p>
 
@@ -680,7 +680,7 @@ export default function Dashboard() {
                               <div className="flex gap-3">
                                 <button
                                   onClick={() => handleAction(r.id, "accept")}
-                                  className="px-4 py-2 rounded-lg bg-[#6F4E37] text-white 
+                                  className="px-4 py-2 rounded-lg bg-[#127373] text-white 
                   hover:bg-[#5a3f2c] transition"
                                 >
                                   Accept
@@ -688,7 +688,7 @@ export default function Dashboard() {
 
                                 <button
                                   onClick={() => handleAction(r.id, "cancel")}
-                                  className="px-4 py-2 rounded-lg bg-[#A97155] text-white 
+                                  className="px-4 py-2 rounded-lg bg-[#127373] text-white 
                   hover:bg-[#8a5944] transition"
                                 >
                                   Reject
@@ -699,9 +699,9 @@ export default function Dashboard() {
 
                             {r.status === "ACCEPTED" && (
                               <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-2 text-[#4a2e21] font-semibold text-sm">
-                                  <VscVerifiedFilled className="text-[#6F4E37] text-xl" />
-                                  Confirmed
+                                <div className="flex items-center gap-2 text-[#112E40] font-semibold text-sm">
+                                  <VscVerifiedFilled className="text-[#E8A324] text-xl" />
+                                  Confirmed — Verified
                                 </div>
                                 <button
                                   onClick={() => handleAction(r.id, "complete")}
@@ -716,15 +716,15 @@ export default function Dashboard() {
 
 
                             {r.status === "COMPLETED" && (
-                              <div className="flex items-center gap-2 text-[#4a2e21] font-semibold">
-                                <MdDoneAll className="text-[#6F4E37]" />
+                              <div className="flex items-center gap-2 text-[#112E40] font-semibold">
+                                <MdDoneAll className="text-[#127373]" />
                                 Completed
                               </div>
                             )}
 
 
                             {r.status === "CANCELLED" && (
-                              <div className="flex items-center gap-2 text-[#A97155] font-semibold">
+                              <div className="flex items-center gap-2 text-[#127373] font-semibold">
                                 <MdCancel />
                                 Rejected
                               </div>
@@ -739,7 +739,7 @@ export default function Dashboard() {
             )}
             {activeTab === "profile" && (
               <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
-                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-6 flex items-center gap-2">
+                <h2 className="text-lg lg:text-xl font-semibold text-[#112E40] mb-6 flex items-center gap-2">
                   <FaUserCircle /> Provider Profile
                 </h2>
 
@@ -769,18 +769,18 @@ export default function Dashboard() {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Aadhaar Number</label>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Citizenship Number</label>
                       <div className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-800 font-mono tracking-wider">
                         {profile?.aadharNumber || "XXXX-XXXX-XXXX"}
                       </div>
                       <p className="text-xs text-gray-400 mt-1">
-                        <VscVerifiedFilled className="inline text-green-500 mr-1" />
-                        Verified by Admin
+                        <VscVerifiedFilled className="inline text-[#E8A324] mr-1" />
+                        Verified by Admin — Trusted
                       </p>
                     </div>
 
-                    <div className="bg-[#f9f6f0] p-4 rounded-xl border border-[#e5dcc7] mt-4">
-                      <h4 className="font-semibold text-[#6F4E37] mb-2">Account Status</h4>
+                    <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#DDE3E0] mt-4">
+                      <h4 className="font-semibold text-[#127373] mb-2">Account Status</h4>
                       <div className="flex items-center gap-2">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${profile?.applicationStatus === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                           {profile?.applicationStatus || "UNKNOWN"}
@@ -797,7 +797,7 @@ export default function Dashboard() {
 
             {activeTab === "slots" && (
               <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
-                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-6 flex items-center gap-2">
+                <h2 className="text-lg lg:text-xl font-semibold text-[#112E40] mb-6 flex items-center gap-2">
                   <MdCalendarViewDay /> Weekly Schedule / Slots
                 </h2>
                 <div className="space-y-4">
@@ -806,21 +806,21 @@ export default function Dashboard() {
                     const s = schedule[day] || {};
                     return (
                       <div key={day} className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-gray-100 pb-4 last:border-0">
-                        <div className="w-32 font-medium text-[#4a2e21]">{day}</div>
+                        <div className="w-32 font-medium text-[#112E40]">{day}</div>
 
 
                         <div className="flex items-center gap-2">
                           <span className="text-gray-500 text-sm">Start:</span>
                           <input
                             type="time"
-                            className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#672410] placeholder-gray-500 text-black outline-none"
+                            className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#127373] placeholder-gray-500 text-black outline-none"
                             defaultValue={s.start || ""}
                             id={`start-${day}`}
                           />
                           <span className="text-gray-500 text-sm ml-2">End:</span>
                           <input
                             type="time"
-                            className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#672410] placeholder-gray-500 text-black outline-none"
+                            className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#127373] placeholder-gray-500 text-black outline-none"
                             defaultValue={s.end || ""}
                             id={`end-${day}`}
                           />
@@ -846,7 +846,7 @@ export default function Dashboard() {
                       });
                       handleSaveSchedule(newSched);
                     }}
-                    className="px-6 py-2.5 bg-[#672410] text-white rounded-lg hover:bg-[#4d1a0a] shadow-md transition-colors"
+                    className="px-6 py-2.5 bg-[#127373] text-white rounded-lg hover:bg-[#0E6363] shadow-md transition-colors"
                   >
                     Save Schedule
                   </button>
@@ -857,16 +857,16 @@ export default function Dashboard() {
 
             {activeTab === "feedback" && (
               <div className="bg-white rounded-xl p-4 lg:p-6 shadow-md">
-                <h2 className="text-lg lg:text-xl font-semibold text-[#4a2e21] mb-6 flex items-center gap-2">
+                <h2 className="text-lg lg:text-xl font-semibold text-[#112E40] mb-6 flex items-center gap-2">
                   <FaStar /> Feedback & Ratings
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <div className="bg-[#fdfcfa] border border-[#e5dcc7] p-6 rounded-xl flex items-center justify-between">
+                  <div className="bg-[#FFFFFF] border border-[#DDE3E0] p-6 rounded-xl flex items-center justify-between">
                     <div>
                       <p className="text-gray-600 text-sm">Average Rating</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-4xl font-bold text-[#6F4E37]">{feedbackStats.avg.toFixed(1)}</span>
+                        <span className="text-4xl font-bold text-[#127373]">{feedbackStats.avg.toFixed(1)}</span>
                         <div className="flex text-yellow-400 text-xl">
                           {[1, 2, 3, 4, 5].map(s => (
                             <FaStar key={s} className={s <= Math.round(feedbackStats.avg) ? "opacity-100" : "opacity-30"} />
@@ -874,30 +874,30 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="h-12 w-12 bg-[#f1dfc9] rounded-full flex items-center justify-center text-[#6F4E37] text-xl">
+                    <div className="h-12 w-12 bg-[#E8F2EE] rounded-full flex items-center justify-center text-[#127373] text-xl">
                       <FaStar />
                     </div>
                   </div>
 
-                  <div className="bg-[#fdfcfa] border border-[#e5dcc7] p-6 rounded-xl flex items-center justify-between">
+                  <div className="bg-[#FFFFFF] border border-[#DDE3E0] p-6 rounded-xl flex items-center justify-between">
                     <div>
                       <p className="text-gray-600 text-sm">Total Reviews</p>
-                      <p className="text-4xl font-bold text-[#6F4E37] mt-2">{feedbackStats.total}</p>
+                      <p className="text-4xl font-bold text-[#127373] mt-2">{feedbackStats.total}</p>
                     </div>
-                    <div className="h-12 w-12 bg-[#f1dfc9] rounded-full flex items-center justify-center text-[#6F4E37] text-xl">
+                    <div className="h-12 w-12 bg-[#E8F2EE] rounded-full flex items-center justify-center text-[#127373] text-xl">
                       <FaComment />
                     </div>
                   </div>
                 </div>
 
-                <h3 className="font-semibold text-[#4a2e21] mb-4">Recent Reviews</h3>
+                <h3 className="font-semibold text-[#112E40] mb-4">Recent Reviews</h3>
                 <div className="space-y-4">
                   {feedbackStats.reviews.length === 0 ? (
                     <p className="text-gray-500 italic">No reviews yet.</p>
                   ) : feedbackStats.reviews.map(rev => (
                     <div key={rev.id} className="p-4 border border-gray-100 rounded-lg bg-gray-50">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-medium text-[#4a2e21]">{rev.reviewer.name}</p>
+                        <p className="font-medium text-[#112E40]">{rev.reviewer.name}</p>
                         <span className="text-xs text-gray-500">{new Date(rev.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="flex text-yellow-500 text-sm mb-2">
@@ -923,10 +923,10 @@ export default function Dashboard() {
 
           <form
             onSubmit={submitService}
-            className="relative bg-[#f9f6f0] border border-[#e5dcc7] rounded-2xl p-4 lg:p-6 w-full max-w-xl shadow-lg z-10 text-black max-h-[90vh] overflow-y-auto"
+            className="relative bg-[#FFFFFF] border border-[#DDE3E0] rounded-2xl p-4 lg:p-6 w-full max-w-xl shadow-lg z-10 text-black max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg lg:text-xl font-semibold text-[#4a2e21]">
+              <h3 className="text-lg lg:text-xl font-semibold text-[#112E40]">
                 {isEditing ? "Edit Service" : "Add Service"}
               </h3>
               <button
@@ -947,7 +947,7 @@ export default function Dashboard() {
                   value={form.categoryId}
                   onChange={onCategoryChange}
                   required
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#672410] focus:border-transparent"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#127373] focus:border-transparent"
                 >
                   <option value="">Select category</option>
                   {categories.map((c) => (
@@ -966,7 +966,7 @@ export default function Dashboard() {
                   name="subcategoryId"
                   value={form.subcategoryId}
                   onChange={handleChange}
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#672410] focus:border-transparent"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#127373] focus:border-transparent"
                 >
                   <option value="">Select subcategory (optional)</option>
                   {subcats.map((s) => (
@@ -979,7 +979,7 @@ export default function Dashboard() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Price (INR) *
+                  Price (NPR) *
                 </label>
                 <input
                   name="price"
@@ -989,7 +989,7 @@ export default function Dashboard() {
                   required
                   min="0"
                   step="0.01"
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#672410] focus:border-transparent"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#127373] focus:border-transparent"
                 />
               </div>
 
@@ -1003,7 +1003,7 @@ export default function Dashboard() {
                   onChange={handleChange}
                   type="number"
                   min="0"
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#672410] focus:border-transparent"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#127373] focus:border-transparent"
                 />
               </div>
               <div>
@@ -1035,7 +1035,7 @@ export default function Dashboard() {
                       className={`
           border px-3 py-2 rounded-lg capitalize text-sm
           ${form.selectedDays?.includes(day)
-                          ? "bg-[#672410] text-white border-[#672410]"
+                          ? "bg-[#127373] text-white border-[#127373]"
                           : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                         }
         `}
@@ -1056,7 +1056,7 @@ export default function Dashboard() {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#672410] focus:border-transparent resize-none"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#127373] focus:border-transparent resize-none"
                 />
               </div>
 
@@ -1070,7 +1070,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="w-full sm:w-auto px-6 py-2 rounded-lg bg-[#672410] text-white hover:bg-[#4d1a0a] transition-colors shadow-md"
+                  className="w-full sm:w-auto px-6 py-2 rounded-lg bg-[#127373] text-white hover:bg-[#0E6363] transition-colors shadow-md"
                 >
                   {isEditing ? "Save changes" : "Make live"}
                 </button>

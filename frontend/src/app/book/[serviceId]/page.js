@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
@@ -224,8 +224,8 @@ export default function BookServicePage() {
   if (bookingStep === "redirecting") {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6F4E37] mb-4"></div>
-        <h2 className="text-xl font-semibold text-[#4a2e21]">Redirecting to secure payment gateway...</h2>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#127373] mb-4"></div>
+        <h2 className="text-xl font-semibold text-[#112E40]">Redirecting to secure payment gateway...</h2>
         <p className="text-gray-500 mt-2 text-sm">Do not refresh the page</p>
       </div>
     );
@@ -243,9 +243,9 @@ export default function BookServicePage() {
         <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div className="md:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full min-h-[500px]">
-              <div className="bg-[#fcfbf9] px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-                <h2 className="text-lg font-bold text-[#4a2e21] flex items-center gap-2">
-                  <FaLock className="text-green-600" size={14} /> Secure Payment
+              <div className="bg-[#F4F5F0] px-6 py-4 border-b border-[#DDE3E0] flex justify-between items-center shrink-0">
+                <h2 className="text-lg font-bold text-[#112E40] flex items-center gap-2">
+                  <FaLock className="text-[#E8A324]" size={14} /> Secure Payment — Trusted & Encrypted
                 </h2>
                 <span className="text-xs text-gray-500 font-mono">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
               </div>
@@ -264,7 +264,7 @@ export default function BookServicePage() {
                       key={opt.id}
                       onClick={() => { setPaymentMethod(opt.id); setErrors({}); }}
                       className={`w-full text-left px-5 py-4 flex items-center gap-3 transition-colors border-b border-gray-100 md:border-b-0 ${paymentMethod === opt.id
-                        ? "bg-white text-[#6F4E37] font-semibold border-l-4 border-[#6F4E37] shadow-sm"
+                        ? "bg-white text-[#127373] font-semibold border-l-4 border-[#127373] shadow-sm"
                         : "text-gray-600 hover:bg-white hover:text-gray-800"
                         }`}
                     >
@@ -285,7 +285,7 @@ export default function BookServicePage() {
                           <input
                             type="text"
                             placeholder="username@upi"
-                            className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#6F4E37] outline-none ${errors.vpa ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
+                            className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#127373] outline-none ${errors.vpa ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
                             onChange={(e) => handlePaymentFieldChange('vpa', e.target.value)}
                           />
                           {errors.vpa && <p className="text-red-500 text-xs mt-1">{errors.vpa}</p>}
@@ -308,7 +308,7 @@ export default function BookServicePage() {
                             type="text"
                             placeholder="0000 0000 0000 0000"
                             maxLength={19}
-                            className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#6F4E37] outline-none ${errors.cardNumber ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
+                            className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#127373] outline-none ${errors.cardNumber ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
                             onChange={(e) => handlePaymentFieldChange('cardNumber', e.target.value)}
                           />
                           {errors.cardNumber && <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>}
@@ -320,7 +320,7 @@ export default function BookServicePage() {
                               type="text"
                               placeholder="MM/YY"
                               maxLength={5}
-                              className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#6F4E37] outline-none ${errors.expiry ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
+                              className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#127373] outline-none ${errors.expiry ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
                               onChange={(e) => handlePaymentFieldChange('expiry', e.target.value)}
                             />
                           </div>
@@ -330,7 +330,7 @@ export default function BookServicePage() {
                               type="password"
                               placeholder="123"
                               maxLength={3}
-                              className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#6F4E37] outline-none ${errors.cvv ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
+                              className={`w-full px-4 text-black py-3 border rounded-lg focus:ring-2 focus:ring-[#127373] outline-none ${errors.cvv ? 'border-red-500' : 'border-gray-300 placeholder:text-gray-400'}`}
                               onChange={(e) => handlePaymentFieldChange('cvv', e.target.value)}
                             />
                           </div>
@@ -344,7 +344,7 @@ export default function BookServicePage() {
                       <h3 className="font-semibold text-gray-800 mb-6 text-center">Select your Bank</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md mx-auto">
                         {['HDFC', 'SBI', 'ICICI', 'Axis', 'Kotak', 'PNB'].map(bank => (
-                          <button key={bank} className="py-3 px-3 border border-gray-200 rounded-lg hover:border-[#6F4E37] hover:bg-[#f6efe1] text-sm text-gray-600 transition-all font-medium">
+                          <button key={bank} className="py-3 px-3 border border-gray-200 rounded-lg hover:border-[#127373] hover:bg-[#f6efe1] text-sm text-gray-600 transition-all font-medium">
                             {bank}
                           </button>
                         ))}
@@ -355,7 +355,7 @@ export default function BookServicePage() {
                   {paymentMethod === "QR" && (
                     <div className="flex flex-col items-center justify-center">
                       <h3 className="font-semibold text-gray-800 mb-2">Scan QR to Pay</h3>
-                      <p className="text-xl text-[#4a2e21] font-bold mb-6">₹{BOOKING_FEE.toFixed(2)}</p>
+                      <p className="text-xl text-[#112E40] font-bold mb-6">Rs. {BOOKING_FEE.toFixed(2)}</p>
 
                       <div className="bg-white p-4 border border-gray-200 rounded-xl shadow-inner relative overflow-hidden group">
 
@@ -379,7 +379,7 @@ export default function BookServicePage() {
                       <div className="space-y-3">
                         {['Paytm', 'PhonePe Wallet', 'Amazon Pay', 'Mobikwik'].map(w => (
                           <label key={w} className="flex items-center gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                            <input type="radio" name="wallet" className="w-4 h-4 accent-[#6F4E37]" />
+                            <input type="radio" name="wallet" className="w-4 h-4 accent-[#127373]" />
                             <span className="text-base text-gray-700 font-medium">{w}</span>
                           </label>
                         ))}
@@ -397,11 +397,11 @@ export default function BookServicePage() {
                 <button
                   onClick={handleConfirmPayment}
                   disabled={creatingBooking}
-                  className="w-full md:w-auto flex items-center justify-center gap-2 bg-[#6F4E37] text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-[#5A3F2E] transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                  className="w-full md:w-auto flex items-center justify-center gap-2 bg-[#127373] text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-[#0E6363] transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
                   {creatingBooking ? (
                     <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</>
                   ) : (
-                    <>Pay ₹{BOOKING_FEE}</>
+                    <>Pay Rs. {BOOKING_FEE}</>
                   )}
                 </button>
               </div>
@@ -415,7 +415,7 @@ export default function BookServicePage() {
 
           <div className="md:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 w-full">
-              <h3 className="font-bold text-[#4a2e21] mb-6 pb-4 border-b border-gray-100">Order Summary</h3>
+              <h3 className="font-bold text-[#112E40] mb-6 pb-4 border-b border-gray-100">Order Summary</h3>
 
               <div className="space-y-4 text-sm text-gray-600">
                 <div className="flex justify-between">
@@ -435,22 +435,22 @@ export default function BookServicePage() {
               <div className="mt-6 pt-6 border-t border-gray-100 space-y-3">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Service Estimate</span>
-                  <span>₹{service?.price}</span>
+                  <span>Rs. {service?.price}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Platform Fee</span>
-                  <span>₹{PLATFORM_FEE}</span>
+                  <span>Rs. {PLATFORM_FEE}</span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-[#4a2e21] pt-2 border-t border-dashed border-gray-200 mt-2">
+                <div className="flex justify-between text-base font-bold text-[#112E40] pt-2 border-t border-dashed border-gray-200 mt-2">
                   <span>Booking Fee (Refundable)</span>
-                  <span>₹{BOOKING_FEE}</span>
+                  <span>Rs. {BOOKING_FEE}</span>
                 </div>
               </div>
 
               <div className="mt-6 bg-blue-50 p-3 rounded-lg flex gap-3">
                 <FaInfoCircle className="text-blue-500 shrink-0 mt-1" />
                 <p className="text-xs text-blue-700 leading-relaxed">
-                  The <strong className="font-semibold">₹500 booking fee</strong> is fully refundable if you cancel 24h before the slot. For completed services, this amount is adjusted/refunded per policy.
+                  The <strong className="font-semibold">Rs. 500 booking fee</strong> is fully refundable if you cancel 24h before the slot. For completed services, this amount is adjusted/refunded per policy.
                 </p>
               </div>
             </div>
@@ -461,18 +461,18 @@ export default function BookServicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#ece9d8] pt-24 pb-16 px-4">
+    <div className="min-h-screen bg-[#F4F5F0] pt-24 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f6efe1] border border-transparent hover:bg-[#efe6d6] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f6efe1] border border-transparent hover:bg-[#E8F2EE] transition-colors"
           >
-            <FaArrowLeft className="text-[#6F4E37]" />
-            <span className="text-sm text-[#4a2e21]">Back</span>
+            <FaArrowLeft className="text-[#127373]" />
+            <span className="text-sm text-[#112E40]">Back</span>
           </button>
 
-          <h1 className="text-2xl font-bold text-[#4a2e21] truncate">
+          <h1 className="text-2xl font-bold text-[#112E40] truncate">
             {service?.subcategory?.name || service?.description || "Book Service"}
           </h1>
         </div>
@@ -481,14 +481,14 @@ export default function BookServicePage() {
           <div className="md:flex md:items-start gap-6">
             <div className="md:w-1/2">
 
-              <div className="bg-[#f9f6f0] p-4 rounded-lg border border-[#e5dcc7]">
+              <div className="bg-[#FFFFFF] p-4 rounded-lg border border-[#DDE3E0]">
                 <p className="text-sm text-gray-600">Provider</p>
                 <div className="flex items-center gap-3 mt-2">
-                  <div className="p-2 bg-white rounded-full border border-[#e5dcc7]">
-                    <FaUserAlt className="text-xl text-[#7a5c49]" />
+                  <div className="p-2 bg-white rounded-full border border-[#DDE3E0]">
+                    <FaUserAlt className="text-xl text-[#127373]" />
                   </div>
                   <div>
-                    <p className="font-medium text-[#4a2e21] text-lg">
+                    <p className="font-medium text-[#112E40] text-lg">
                       {service?.provider?.user?.name || "Provider"}
                     </p>
                     <p className="text-sm text-gray-600">
@@ -496,39 +496,39 @@ export default function BookServicePage() {
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 flex justify-between items-end border-t border-[#e5dcc7] pt-4">
+                <div className="mt-4 flex justify-between items-end border-t border-[#DDE3E0] pt-4">
                   <div>
                     <p className="text-sm text-gray-600">Total Service Cost</p>
-                    <p className="text-xl font-bold text-[#4a2e21]">₹{service?.price}</p>
+                    <p className="text-xl font-bold text-[#112E40]">Rs. {service?.price}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Duration</p>
-                    <p className="text-sm text-[#4a2e21] font-medium">{service?.duration} mins</p>
+                    <p className="text-sm text-[#112E40] font-medium">{service?.duration} mins</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 p-4 rounded-lg border border-[#e5dcc7] bg-white">
+              <div className="mt-4 p-4 rounded-lg border border-[#DDE3E0] bg-white">
                 <label className="block text-sm text-gray-700 mb-2 flex items-center gap-2 font-medium">
-                  <FaCalendarAlt className="text-[#6F4E37]" /> Choose date
+                  <FaCalendarAlt className="text-[#127373]" /> Choose date
                 </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#6F4E37]"
+                  className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#127373]"
                 />
               </div>
             </div>
 
             <div className="md:flex-1 mt-6 md:mt-0">
-              <h3 className="text-sm font-semibold text-[#4a2e21] mb-3 flex items-center gap-2">
-                <FaClock className="text-[#6F4E37]" /> Available slots
+              <h3 className="text-sm font-semibold text-[#112E40] mb-3 flex items-center gap-2">
+                <FaClock className="text-[#127373]" /> Available slots
               </h3>
 
               {slotsLoading ? (
                 <div className="py-12 flex justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6F4E37]"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#127373]"></div>
                 </div>
               ) : slots.length === 0 ? (
                 <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
@@ -543,8 +543,8 @@ export default function BookServicePage() {
                       disabled={!s.available}
                       className={`px-3 py-3 rounded-lg text-xs sm:text-sm border transition-all flex flex-col items-center justify-center gap-1 ${s.available
                         ? selectedSlot?.time === s.time
-                          ? "bg-[#6F4E37] text-white border-[#5A3F2E] shadow-md transform scale-105"
-                          : "bg-white text-[#4a2e21] border-[#e5dcc7] hover:bg-[#f6efe1]"
+                          ? "bg-[#127373] text-white border-[#0E6363] shadow-md transform scale-105"
+                          : "bg-white text-[#112E40] border-[#DDE3E0] hover:bg-[#f6efe1]"
                         : "bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
                         }`}
                     >
@@ -556,8 +556,8 @@ export default function BookServicePage() {
               )}
 
 
-              <div className="mt-6 bg-[#fcfbf9] p-5 rounded-xl border border-[#e5dcc7]">
-                <h4 className="font-semibold text-[#4a2e21] mb-4 flex items-center gap-2">
+              <div className="mt-6 bg-[#fcfbf9] p-5 rounded-xl border border-[#DDE3E0]">
+                <h4 className="font-semibold text-[#112E40] mb-4 flex items-center gap-2">
                   <FaMoneyBillWave /> Payment Breakdown
                 </h4>
 
@@ -565,24 +565,24 @@ export default function BookServicePage() {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>Service Cost</span>
-                      <span>₹{service?.price}</span>
+                      <span>Rs. {service?.price}</span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>Platform Fee</span>
-                      <span>₹{PLATFORM_FEE}</span>
+                      <span>Rs. {PLATFORM_FEE}</span>
                     </div>
                     <div className="border-t border-dashed border-gray-300 my-2"></div>
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-base font-bold text-[#4a2e21] block">To Pay Now</span>
-                        <span className="text-[10px] text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 font-medium">Refundable Booking Fee</span>
+                        <span className="text-base font-bold text-[#112E40] block">To Pay Now</span>
+                        <span className="text-[10px] text-[#8A6E00] bg-[#FFF8E1] px-2 py-0.5 rounded-full border border-[#E8A324]/30 font-bold tracking-wide">✓ Refundable & Trusted</span>
                       </div>
-                      <span className="text-xl font-bold text-[#4a2e21]">₹{BOOKING_FEE}</span>
+                      <span className="text-xl font-bold text-[#112E40]">Rs. {BOOKING_FEE}</span>
                     </div>
 
                     <button
                       onClick={handleInitiatePayment}
-                      className="w-full mt-4 bg-[#6F4E37] text-white py-3 rounded-xl font-bold shadow-lg hover:bg-[#5A3F2E] transition-all transform active:scale-95 flex items-center justify-center gap-2"
+                      className="w-full mt-4 bg-[#127373] text-white py-3 rounded-xl font-bold shadow-lg hover:bg-[#0E6363] transition-all transform active:scale-95 flex items-center justify-center gap-2"
                     >
                       <span>Proceed to Pay</span>
                       <FaArrowLeft className="rotate-180" size={12} />

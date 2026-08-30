@@ -1,13 +1,14 @@
-const prisma = require("../utils/db");
+﻿const prisma = require("../utils/db");
 const { generateToken } = require("../utils/jwt");
 
 exports.becomeProvider = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { aadharNumber } = req.body;
+    const { citizenshipNumber, aadharNumber } = req.body;
+    const idNumber = citizenshipNumber || aadharNumber;
 
-    if (!aadharNumber) {
-      return res.status(400).json({ message: "Aadhaar number is required" });
+    if (!idNumber) {
+      return res.status(400).json({ message: "Citizenship number is required" });
     }
 
     let profile = await prisma.providerProfile.findUnique({ where: { userId } });
@@ -36,7 +37,7 @@ exports.becomeProvider = async (req, res) => {
       profile = await prisma.providerProfile.update({
         where: { userId },
         data: {
-          aadharNumber,
+          aadharNumber: idNumber,
           applicationStatus: "PENDING",
           rejectionDate: null
         }
@@ -45,7 +46,7 @@ exports.becomeProvider = async (req, res) => {
       profile = await prisma.providerProfile.create({
         data: {
           userId,
-          aadharNumber,
+          aadharNumber: idNumber,
           applicationStatus: "PENDING",
           isAvailable: true,
           schedule: {

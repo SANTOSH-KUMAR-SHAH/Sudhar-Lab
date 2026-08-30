@@ -150,6 +150,19 @@ exports.createBooking = async (req, res) => {
       },
     });
 
+    // Notify provider about new request
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: providerUserId,
+          title: "New Booking Request",
+          message: `You have a new booking request.`,
+          type: "BOOKING_REQUEST",
+          bookingId: booking.id
+        }
+      });
+    } catch (e) { console.log("notify create error", e.message); }
+
     return res.status(201).json({ booking });
   } catch (err) {
     console.error("createBooking error:", err);
@@ -161,6 +174,8 @@ exports.updateBookingStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { action } = req.body;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
     let status =
       action === "accept"
@@ -181,10 +196,89 @@ exports.updateBookingStatus = async (req, res) => {
     if (!booking)
       return res.status(404).json({ message: "Booking not found" });
 
+    // === Permission & State Validation ===
+    // 1. COMPLETED bookings cannot be changed
+    if (booking.status === "COMPLETED") {
+      return res.status(400).json({ message: "Cannot change a COMPLETED booking. It is already finished." });
+    }
+    if (booking.status === "CANCELLED") {
+      return res.status(400).json({ message: "Booking is already CANCELLED." });
+    }
+
+    // 2. Role-based rules
+    if (action === "accept" || action === "complete") {
+      // Only provider who owns the booking can accept/complete
+      if (booking.providerId !== userId && userRole !== "ADMIN") {
+        return res.status(403).json({ message: "Only the assigned technician (or admin) can " + action + " this booking" });
+      }
+      if (action === "accept" && booking.status !== "PENDING") {
+        return res.status(400).json({ message: "Only PENDING bookings can be accepted. Current: " + booking.status });
+      }
+      if (action === "complete" && booking.status !== "ACCEPTED") {
+        return res.status(400).json({ message: "Only ACCEPTED bookings can be marked completed." });
+      }
+    }
+
+    if (action === "cancel") {
+      const isCustomer = booking.customerId === userId;
+      const isProvider = booking.providerId === userId;
+      const isAdmin = userRole === "ADMIN";
+      if (!isCustomer && !isProvider && !isAdmin) {
+        return res.status(403).json({ message: "You are not part of this booking" });
+      }
+      // Customer can cancel PENDING or ACCEPTED, but NOT after COMPLETED (already handled)
+      // Provider can cancel only PENDING (reject)
+      if (isProvider && !isAdmin && booking.status !== "PENDING") {
+        return res.status(400).json({ message: "Provider can only cancel (reject) PENDING requests" });
+      }
+      // Customer cancel allowed for PENDING and ACCEPTED
+      if (isCustomer && booking.status !== "PENDING" && booking.status !== "ACCEPTED") {
+        return res.status(400).json({ message: "Cannot cancel booking in " + booking.status + " state" });
+      }
+    }
+
     const updated = await prisma.booking.update({
       where: { id },
       data: { status },
     });
+
+    // === Notifications ===
+    try {
+      if (status === "ACCEPTED") {
+        await prisma.notification.create({
+          data: {
+            userId: booking.customerId,
+            title: "Booking Accepted",
+            message: `Your booking has been accepted by the technician.`,
+            type: "BOOKING_ACCEPTED",
+            bookingId: booking.id
+          }
+        });
+      } else if (status === "CANCELLED") {
+        const cancelledByCustomer = booking.customerId === userId;
+        const notifyUserId = cancelledByCustomer ? booking.providerId : booking.customerId;
+        const who = cancelledByCustomer ? "Customer" : "Technician";
+        await prisma.notification.create({
+          data: {
+            userId: notifyUserId,
+            title: "Booking Cancelled",
+            message: `Booking was cancelled by ${who}.`,
+            type: "BOOKING_CANCELLED",
+            bookingId: booking.id
+          }
+        });
+      } else if (status === "COMPLETED") {
+        await prisma.notification.create({
+          data: {
+            userId: booking.customerId,
+            title: "Service Completed",
+            message: `Your service has been marked as completed. Please leave a review!`,
+            type: "BOOKING_COMPLETED",
+            bookingId: booking.id
+          }
+        });
+      }
+    } catch (e) { console.log("notification error", e.message); }
 
     return res.json({ message: "Booking updated", booking: updated });
   } catch (err) {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -28,12 +28,12 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import Loading from "@/components/loading";
 
 const COFFEE = {
-    dark: "#6F4E37",
-    mid: "#7a5c49",
-    light: "#f1dfc9",
-    accent: "#A97155",
-    text: "#4a2e21",
-    cardBg: "#fdfcfa",
+    dark: "#127373",
+    mid: "#127373",
+    light: "#E8F2EE",
+    accent: "#127373",
+    text: "#112E40",
+    cardBg: "#FFFFFF",
 };
 
 export default function AdminDashboard() {
@@ -61,6 +61,7 @@ export default function AdminDashboard() {
     const [adminReviews, setAdminReviews] = useState([]);
 
     const [allUsers, setAllUsers] = useState([]);
+    const [allBookings, setAllBookings] = useState([]);
     const [activeTab, setActiveTab] = useState("pending");
     const [loading, setLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -70,6 +71,7 @@ export default function AdminDashboard() {
     const [providersPage, setProvidersPage] = useState(1);
     const [reportsPage, setReportsPage] = useState(1);
     const [reviewsPage, setReviewsPage] = useState(1);
+    const [bookingsPage, setBookingsPage] = useState(1);
     const PAGE_SIZE = 8;
 
 
@@ -89,6 +91,7 @@ export default function AdminDashboard() {
     useEffect(() => {
         fetchDashboardData();
         fetchAllUsers();
+        fetchAllBookings();
     }, []);
 
     const fetchDashboardData = async () => {
@@ -102,14 +105,18 @@ export default function AdminDashboard() {
 
             const headers = { Authorization: `Bearer ${token}` };
 
-            const [statsRes, appsRes, providersRes, reportsRes] = await Promise.all([
+            const results = await Promise.allSettled([
                 axios.get(`${URL}/api/count/admin-stats`, { headers }),
                 axios.get(`${URL}/api/admin/applications/pending`, { headers }),
                 axios.get(`${URL}/api/admin/providers`, { headers }),
                 axios.get(`${URL}/api/feedback/reports/admin`, { headers }),
             ]);
+            const [statsRes, appsRes, providersRes, reportsRes] = results.map(r => r.status === 'fulfilled' ? r.value : { data: {} });
+            if (results.some(r => r.status === 'rejected')) {
+                console.warn('Some admin endpoints failed, using fallback', results.filter(r => r.status === 'rejected').map(r => r.reason?.config?.url + ': ' + r.reason?.message));
+            }
 
-            const s = statsRes.data;
+            const s = statsRes.data || { users: { providers: 0, total: 0 }, providers: { pending: 0, online: 0 }, bookings: { active: 0, completed: 0 }, services: { total: 0 }, revenue: { total: 0 } };
 
             setStats({
                 totalProviders: s.users.providers,
@@ -128,8 +135,13 @@ export default function AdminDashboard() {
             setAdminReviews(reportsRes.data.reviews || []);
             setTimeout(() => generateChartData(), 100);
         } catch (err) {
-            console.error(err);
-            toast.error("Failed to load admin dashboard");
+            console.error(err.config?.url, err.message, err.response?.status);
+            if (err.message === "Network Error") {
+                toast.error("Backend offline - showing demo data");
+                setStats({ totalProviders: 4, totalUsers: 12, pendingApplications: 1, activeBookings: 3, onlineProviders: 2, totalServices: 6, completedBookings: 8, totalRevenue: 42500 });
+            } else {
+                toast.error("Failed to load admin dashboard");
+            }
             if (err.response?.status === 401 || err.response?.status === 403) {
                 router.push("/login");
             }
@@ -166,21 +178,21 @@ export default function AdminDashboard() {
     };
     const StatCard = ({ title, value, icon }) => {
         return (
-            <div className="bg-white rounded-xl shadow-sm border border-[#f1dfc9]/40 p-5
-                hover:shadow-md hover:border-[#A97155]/30 transition-all duration-200">
+            <div className="bg-white rounded-xl shadow-sm border border-[#E8F2EE]/40 p-5
+                hover:shadow-md hover:border-[#127373]/30 transition-all duration-200">
 
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-[#7a5a4a]/70 uppercase tracking-wide mb-2">
                             {title}
                         </p>
-                        <p className="text-2xl font-bold text-[#4a2e21] truncate">
+                        <p className="text-2xl font-bold text-[#112E40] truncate">
                             {value}
                         </p>
                     </div>
 
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#f1dfc9] to-[#e8d4b8] 
-                        flex items-center justify-center text-[#6F4E37] text-xl flex-shrink-0
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#E8F2EE] to-[#e8d4b8] 
+                        flex items-center justify-center text-[#127373] text-xl flex-shrink-0
                         shadow-sm">
                         {icon}
                     </div>
@@ -232,10 +244,33 @@ export default function AdminDashboard() {
     };
     const fetchAllUsers = async () => {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${URL}/api/admin/users`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        setAllUsers(response.data.users);
+        try {
+            const response = await axios.get(`${URL}/api/admin/users`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setAllUsers(response.data.users || []);
+        } catch (e) { console.error(e); }
+    };
+    const fetchAllBookings = async () => {
+        const token = localStorage.getItem("token");
+        try {
+            const response = await axios.get(`${URL}/api/admin/bookings/all`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setAllBookings(response.data.bookings || []);
+        } catch (e) { console.error(e); }
+    };
+    const handleBlockUnblock = async (userId, currentStatus) => {
+        const newStatus = currentStatus === "BLOCKED" ? "ACTIVE" : "BLOCKED";
+        const action = newStatus === "BLOCKED" ? "Block" : "Unblock";
+        if (!confirm(`${action} this user?`)) return;
+        try {
+            const token = localStorage.getItem("token");
+            await axios.patch(`${URL}/api/admin/users/${userId}/status`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
+            toast.success(`User ${newStatus === "BLOCKED" ? "blocked" : "unblocked"}`);
+            fetchAllUsers();
+            fetchAllBookings();
+        } catch (e) { toast.error(e.response?.data?.message || "Failed"); }
     };
     const handleRoleChange = (providerId, newRole) => {
         if (newRole === "CUSTOMER") {
@@ -320,7 +355,7 @@ export default function AdminDashboard() {
 
 
     return (
-        <div className="min-h-screen bg-[#ece9d8]">
+        <div className="min-h-screen bg-[#F4F5F0]">
             <ConfirmationModal
                 isOpen={modal.isOpen}
                 title={modal.title}
@@ -332,10 +367,10 @@ export default function AdminDashboard() {
 
 
             <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 px-4 py-3 flex items-center justify-between">
-                <h1 className="text-xl font-bold text-[#6F4E37]">Admin Panel</h1>
+                <h1 className="text-xl font-bold text-[#127373]">Admin Panel</h1>
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="text-[#6F4E37]"
+                    className="text-[#127373]"
                 >
                     <FaBars size={24} />
                 </button>
@@ -350,10 +385,10 @@ export default function AdminDashboard() {
                         }`}
                 >
                     <div className="mb-8 text-center mt-8 lg:mt-0">
-                        <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center border-4 bg-[#f1dfc9]">
-                            <FaUserShield size={50} className="text-[#4a2e21]" />
+                        <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center border-4 bg-[#E8F2EE]">
+                            <FaUserShield size={50} className="text-[#112E40]" />
                         </div>
-                        <p className="mt-4 font-bold text-lg text-[#4a2e21]">Administrator</p>
+                        <p className="mt-4 font-bold text-lg text-[#112E40]">Administrator</p>
                         <p className="text-xs text-gray-400 uppercase tracking-widest mt-1">
                             Super User
                         </p>
@@ -366,7 +401,7 @@ export default function AdminDashboard() {
                                 setSidebarOpen(false);
                             }}
                             className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "pending"
-                                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                                 : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
@@ -380,7 +415,7 @@ export default function AdminDashboard() {
                                 setSidebarOpen(false);
                             }}
                             className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "providers"
-                                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                                 : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
@@ -393,12 +428,25 @@ export default function AdminDashboard() {
                                 setSidebarOpen(false);
                             }}
                             className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "users"
-                                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                                 : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
                             <FaUsers />
-                            Customers
+                            All Users (Block)
+                        </button>
+                        <button
+                            onClick={() => {
+                                setActiveTab("bookings");
+                                setSidebarOpen(false);
+                            }}
+                            className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "bookings"
+                                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
+                                : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                        >
+                            <FaCalendarCheck />
+                            All Bookings
                         </button>
                         <button
                             onClick={() => {
@@ -406,7 +454,7 @@ export default function AdminDashboard() {
                                 setSidebarOpen(false);
                             }}
                             className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "stats"
-                                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                                 : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
@@ -429,7 +477,7 @@ export default function AdminDashboard() {
                                 setSidebarOpen(false);
                             }}
                             className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg ${activeTab === "reports"
-                                ? "bg-[#f1dfc9] text-[#4a2e21] font-semibold"
+                                ? "bg-[#E8F2EE] text-[#112E40] font-semibold"
                                 : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
@@ -457,15 +505,15 @@ export default function AdminDashboard() {
 
                         <StatCard title="Completed" value={stats.completedBookings} icon={<FaCalendarCheck />} />
 
-                        <StatCard title="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={<FaRupeeSign />} />
+                        <StatCard title="Total Revenue" value={`â‚¹${stats.totalRevenue.toLocaleString()}`} icon={<FaRupeeSign />} />
                     </div>
 
 
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden min-h-[500px]">
                         {activeTab === "pending" && (
                             <>
-                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa]">
-                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#FFFFFF]">
+                                    <h3 className="text-lg font-semibold text-[#112E40]">
                                         Pending Applications
                                     </h3>
                                     <span className="text-sm text-gray-500">
@@ -482,7 +530,7 @@ export default function AdminDashboard() {
                                     <>
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left">
-                                                <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                                <thead className="bg-[#F4F5F0] text-[#127373] text-xs uppercase tracking-wider">
                                                     <tr>
                                                         <th className="px-6 py-3 font-medium">Applicant</th>
                                                         <th className="px-6 py-3 font-medium">Contact</th>
@@ -536,14 +584,14 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={pendingPage === 1}
                                                 onClick={() => setPendingPage((p) => p - 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Previous
                                             </button>
                                             <button
                                                 disabled={pendingPage === pendingTotalPages}
                                                 onClick={() => setPendingPage((p) => p + 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Next
                                             </button>
@@ -555,8 +603,8 @@ export default function AdminDashboard() {
 
                         {activeTab === "providers" && (
                             <>
-                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa]">
-                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#FFFFFF]">
+                                    <h3 className="text-lg font-semibold text-[#112E40]">
                                         All Providers
                                     </h3>
                                     <span className="text-sm text-gray-500">
@@ -572,7 +620,7 @@ export default function AdminDashboard() {
                                     <>
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left">
-                                                <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                                <thead className="bg-[#F4F5F0] text-[#127373] text-xs uppercase tracking-wider">
                                                     <tr>
                                                         <th className="px-6 py-3 font-medium">Name</th>
                                                         <th className="px-6 py-3 font-medium">Email</th>
@@ -643,14 +691,14 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={providersPage === 1}
                                                 onClick={() => setProvidersPage((p) => p - 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Previous
                                             </button>
                                             <button
                                                 disabled={providersPage === providersTotalPages}
                                                 onClick={() => setProvidersPage((p) => p + 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Next
                                             </button>
@@ -662,8 +710,8 @@ export default function AdminDashboard() {
 
                         {activeTab === "reports" && (
                             <>
-                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa]">
-                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#FFFFFF]">
+                                    <h3 className="text-lg font-semibold text-[#112E40]">
                                         User Reports & Issues
                                     </h3>
                                 </div>
@@ -674,7 +722,7 @@ export default function AdminDashboard() {
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left">
-                                            <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                            <thead className="bg-[#F4F5F0] text-[#127373] text-xs uppercase tracking-wider">
                                                 <tr>
                                                     <th className="px-6 py-3 font-medium">Reporter</th>
                                                     <th className="px-6 py-3 font-medium">Against Provider</th>
@@ -707,7 +755,7 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={reportsPage === 1}
                                                 onClick={() => setReportsPage((p) => p - 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Previous
                                             </button>
@@ -717,7 +765,7 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={reportsPage === reportsTotalPages}
                                                 onClick={() => setReportsPage((p) => p + 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Next
                                             </button>
@@ -725,8 +773,8 @@ export default function AdminDashboard() {
                                     </div>
                                 )}
 
-                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa] mt-8">
-                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#FFFFFF] mt-8">
+                                    <h3 className="text-lg font-semibold text-[#112E40]">
                                         Recent Service Reviews
                                     </h3>
                                 </div>
@@ -737,7 +785,7 @@ export default function AdminDashboard() {
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left">
-                                            <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                            <thead className="bg-[#F4F5F0] text-[#127373] text-xs uppercase tracking-wider">
                                                 <tr>
                                                     <th className="px-6 py-3 font-medium">Customer</th>
                                                     <th className="px-6 py-3 font-medium">Provider</th>
@@ -760,7 +808,7 @@ export default function AdminDashboard() {
                                                             <span className="text-xs font-bold text-gray-500">{r.rating}/5</span>
                                                         </td>
                                                         <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={r.comment}>
-                                                            {r.comment || "—"}
+                                                            {r.comment || "â€”"}
                                                         </td>
                                                         <td className="px-6 py-4 text-gray-500 text-xs">
                                                             {new Date(r.createdAt).toLocaleDateString()}
@@ -775,7 +823,7 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={reviewsPage === 1}
                                                 onClick={() => setReviewsPage((p) => p - 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Previous
                                             </button>
@@ -785,7 +833,7 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={reviewsPage === reviewsTotalPages}
                                                 onClick={() => setReviewsPage((p) => p + 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Next
                                             </button>
@@ -798,10 +846,10 @@ export default function AdminDashboard() {
                         {activeTab === "stats" && (
                             <div className="p-4 sm:p-6 space-y-6 max-w-full overflow-hidden">
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                                    <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm">
+                                    <div className="bg-[#FFFFFF] rounded-xl border border-[#E8F2EE]/60 p-4 sm:p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
-                                            <FaUsers className="text-[#A97155]" />
-                                            <h3 className="text-base sm:text-lg font-semibold text-[#4a2e21]">Provider Status</h3>
+                                            <FaUsers className="text-[#127373]" />
+                                            <h3 className="text-base sm:text-lg font-semibold text-[#112E40]">Provider Status</h3>
                                         </div>
                                         <div className="flex items-center justify-center h-40 sm:h-48">
                                             <div className="relative w-40 h-40 sm:w-48 sm:h-48">
@@ -826,26 +874,26 @@ export default function AdminDashboard() {
                                                 })}
                                                 <div className="absolute inset-3 sm:inset-4 bg-white rounded-full flex items-center justify-center shadow-inner">
                                                     <div className="text-center">
-                                                        <p className="text-xl sm:text-2xl font-bold text-[#4a2e21]">{stats.totalProviders}</p>
-                                                        <p className="text-[10px] sm:text-xs text-[#7a5c49]">Total</p>
+                                                        <p className="text-xl sm:text-2xl font-bold text-[#112E40]">{stats.totalProviders}</p>
+                                                        <p className="text-[10px] sm:text-xs text-[#127373]">Total</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="mt-4 sm:mt-6 space-y-2">
-                                            <div className="flex items-center justify-between p-2 bg-[#f1dfc9]/20 rounded-lg">
+                                            <div className="flex items-center justify-between p-2 bg-[#E8F2EE]/20 rounded-lg">
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-3 h-3 rounded-full bg-[#01c852]" ></div>
-                                                    <span className="text-xs sm:text-sm text-[#7a5c49]">Online</span>
+                                                    <span className="text-xs sm:text-sm text-[#127373]">Online</span>
                                                 </div>
-                                                <span className="text-xs sm:text-sm font-semibold text-[#4a2e21]">{stats.onlineProviders}</span>
+                                                <span className="text-xs sm:text-sm font-semibold text-[#112E40]">{stats.onlineProviders}</span>
                                             </div>
-                                            <div className="flex items-center justify-between p-2 bg-[#f1dfc9]/20 rounded-lg">
+                                            <div className="flex items-center justify-between p-2 bg-[#E8F2EE]/20 rounded-lg">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-3 h-3 rounded-full bg-[#f1dfc9]" ></div>
-                                                    <span className="text-xs sm:text-sm text-[#7a5c49]">Offline</span>
+                                                    <div className="w-3 h-3 rounded-full bg-[#E8F2EE]" ></div>
+                                                    <span className="text-xs sm:text-sm text-[#127373]">Offline</span>
                                                 </div>
-                                                <span className="text-xs sm:text-sm font-semibold text-[#4a2e21]">{stats.totalProviders - stats.onlineProviders}</span>
+                                                <span className="text-xs sm:text-sm font-semibold text-[#112E40]">{stats.totalProviders - stats.onlineProviders}</span>
                                             </div>
 
 
@@ -853,65 +901,65 @@ export default function AdminDashboard() {
                                     </div>
 
 
-                                    <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm">
+                                    <div className="bg-[#FFFFFF] rounded-xl border border-[#E8F2EE]/60 p-4 sm:p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
-                                            <FaClipboardList className="text-[#A97155]" />
-                                            <h3 className="text-base sm:text-lg font-semibold text-[#4a2e21]">Quick Overview</h3>
+                                            <FaClipboardList className="text-[#127373]" />
+                                            <h3 className="text-base sm:text-lg font-semibold text-[#112E40]">Quick Overview</h3>
                                         </div>
                                         <div className="space-y-3">
-                                            <div className="flex items-center justify-between p-3 bg-[#f1dfc9]/30 rounded-lg border border-[#f1dfc9]/50 hover:bg-[#f1dfc9]/40 transition-colors">
+                                            <div className="flex items-center justify-between p-3 bg-[#E8F2EE]/30 rounded-lg border border-[#E8F2EE]/50 hover:bg-[#E8F2EE]/40 transition-colors">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-[#f1dfc9] flex items-center justify-center shrink-0">
-                                                        <FaClipboardList className="text-[#6F4E37]" />
+                                                    <div className="w-10 h-10 rounded-lg bg-[#E8F2EE] flex items-center justify-center shrink-0">
+                                                        <FaClipboardList className="text-[#127373]" />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-xs text-[#7a5c49] truncate">Pending Applications</p>
-                                                        <p className="text-lg sm:text-xl font-bold text-[#4a2e21]">{stats.pendingApplications}</p>
+                                                        <p className="text-xs text-[#127373] truncate">Pending Applications</p>
+                                                        <p className="text-lg sm:text-xl font-bold text-[#112E40]">{stats.pendingApplications}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between p-3 bg-[#f1dfc9]/30 rounded-lg border border-[#f1dfc9]/50 hover:bg-[#f1dfc9]/40 transition-colors">
+                                            <div className="flex items-center justify-between p-3 bg-[#E8F2EE]/30 rounded-lg border border-[#E8F2EE]/50 hover:bg-[#E8F2EE]/40 transition-colors">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-[#f1dfc9] flex items-center justify-center shrink-0">
-                                                        <FaRunning className="text-[#6F4E37]" />
+                                                    <div className="w-10 h-10 rounded-lg bg-[#E8F2EE] flex items-center justify-center shrink-0">
+                                                        <FaRunning className="text-[#127373]" />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-xs text-[#7a5c49] truncate">Active Bookings</p>
-                                                        <p className="text-lg sm:text-xl font-bold text-[#4a2e21]">{stats.activeBookings}</p>
+                                                        <p className="text-xs text-[#127373] truncate">Active Bookings</p>
+                                                        <p className="text-lg sm:text-xl font-bold text-[#112E40]">{stats.activeBookings}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between p-3 bg-[#f1dfc9]/30 rounded-lg border border-[#f1dfc9]/50 hover:bg-[#f1dfc9]/40 transition-colors">
+                                            <div className="flex items-center justify-between p-3 bg-[#E8F2EE]/30 rounded-lg border border-[#E8F2EE]/50 hover:bg-[#E8F2EE]/40 transition-colors">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-[#f1dfc9] flex items-center justify-center shrink-0">
-                                                        <FaCalendarCheck className="text-[#6F4E37]" />
+                                                    <div className="w-10 h-10 rounded-lg bg-[#E8F2EE] flex items-center justify-center shrink-0">
+                                                        <FaCalendarCheck className="text-[#127373]" />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-xs text-[#7a5c49] truncate">Completed Bookings</p>
-                                                        <p className="text-lg sm:text-xl font-bold text-[#4a2e21]">{stats.completedBookings}</p>
+                                                        <p className="text-xs text-[#127373] truncate">Completed Bookings</p>
+                                                        <p className="text-lg sm:text-xl font-bold text-[#112E40]">{stats.completedBookings}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between p-3 bg-[#f1dfc9]/30 rounded-lg border border-[#f1dfc9]/50 hover:bg-[#f1dfc9]/40 transition-colors">
+                                            <div className="flex items-center justify-between p-3 bg-[#E8F2EE]/30 rounded-lg border border-[#E8F2EE]/50 hover:bg-[#E8F2EE]/40 transition-colors">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-[#f1dfc9] flex items-center justify-center shrink-0">
+                                                    <div className="w-10 h-10 rounded-lg bg-[#E8F2EE] flex items-center justify-center shrink-0">
                                                         <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-xs text-[#7a5c49] truncate">Online Providers</p>
-                                                        <p className="text-lg sm:text-xl font-bold text-[#4a2e21]">{stats.onlineProviders}</p>
+                                                        <p className="text-xs text-[#127373] truncate">Online Providers</p>
+                                                        <p className="text-lg sm:text-xl font-bold text-[#112E40]">{stats.onlineProviders}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm">
+                                    <div className="bg-[#FFFFFF] rounded-xl border border-[#E8F2EE]/60 p-4 sm:p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
-                                            <FaChartLine className="text-[#A97155]" />
-                                            <h3 className="text-base sm:text-lg font-semibold text-[#4a2e21]">
+                                            <FaChartLine className="text-[#127373]" />
+                                            <h3 className="text-base sm:text-lg font-semibold text-[#112E40]">
                                                 Bookings Trend
                                             </h3>
                                         </div>
@@ -920,34 +968,34 @@ export default function AdminDashboard() {
                                             {chartData.bookingsTrend.map((item, idx) => (
                                                 <div key={idx} className="space-y-2">
 
-                                                    <div className="text-sm font-semibold text-[#7a5c49]">
+                                                    <div className="text-sm font-semibold text-[#127373]">
                                                         {item.month}
                                                     </div>
 
 
                                                     <div className="flex items-center gap-3">
-                                                        <span className="text-xs w-20 text-[#7a5c49]">Active</span>
-                                                        <div className="flex-1 h-3 bg-[#f1dfc9]/40 rounded-full overflow-hidden">
+                                                        <span className="text-xs w-20 text-[#127373]">Active</span>
+                                                        <div className="flex-1 h-3 bg-[#E8F2EE]/40 rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full bg-[#A97155] rounded-full transition-all"
+                                                                className="h-full bg-[#127373] rounded-full transition-all"
                                                                 style={{ width: `${Math.min((item.active / maxActive) * 100, 100)}%` }}
                                                             />
                                                         </div>
-                                                        <span className="text-xs w-8 text-right font-semibold text-[#4a2e21]">
+                                                        <span className="text-xs w-8 text-right font-semibold text-[#112E40]">
                                                             {item.active}
                                                         </span>
                                                     </div>
 
 
                                                     <div className="flex items-center gap-3">
-                                                        <span className="text-xs w-20 text-[#7a5c49]">Completed</span>
-                                                        <div className="flex-1 h-3 bg-[#f1dfc9]/40 rounded-full overflow-hidden">
+                                                        <span className="text-xs w-20 text-[#127373]">Completed</span>
+                                                        <div className="flex-1 h-3 bg-[#E8F2EE]/40 rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full bg-[#6F4E37] rounded-full transition-all"
+                                                                className="h-full bg-[#127373] rounded-full transition-all"
                                                                 style={{ width: `${Math.min((item.completed / maxCompleted) * 100, 100)}%` }}
                                                             />
                                                         </div>
-                                                        <span className="text-xs w-8 text-right font-semibold text-[#4a2e21]">
+                                                        <span className="text-xs w-8 text-right font-semibold text-[#112E40]">
                                                             {item.completed}
                                                         </span>
                                                     </div>
@@ -957,38 +1005,38 @@ export default function AdminDashboard() {
 
                                         <div className="flex gap-4 mt-4 justify-center flex-wrap">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 bg-[#A97155] rounded"></div>
-                                                <span className="text-xs text-[#7a5c49]">Active</span>
+                                                <div className="w-3 h-3 bg-[#127373] rounded"></div>
+                                                <span className="text-xs text-[#127373]">Active</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 bg-[#6F4E37] rounded"></div>
-                                                <span className="text-xs text-[#7a5c49]">Completed</span>
+                                                <div className="w-3 h-3 bg-[#127373] rounded"></div>
+                                                <span className="text-xs text-[#127373]">Completed</span>
                                             </div>
                                         </div>
                                     </div>
 
 
-                                    <div className="bg-[#fdfcfa] rounded-xl border border-[#f1dfc9]/60 p-4 sm:p-6 shadow-sm flex flex-col">
+                                    <div className="bg-[#FFFFFF] rounded-xl border border-[#E8F2EE]/60 p-4 sm:p-6 shadow-sm flex flex-col">
                                         <div className="flex items-center gap-2 mb-3">
-                                            <FaChartBar className="text-[#A97155]" />
-                                            <h3 className="text-base sm:text-lg font-semibold text-[#4a2e21]">Revenue Trend</h3>
+                                            <FaChartBar className="text-[#127373]" />
+                                            <h3 className="text-base sm:text-lg font-semibold text-[#112E40]">Revenue Trend</h3>
                                         </div>
                                         <div className="grid grid-cols-3 gap-3 mb-4">
-                                            <div className="bg-[#f1dfc9]/30 rounded-lg p-3 border border-[#f1dfc9]/50">
-                                                <p className="text-[10px] text-[#7a5c49] mb-1">Total Revenue</p>
-                                                <p className="text-base sm:text-lg font-bold text-[#4a2e21]">
-                                                    ₹{chartData.revenueByMonth.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}
+                                            <div className="bg-[#E8F2EE]/30 rounded-lg p-3 border border-[#E8F2EE]/50">
+                                                <p className="text-[10px] text-[#127373] mb-1">Total Revenue</p>
+                                                <p className="text-base sm:text-lg font-bold text-[#112E40]">
+                                                    â‚¹{chartData.revenueByMonth.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}
                                                 </p>
                                             </div>
-                                            <div className="bg-[#f1dfc9]/30 rounded-lg p-3 border border-[#f1dfc9]/50">
-                                                <p className="text-[10px] text-[#7a5c49] mb-1">Avg/Month</p>
-                                                <p className="text-base sm:text-lg font-bold text-[#4a2e21]">
-                                                    ₹{Math.round(chartData.revenueByMonth.reduce((sum, item) => sum + item.revenue, 0) / chartData.revenueByMonth.length).toLocaleString()}
+                                            <div className="bg-[#E8F2EE]/30 rounded-lg p-3 border border-[#E8F2EE]/50">
+                                                <p className="text-[10px] text-[#127373] mb-1">Avg/Month</p>
+                                                <p className="text-base sm:text-lg font-bold text-[#112E40]">
+                                                    â‚¹{Math.round(chartData.revenueByMonth.reduce((sum, item) => sum + item.revenue, 0) / chartData.revenueByMonth.length).toLocaleString()}
                                                 </p>
                                             </div>
-                                            <div className="bg-[#f1dfc9]/30 rounded-lg p-3 border border-[#f1dfc9]/50">
-                                                <p className="text-[10px] text-[#7a5c49] mb-1">Peak Month</p>
-                                                <p className="text-base sm:text-lg font-bold text-[#4a2e21]">
+                                            <div className="bg-[#E8F2EE]/30 rounded-lg p-3 border border-[#E8F2EE]/50">
+                                                <p className="text-[10px] text-[#127373] mb-1">Peak Month</p>
+                                                <p className="text-base sm:text-lg font-bold text-[#112E40]">
                                                     {chartData.revenueByMonth.reduce((max, item) => item.revenue > max.revenue ? item : max, chartData.revenueByMonth[0]).month}
                                                 </p>
                                             </div>
@@ -1000,21 +1048,21 @@ export default function AdminDashboard() {
                                                 return (
                                                     <div key={idx} className="flex-1 flex flex-col items-center gap-1 min-w-[40px] max-w-[70px] h-full justify-end">
 
-                                                        <span className="text-[9px] sm:text-[10px] font-semibold text-[#4a2e21] whitespace-nowrap mb-1">
-                                                            ₹{(item.revenue / 1000).toFixed(0)}k
+                                                        <span className="text-[9px] sm:text-[10px] font-semibold text-[#112E40] whitespace-nowrap mb-1">
+                                                            â‚¹{(item.revenue / 1000).toFixed(0)}k
                                                         </span>
 
 
                                                         <div className="w-full relative flex-1 flex items-end group">
-                                                            <div className="w-full bg-[#f1dfc9]/20 rounded-t-lg absolute inset-0 md:group-hover:bg-[#f1dfc9]/30 transition-colors"></div>
+                                                            <div className="w-full bg-[#E8F2EE]/20 rounded-t-lg absolute inset-0 md:group-hover:bg-[#E8F2EE]/30 transition-colors"></div>
                                                             <div
-                                                                className="w-full bg-gradient-to-t from-[#6F4E37] to-[#A97155] rounded-t-lg transition-all duration-500 ease-out hover:from-[#7a5c49] hover:to-[#b8846d] relative z-10"
+                                                                className="w-full bg-gradient-to-t from-[#127373] to-[#127373] rounded-t-lg transition-all duration-500 ease-out hover:from-[#127373] hover:to-[#b8846d] relative z-10"
                                                                 style={{ height: `${Math.max(heightPercent, 2)}%` }}
                                                             />
                                                         </div>
 
 
-                                                        <span className="text-[10px] sm:text-xs font-medium text-[#7a5c49] mt-2">{item.month}</span>
+                                                        <span className="text-[10px] sm:text-xs font-medium text-[#127373] mt-2">{item.month}</span>
                                                     </div>
                                                 );
                                             })}
@@ -1026,9 +1074,9 @@ export default function AdminDashboard() {
                         {activeTab === "users" && (
                             <>
 
-                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#fdfcfa]">
-                                    <h3 className="text-lg font-semibold text-[#4a2e21]">
-                                        Customers
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#FFFFFF]">
+                                    <h3 className="text-lg font-semibold text-[#112E40]">
+                                        All Users â€” Admin Power (Block/Unblock)
                                     </h3>
                                     <span className="text-sm text-gray-500">
                                         Page {usersPage} of {usersTotalPages || 1}
@@ -1043,11 +1091,13 @@ export default function AdminDashboard() {
                                     <>
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left">
-                                                <thead className="bg-[#f7f3eb] text-[#6F4E37] text-xs uppercase tracking-wider">
+                                                <thead className="bg-[#F4F5F0] text-[#127373] text-xs uppercase tracking-wider">
                                                     <tr>
                                                         <th className="px-6 py-3 font-medium">User</th>
                                                         <th className="px-6 py-3 font-medium">Email</th>
                                                         <th className="px-6 py-3 font-medium">Role</th>
+                                                        <th className="px-6 py-3 font-medium">Status</th>
+                                                        <th className="px-6 py-3 font-medium">Action</th>
                                                         <th className="px-6 py-3 font-medium">Joined</th>
                                                     </tr>
                                                 </thead>
@@ -1058,10 +1108,10 @@ export default function AdminDashboard() {
 
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-3">
-                                                                    <div className="w-8 h-8 rounded-full bg-[#f1dfc9] flex items-center justify-center text-[#4a2e21]">
+                                                                    <div className="w-8 h-8 rounded-full bg-[#E8F2EE] flex items-center justify-center text-[#112E40]">
                                                                         <FaUser />
                                                                     </div>
-                                                                    <span className="font-medium text-[#4a2e21]">
+                                                                    <span className="font-medium text-[#112E40]">
                                                                         {user.name}
                                                                     </span>
                                                                 </div>
@@ -1079,7 +1129,7 @@ export default function AdminDashboard() {
                                                                         ? "bg-purple-100 text-purple-700"
                                                                         : user.role === "PROVIDER"
                                                                             ? "bg-green-100 text-green-700"
-                                                                            : "bg-[#f1dfc9] text-[#4a2e21]"
+                                                                            : "bg-[#E8F2EE] text-[#112E40]"
                                                                         }`}
                                                                 >
                                                                     {user.role}
@@ -1090,6 +1140,23 @@ export default function AdminDashboard() {
 
 
 
+                                                            <td className="px-6 py-4">
+                                                                <span className={`text-xs font-bold px-2 py-1 rounded-full border ${user.status === "BLOCKED" ? "bg-red-100 text-red-700 border-red-200" : user.status === "SUSPENDED" ? "bg-orange-100 text-orange-700 border-orange-200" : "bg-green-100 text-green-700 border-green-200"}`}>
+                                                                    {user.status || "ACTIVE"}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                {user.role !== "ADMIN" ? (
+                                                                    <button
+                                                                        onClick={() => handleBlockUnblock(user.id, user.status)}
+                                                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition ${user.status === "BLOCKED" ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"}`}
+                                                                    >
+                                                                        {user.status === "BLOCKED" ? "Unblock" : "Block"}
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="text-xs text-gray-400">Protected</span>
+                                                                )}
+                                                            </td>
                                                             <td className="px-6 py-4 text-gray-500 text-xs">
                                                                 {new Date(user.createdAt).toLocaleDateString()}
                                                             </td>
@@ -1104,14 +1171,14 @@ export default function AdminDashboard() {
                                             <button
                                                 disabled={usersPage === 1}
                                                 onClick={() => setUsersPage((p) => p - 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Previous
                                             </button>
                                             <button
                                                 disabled={usersPage === usersTotalPages}
                                                 onClick={() => setUsersPage((p) => p + 1)}
-                                                className="px-4 py-2 rounded border text-[#4a2e21] hover:bg-[#4a2e21] hover:text-white disabled:opacity-40"
+                                                className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40"
                                             >
                                                 Next
                                             </button>
@@ -1122,6 +1189,84 @@ export default function AdminDashboard() {
                         )}
 
 
+                        {activeTab === "bookings" && (
+                            <>
+                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#FFFFFF]">
+                                    <h3 className="text-lg font-semibold text-[#112E40]">
+                                        All Bookings - Full Details (Admin Power)
+                                    </h3>
+                                    <span className="text-sm text-gray-500">
+                                        Page {bookingsPage} of {Math.ceil(allBookings.length / PAGE_SIZE) || 1} • Total {allBookings.length}
+                                    </span>
+                                </div>
+
+                                {allBookings.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        No bookings found.
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left">
+                                                <thead className="bg-[#F4F5F0] text-[#127373] text-xs uppercase tracking-wider">
+                                                    <tr>
+                                                        <th className="px-4 py-3 font-medium">Booking</th>
+                                                        <th className="px-4 py-3 font-medium">Customer</th>
+                                                        <th className="px-4 py-3 font-medium">Technician</th>
+                                                        <th className="px-4 py-3 font-medium">Service</th>
+                                                        <th className="px-4 py-3 font-medium">Amount</th>
+                                                        <th className="px-4 py-3 font-medium">Status</th>
+                                                        <th className="px-4 py-3 font-medium">Review</th>
+                                                        <th className="px-4 py-3 font-medium">Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100 text-sm">
+                                                    {allBookings.slice((bookingsPage - 1) * PAGE_SIZE, bookingsPage * PAGE_SIZE).map((b) => (
+                                                        <tr key={b.id} className="hover:bg-gray-50/50 transition">
+                                                            <td className="px-4 py-3 font-mono text-xs text-gray-600">{b.id.slice(0,8)}...</td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="font-medium text-[#112E40]">{b.customer?.name}</div>
+                                                                <div className="text-xs text-gray-500">{b.customer?.phone} • {b.customer?.email}</div>
+                                                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${b.customer?.status === "BLOCKED" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>{b.customer?.status || "ACTIVE"}</span>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="font-medium text-[#112E40]">{b.provider?.name}</div>
+                                                                <div className="text-xs text-gray-500">{b.provider?.phone}</div>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="text-sm text-[#112E40]">{b.service?.category?.name} {b.service?.subcategory?.name ? "• " + b.service.subcategory.name : ""}</div>
+                                                                <div className="text-xs text-gray-500">{b.service?.duration} min</div>
+                                                            </td>
+                                                            <td className="px-4 py-3 font-bold text-[#112E40]">?{b.amount}</td>
+                                                            <td className="px-4 py-3">
+                                                                <span className={`text-xs font-bold px-2 py-1 rounded-full ${b.status === "COMPLETED" ? "bg-green-100 text-green-700" : b.status === "CANCELLED" ? "bg-red-100 text-red-700" : b.status === "ACCEPTED" ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"}`}>
+                                                                    {b.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                {b.review ? (
+                                                                    <div className="flex items-center gap-1 text-yellow-500 text-xs">
+                                                                        <FaStar /> {b.review.rating}/5
+                                                                        <span className="text-gray-500 truncate max-w-[80px]">{b.review.comment || ""}</span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-xs text-gray-400">No review</span>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-xs text-gray-500">{new Date(b.createdAt).toLocaleDateString()}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className="flex justify-between items-center px-6 py-4 border-t">
+                                            <button disabled={bookingsPage === 1} onClick={() => setBookingsPage((p) => p - 1)} className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40">Previous</button>
+                                            <button disabled={bookingsPage === Math.ceil(allBookings.length / PAGE_SIZE)} onClick={() => setBookingsPage((p) => p + 1)} className="px-4 py-2 rounded border text-[#112E40] hover:bg-[#112E40] hover:text-white disabled:opacity-40">Next</button>
+                                        </div>
+                                    </>
+                                )}
+                            </>
+                        )}
                     </div>
                 </main>
             </div>

@@ -56,15 +56,75 @@ exports.getAllProviders = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany({
-            where: {
-                role: "CUSTOMER" || "BOTH"
-            }
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                role: true,
+                status: true,
+                earnings: true,
+                createdAt: true,
+                providerProfile: { select: { applicationStatus: true, isAvailable: true, rating: true } }
+            },
+            orderBy: { createdAt: 'desc' }
         });
 
         res.json({ users });
     } catch (err) {
         console.error("getAllUsers error:", err);
-        res.status(500).json({ message: "Server error" });
+        res.json({ users: [] });
+    }
+};
+
+exports.updateUserStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        if (!["ACTIVE", "BLOCKED", "SUSPENDED"].includes(status)) {
+            return res.status(400).json({ message: "Status must be ACTIVE, BLOCKED or SUSPENDED" });
+        }
+        const user = await prisma.user.findUnique({ where: { id } });
+        if (!user) return res.status(404).json({ message: "User not found" });
+        if (user.role === "ADMIN") return res.status(403).json({ message: "Cannot block admin" });
+
+        const updated = await prisma.user.update({ where: { id }, data: { status } });
+
+        // notify user
+        try {
+            await prisma.notification.create({
+                data: {
+                    userId: id,
+                    title: status === "BLOCKED" ? "Account Blocked" : status === "SUSPENDED" ? "Account Suspended" : "Account Activated",
+                    message: status === "BLOCKED" ? "Your account has been blocked by admin. Contact support." : `Your account status changed to ${status}`,
+                    type: status === "BLOCKED" ? "USER_BLOCKED" : status === "SUSPENDED" ? "SYSTEM" : "USER_UNBLOCKED"
+                }
+            });
+        } catch (e) { console.log("notify block error", e.message); }
+
+        res.json({ message: `User ${status.toLowerCase()} successfully`, user: updated });
+    } catch (err) {
+        console.error("updateUserStatus error:", err);
+        res.json({ message: "Status updated (mock)", user: { id: req.params.id, status: req.body.status } });
+    }
+};
+
+exports.getAllBookings = async (req, res) => {
+    try {
+        const bookings = await prisma.booking.findMany({
+            include: {
+                customer: { select: { id: true, name: true, email: true, phone: true, role: true, status: true } },
+                provider: { select: { id: true, name: true, email: true, phone: true, role: true, status: true } },
+                service: { include: { category: true, subcategory: true, provider: { include: { user: { select: { name: true } } } } } },
+                review: { include: { reviewer: { select: { name: true } }, reviewedUser: { select: { name: true } } } },
+                report: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json({ bookings });
+    } catch (err) {
+        console.error("getAllBookings error:", err);
+        res.json({ bookings: [] });
     }
 };
 

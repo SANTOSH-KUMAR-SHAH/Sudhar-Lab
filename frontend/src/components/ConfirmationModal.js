@@ -1,4 +1,4 @@
-
+﻿
 import React from "react";
 import { FaTimes, FaExclamationTriangle } from "react-icons/fa";
 
@@ -56,7 +56,7 @@ export default function ConfirmationModal({
                         }}
                         className={`px-4 py-2 rounded-lg text-white font-medium text-sm shadow-md transition-all transform active:scale-95 ${isDanger
                             ? 'bg-red-600 hover:bg-red-700 shadow-red-200'
-                            : 'bg-[#6F4E37] hover:bg-[#5a3f2c] shadow-[#6F4E37]/20'
+                            : 'bg-[#127373] hover:bg-[#5a3f2c] shadow-[#127373]/20'
                             }`}
                     >
                         {confirmText}

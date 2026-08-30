@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -67,13 +67,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ece9d8] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-[#e5dcc7] p-8">
+    <div className="min-h-screen bg-[#F4F5F0] flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-[#DDE3E0] p-8">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#f1dfc9] rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <FaServer className="text-2xl text-[#6F4E37]" />
+          <div className="w-16 h-16 bg-[#E8F2EE] rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <FaServer className="text-2xl text-[#127373]" />
           </div>
-          <h1 className="text-2xl font-bold text-[#4a2e21]">System Check</h1>
+          <h1 className="text-2xl font-bold text-[#112E40]">System Check</h1>
           <p className="text-gray-500 text-sm mt-1">
             Establishing secure connection...
           </p>
@@ -88,7 +88,7 @@ export default function Home() {
               className={`flex items-center p-3 rounded-lg border transition-colors ${step.status === "pending"
                 ? "border-transparent text-gray-400"
                 : step.status === "loading"
-                  ? "border-[#f1dfc9] bg-[#fffbf5] text-[#4a2e21]"
+                  ? "border-[#E8F2EE] bg-[#fffbf5] text-[#112E40]"
                   : step.status === "success"
                     ? "border-green-100 bg-green-50 text-green-800"
                     : "border-red-100 bg-red-50 text-red-800"
@@ -114,7 +114,7 @@ export default function Home() {
             <p className="text-red-600 text-sm mb-4">{error}</p>
             <button
               onClick={handleRetry}
-              className="px-6 py-2 bg-[#6F4E37] text-white rounded-lg hover:bg-[#5a3f2c] transition shadow-md"
+              className="px-6 py-2 bg-[#127373] text-white rounded-lg hover:bg-[#5a3f2c] transition shadow-md"
             >
               Retry Connection
             </button>
