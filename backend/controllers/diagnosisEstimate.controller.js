@@ -13,7 +13,12 @@ exports.addDiagnosis = async (req, res) => {
     const { findings, recommendedWork } = req.body;
     if (!findings?.trim()) return res.status(400).json({ message: "Diagnosis findings are required" });
     if (req.user.role !== "ADMIN" && found.request.technicianId !== req.user.id) return res.status(403).json({ message: "Only the assigned technician can diagnose" });
+    if (!["DIAGNOSING", "IN_PROGRESS"].includes(found.request.status)) return res.status(400).json({ message: "Diagnosis can only be recorded during diagnosis or repair" });
     const diagnosis = await prisma.diagnosis.upsert({ where: { requestId: req.params.id }, update: { findings: findings.trim(), recommendedWork }, create: { requestId: req.params.id, technicianId: req.user.id, findings: findings.trim(), recommendedWork } });
+    if (found.request.status === "DIAGNOSING") {
+      await prisma.serviceRequest.update({ where: { id: req.params.id }, data: { status: "IN_PROGRESS" } });
+      await prisma.serviceRequestStatusHistory.create({ data: { requestId: req.params.id, fromStatus: "DIAGNOSING", toStatus: "IN_PROGRESS", changedById: req.user.id, note: "Diagnosis recorded; repair can begin" } });
+    }
     res.status(201).json({ diagnosis });
   } catch (e) { res.status(500).json({ message: "Unable to save diagnosis" }); }
 };

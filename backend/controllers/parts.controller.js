@@ -1,7 +1,7 @@
 const prisma = require("../utils/db");
 
 async function authorized(id, user) {
-  const request = await prisma.serviceRequest.findUnique({ where: { id } });
+    const request = await prisma.serviceRequest.findUnique({ where: { id }, include: { estimate: true } });
   if (!request) return [null, [404, "Service request not found"]];
   if (user.role !== "ADMIN" && request.technicianId !== user.id) return [null, [403, "Only the assigned technician can manage parts"]];
   return [request, null];
@@ -23,6 +23,7 @@ exports.complete = async (req, res) => {
   try {
     const [request, error] = await authorized(req.params.id, req.user); if (error) return res.status(error[0]).json({ message: error[1] });
     if (request.status !== "IN_PROGRESS") return res.status(400).json({ message: "Only an in-progress repair can be completed" });
+    if (request.estimate && request.estimate.status !== "APPROVED") return res.status(400).json({ message: "Customer estimate approval is required before completion" });
     if (!req.body.workPerformed?.trim()) return res.status(400).json({ message: "Work performed is required" });
     const updated = await prisma.$transaction(async tx => {
       const result = await tx.serviceRequest.update({ where: { id: request.id }, data: { status: "COMPLETED", workPerformed: req.body.workPerformed.trim(), completedAt: new Date() } });
